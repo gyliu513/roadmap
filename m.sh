@@ -77,7 +77,8 @@ AAA
 AAA
     echo "</configuration>" >> /opt/hadoop-1.2.1/conf/mapred-site.xml
  
-    sed -i 's/localhost/$HADOOP_MASTER/' $HADOOP_CONF/conf/masters 
+    command="s/localhost/$HADOOP_MASTER/" 
+    sed -i $command $HADOOP_CONF/conf/masters 
     # config hadoop for dynamic refresh cluster info.
     touch -f /opt/hadoop-1.2.1/conf/datanode_allowlist
     touch -f /opt/hadoop-1.2.1/conf/tasktracker_allowlist
@@ -199,15 +200,6 @@ install_hadoop
 if [ "$?" != "0" ] ; then
    exit 99
 fi
- 
-config_hadoop
-if [ "$?" != "0" ] ; then
-    exit 99
-fi
-JobTraker=`echo "$HadoopMasterTier_HOSTNAMES:50030"`
-HDFS=`echo "$HadoopMasterTier_HOSTNAMES:50070"`
-LOG "JobTracker_url=$JobTraker"
-LOG "HDFS_url=$HDFS"
  
 LOG "End....."
  
