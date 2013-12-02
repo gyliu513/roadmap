@@ -18,9 +18,6 @@ install_hadoop()
         exit 1
     fi
     JDK_version=`ls /usr/java/ | grep jdk`
-    command="s#JAVA_HOME=.*\$#JAVA_HOME=/usr/java/$JDK_version#"
-    sed -i $command $HADOOP_CONF/conf/hadoop-env.sh
-    sed -i "s/^#.*JAVA_HOME=/ export JAVA_HOME=/" $HADOOP_CONF/conf/hadoop-env.sh
  
     echo "export JAVA_HOME=/usr/java/$JDK_version" >> /etc/profile
     echo "export JRE_HOME=/usr/java/$JDK_version/jre" >> /etc/profile
@@ -37,6 +34,9 @@ install_hadoop()
         LOG "Error installing Cloudera Hadoop"
         exit 1
     fi
+    command="s#JAVA_HOME=.*\$#JAVA_HOME=/usr/java/$JDK_version#"
+    sed -i $command $HADOOP_CONF/conf/hadoop-env.sh
+    sed -i "s/^#.*JAVA_HOME=/ export JAVA_HOME=/" $HADOOP_CONF/conf/hadoop-env.sh
     return 0
 }
  
@@ -141,13 +141,13 @@ add_slave_hostname()
 {
     local HADOOP_CONF=/opt/hadoop-1.2.1/
     local file=$1
-    if [ -f $HADOOP_CONF/${file}.temp ];then
-        rm -f $HADOOP_CONF/${file}.temp
+    if [ -f $HADOOP_CONF/conf/${file}.temp ];then
+        rm -f $HADOOP_CONF/conf/${file}.temp
     fi
-    mv $HADOOP_CONF/${file} $HADOOP_CONF/${file}.temp
+    mv $HADOOP_CONF/conf/${file} $HADOOP_CONF/conf/${file}.temp
     
     # config input file to add hostnames of all slaves.
-    config_file="$HADOOP_CONF/${file}"
+    config_file="$HADOOP_CONF/conf/${file}"
     slave_hostname=`echo $HadoopSlaveTier_HOSTNAMES | sed "s/;/ /g"`
     array_hostname=($slave_hostname)
     
