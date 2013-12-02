@@ -200,6 +200,11 @@ install_hadoop
 if [ "$?" != "0" ] ; then
    exit 99
 fi
+
+config_hadoop
+if [ "$?" != "0" ] ; then
+   exit 99
+fi
  
 LOG "End....."
  
