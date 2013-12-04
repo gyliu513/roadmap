@@ -180,10 +180,10 @@ HadoopMasterTier_IP_ADDRS=`ifconfig eth0 | grep "inet addr" | awk '{print $2}'| 
 HadoopMasterTier_HOSTNAMES=`hostname`
  
  
-#HadoopSlaveTier_IP_ADDRS=$1
 #HadoopSlaveTier_HOSTNAMES=$2
-HadoopSlaveTier_IP_ADDRS="1.1.1.1"
-HadoopSlaveTier_HOSTNAMES="host1"
+HadoopSlaveTier_IP_ADDRS=$1
+HadoopSlaveTier_HOSTNAMES=$2
+LOG "slave ip $HadoopSlaveTier_IP_ADDRS slave host name $HadoopSlaveTier_HOSTNAMES"
  
 LOG "PATH $PATH"
 PATH=$PATH:/usr/sbin
@@ -200,7 +200,7 @@ install_hadoop
 if [ "$?" != "0" ] ; then
    exit 99
 fi
-
+ 
 config_hadoop
 if [ "$?" != "0" ] ; then
    exit 99
