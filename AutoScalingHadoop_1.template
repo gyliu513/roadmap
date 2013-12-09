@@ -109,63 +109,64 @@
       }
     },
  
-     "BVTSecurityGroup": {
-            "Type": "AWS::EC2::SecurityGroup",
-            "Properties": {
-                "GroupDescription": "Standard firewall rules",
-                "SecurityGroupIngress": [
-                    {
-                        "IpProtocol": "tcp",
-                        "FromPort": "22",
-                        "ToPort": "22",
-                        "CidrIp": "0.0.0.0/0"
-                    },
-                    {
-                        "IpProtocol": "tcp",
-                        "FromPort": "80",
-                        "ToPort": "80",
-                        "CidrIp": "0.0.0.0/0"
-                    },
-                    {
-                        "IpProtocol": "tcp",
-                        "FromPort": "8775",
-                        "ToPort": "8775",
-                        "CidrIp": "0.0.0.0/0"
-                    }
-                ]
-            }
-        },
-        "Master": {
-            "Type": "AWS::EC2::Instance",
-            "Properties": {
-                "ImageId": {
-                    "Fn::FindInMap": [ "InstanceTypeToImage", {"Ref": "InstanceType"}, "Image" ]
-                },
-                "InstanceType": {"Ref": "InstanceType"},
-                "SecurityGroups": [
-                    {
-                        "Ref": "BVTSecurityGroup"
-                    }
-                ],
-                "KeyName": {"Ref": "KeyName"},
-                "UserData": {
-                    "Fn::Base64": {
-                        "Fn::Join": [
-                            "",
-                            [
-                                "#!/bin/bash -x\n",
-                                "export TERM=xterm\n",
-                                "service iptables stop\n",
-                                "sudo mkdir -p /hadoop_package\n",
-                                "sudo mount 192.168.32.1:/opt/drs/hadoop_package /hadoop_package\n",
-                                "cp /hadoop_package/hadoop_key.priv  /root/.ssh/id_rsa\n",
-                                "sh /hadoop_package/script.master.sh "
-                            ]
-                        ]
-                    }
-                }
-            }
-        },
+    "BVTSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+          "GroupDescription": "Standard firewall rules",
+          "SecurityGroupIngress": [
+                 {
+                     "IpProtocol": "tcp",
+                     "FromPort": "22",
+                     "ToPort": "22",
+                     "CidrIp": "0.0.0.0/0"
+                 },
+                 {
+                     "IpProtocol": "tcp",
+                     "FromPort": "80",
+                     "ToPort": "80",
+                     "CidrIp": "0.0.0.0/0"
+                 },
+                 {
+                     "IpProtocol": "tcp",
+                     "FromPort": "8775",
+                     "ToPort": "8775",
+                     "CidrIp": "0.0.0.0/0"
+                 }
+             ]
+      }
+    },
+ 
+    "Master": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+          "ImageId": {
+              "Fn::FindInMap": [ "InstanceTypeToImage", {"Ref": "InstanceType"}, "Image" ]
+          },
+          "InstanceType": {"Ref": "InstanceType"},
+          "SecurityGroups": [
+              {
+                 "Ref": "BVTSecurityGroup"
+              }
+          ],
+          "KeyName": {"Ref": "KeyName"},
+          "UserData": {
+              "Fn::Base64": {
+                  "Fn::Join": [
+                      "",
+                      [
+                          "#!/bin/bash -x\n",
+                          "export TERM=xterm\n",
+                          "service iptables stop\n",
+                          "sudo mkdir -p /hadoop_package\n",
+                          "sudo mount 192.168.32.1:/opt/drs/hadoop_package /hadoop_package\n",
+                          "cp /hadoop_package/hadoop_key.priv  /root/.ssh/id_rsa\n",
+                          "sh /hadoop_package/script.master.sh "
+                      ]
+                  ]
+              }
+          }
+      }
+    },
  
     "LaunchConfig" : {
       "Type" : "AWS::AutoScaling::LaunchConfiguration",
@@ -213,12 +214,19 @@
           "/opt/aws/bin/cfn-init -s ", { "Ref" : "AWS::StackName" },
           " -r LaunchConfig ",
           " --region ", { "Ref" : "AWS::Region" }, "\n",
-         "# install crontab\n",
+          "# install crontab\n",
           "crontab /tmp/stats-crontab.txt\n",
+          "export TERM=xterm\n",
+          "service iptables stop\n",
+          "sudo mkdir -p /hadoop_package\n",
+          "sudo mount 192.168.32.1:/opt/drs/hadoop_package /hadoop_package\n",
+          "cp /hadoop_package/hadoop_key.priv  /root/.ssh/id_rsa\n",
+          "yes | /hadoop_package/jdk-6u30-linux-x64-rpm.bin\n",
           " echo \"OK>>>>>>>>>\" >> /tmp/autoscale.txt"
         ]]}}
-      }
+      },
+ 
+      "DependsOn": "Master"
     }
   }
- 
 }
