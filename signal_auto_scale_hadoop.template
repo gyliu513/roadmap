@@ -21,52 +21,54 @@
   },
  
   "Mappings": {
-        "InstanceTypeToImage": {
-            "m1.small": {
-                "Image": "centos64-x86_64-cfntools"
-            }
-        }
-    },
+    "InstanceTypeToImage": {
+      "m1.small": {
+        "Image": "centos64-x86_64-cfntools"
+      }
+    }
+  },
  
   "Resources" : {
     "CfnUser" : {
       "Type" : "AWS::IAM::User"
     },
-    "WebServerKeys" : {
+ 
+    "HadoopSlaveKeys" : {
       "Type" : "AWS::IAM::AccessKey",
       "Properties" : {
         "UserName" : {"Ref": "CfnUser"}
       }
     },
  
-     "Master": {
+    "HadoopM": {
       "Type": "AWS::EC2::Instance",
       "Properties": {
-          "ImageId": {
-              "Fn::FindInMap": [ "InstanceTypeToImage", {"Ref": "InstanceType"}, "Image" ]
-          },
-          "InstanceType": {"Ref": "InstanceType"},
-          "KeyName": {"Ref": "KeyName"},
-          "UserData": {
-              "Fn::Base64": {
-                  "Fn::Join": [
-                      "",
-                      [
-                          "#!/bin/bash -x\n",
-                          "export TERM=xterm\n",
-                          "service iptables stop\n",
-                          "echo \"dsfdsfdsf\" >> /tmp/master.log\n",
-                          "sudo mkdir -p /hadoop_package\n",
-                          "sudo mount 192.168.32.1:/opt/drs/hadoop_package /hadoop_package\n",
-                          "cp /hadoop_package/bvt.pem  /root/.ssh/id_rsa\n",
-                          "sh /hadoop_package/script.master.sh\n",
-                          "# All is well so signal success\n",
-                          "/opt/aws/bin/cfn-signal -e 0 -r \"Hadoop server setup complete\" '",
-                          { "Ref" : "HadoopMasterWaitHandle" }, "'\n"
-                      ]
-                  ]
-              }
+        "ImageId": {
+            "Fn::FindInMap": [ "InstanceTypeToImage", {"Ref": "InstanceType"}, "Image" ]
+        },
+        "InstanceType": {"Ref": "InstanceType"},
+        "KeyName": {"Ref": "KeyName"},
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#!/bin/bash -x\n",
+                "export TERM=xterm\n",
+                "service iptables stop\n",
+                "echo \"dsfdsfdsf\" >> /tmp/master.log\n",
+                "sudo mkdir -p /hadoop_package\n",
+                "sudo mount 192.168.32.1:/opt/drs/hadoop_package /hadoop_package\n",
+                "cp /hadoop_package/bvt.pem  /root/.ssh/id_rsa\n",
+                "sh /hadoop_package/script.master.sh\n",
+                "sh /opt/hadoop-1.2.1/bin/start-all.sh\n",
+                "# All is well so signal success\n",
+                "/opt/aws/bin/cfn-signal -e 0 -r \"Hadoop server setup complete\" '",
+                { "Ref" : "HadoopMasterWaitHandle" }, "'\n"
+              ]
+            ]
           }
+        }
       }
     },
  
@@ -76,14 +78,14 @@
  
     "HadoopMasterWaitCondition" : {
       "Type" : "AWS::CloudFormation::WaitCondition",
-      "DependsOn" : "Master",
+      "DependsOn" : "HadoopM",
       "Properties" : {
         "Handle" : {"Ref" : "HadoopMasterWaitHandle"},
         "Timeout" : "6000"
       }
     },
  
-    "WebServerGroup" : {
+    "HadoopSGroup" : {
       "Type" : "AWS::AutoScaling::AutoScalingGroup",
       "Properties" : {
         "AvailabilityZones" : ["nova"],
@@ -94,22 +96,22 @@
       "DependsOn": "HadoopMasterWaitCondition"
     },
  
-    "WebServerScaleUpPolicy" : {
+    "HadoopSlaveScaleUpPolicy" : {
       "Type" : "AWS::AutoScaling::ScalingPolicy",
       "Properties" : {
         "AdjustmentType" : "ChangeInCapacity",
-        "AutoScalingGroupName" : { "Ref" : "WebServerGroup" },
+        "AutoScalingGroupName" : { "Ref" : "HadoopSGroup" },
         "Cooldown" : "60",
         "ScalingAdjustment" : "1"
       }
     },
  
-    "WebServerScaleDownPolicy" : {
+    "HadoopSlaveScaleDownPolicy" : {
       "Type" : "AWS::AutoScaling::ScalingPolicy",
       "Properties" : {
         "AdjustmentType" : "ChangeInCapacity",
-        "AutoScalingGroupName" : { "Ref" : "WebServerGroup" },
-        "Cooldown" : "60",
+        "AutoScalingGroupName" : { "Ref" : "HadoopSGroup" },
+        "Cooldown" : "6000000",
         "ScalingAdjustment" : "-1"
       }
     },
@@ -124,11 +126,11 @@
         "Period": "60",
         "EvaluationPeriods": "1",
         "Threshold": "2",
-        "AlarmActions": [ { "Ref": "WebServerScaleUpPolicy" } ],
+        "AlarmActions": [ { "Ref": "HadoopSlaveScaleUpPolicy" } ],
         "Dimensions": [
           {
             "Name": "AutoScalingGroupName",
-            "Value": { "Ref": "WebServerGroup" }
+            "Value": { "Ref": "HadoopSGroup" }
           }
         ],
         "ComparisonOperator": "GreaterThanThreshold"
@@ -141,14 +143,14 @@
         "MetricName": "MemoryUtilization",
         "Namespace": "system/linux",
         "Statistic": "Average",
-        "Period": "60",
+        "Period": "90",
         "EvaluationPeriods": "1",
-        "Threshold": "15",
-        "AlarmActions": [ { "Ref": "WebServerScaleDownPolicy" } ],
+        "Threshold": "30",
+        "AlarmActions": [ { "Ref": "HadoopSlaveScaleDownPolicy" } ],
         "Dimensions": [
           {
             "Name": "AutoScalingGroupName",
-            "Value": { "Ref": "WebServerGroup" }
+            "Value": { "Ref": "HadoopSGroup" }
           }
         ],
         "ComparisonOperator": "LessThanThreshold"
@@ -163,8 +165,8 @@
             "files" : {
               "/etc/cfn/cfn-credentials" : {
                 "content" : { "Fn::Join" : ["", [
-                  "AWSAccessKeyId=", { "Ref" : "WebServerKeys" }, "\n",
-                  "AWSSecretKey=", {"Fn::GetAtt": ["WebServerKeys",
+                  "AWSAccessKeyId=", { "Ref" : "HadoopSlaveKeys" }, "\n",
+                  "AWSSecretKey=", {"Fn::GetAtt": ["HadoopSlaveKeys",
                                     "SecretAccessKey"]}, "\n"
                 ]]},
                 "mode"    : "000400",
@@ -192,7 +194,7 @@
       "Properties": {
         "ImageId": {
                     "Fn::FindInMap": [ "InstanceTypeToImage", {"Ref": "InstanceType"}, "Image" ]
-                },
+        },
         "InstanceType": {"Ref": "InstanceType"},
         "KeyName": {"Ref": "KeyName"},
         "UserData"       : { "Fn::Base64" : { "Fn::Join" : ["", [
@@ -205,11 +207,16 @@
           "export TERM=xterm\n",
           "service iptables stop\n",
           "sudo mkdir -p /hadoop_package\n",
-          "cp /hadoop_package/bvt.pem  /root/.ssh/id_rsa\n",
+          "sudo mount 192.168.32.1:/opt/drs/hadoop_package /hadoop_package\n",
+          "cp /hadoop_package/bvt.pem  /root/.ssh/id_rsa\n", 
+          "yes | /hadoop_package/jdk-6u30-linux-x64-rpm.bin\n",
+          "scp  -o StrictHostKeyChecking=no -r ", {"Fn::GetAtt": ["HadoopM", "PublicIp"]}, ":/opt/hadoop-1.2.1 ", "/opt/\n",
+          "ssh -t ", {"Fn::GetAtt": ["HadoopM", "PublicIp"]}, "\" echo `hostname` >> /opt/hadoop-1.2.1/conf/slaves\"\n",
+          "/opt/hadoop-1.2.1/bin/hadoop-daemon.sh start datanode \n",
+          "/opt/hadoop-1.2.1/bin/hadoop-daemon.sh start tasktracker \n",
           "echo \"OK>>>>>>>>>\" >> /tmp/autoscale.txt"
         ]]}}
       }
- 
     }
   }
 }
