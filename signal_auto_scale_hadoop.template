@@ -91,7 +91,7 @@
         "AvailabilityZones" : ["nova"],
         "LaunchConfigurationName" : { "Ref" : "LaunchConfig" },
         "MinSize" : "1",
-        "MaxSize" : "3"
+        "MaxSize" : "5"
       },
       "DependsOn": "HadoopMasterWaitCondition"
     },
@@ -101,7 +101,7 @@
       "Properties" : {
         "AdjustmentType" : "ChangeInCapacity",
         "AutoScalingGroupName" : { "Ref" : "HadoopSGroup" },
-        "Cooldown" : "60",
+        "Cooldown" : "30",
         "ScalingAdjustment" : "1"
       }
     },
@@ -111,7 +111,7 @@
       "Properties" : {
         "AdjustmentType" : "ChangeInCapacity",
         "AutoScalingGroupName" : { "Ref" : "HadoopSGroup" },
-        "Cooldown" : "6000000",
+        "Cooldown" : "30",
         "ScalingAdjustment" : "-1"
       }
     },
@@ -123,7 +123,7 @@
         "MetricName": "MemoryUtilization",
         "Namespace": "system/linux",
         "Statistic": "Average",
-        "Period": "60",
+        "Period": "30",
         "EvaluationPeriods": "1",
         "Threshold": "2",
         "AlarmActions": [ { "Ref": "HadoopSlaveScaleUpPolicy" } ],
@@ -143,7 +143,7 @@
         "MetricName": "MemoryUtilization",
         "Namespace": "system/linux",
         "Statistic": "Average",
-        "Period": "90",
+        "Period": "600",
         "EvaluationPeriods": "1",
         "Threshold": "30",
         "AlarmActions": [ { "Ref": "HadoopSlaveScaleDownPolicy" } ],
