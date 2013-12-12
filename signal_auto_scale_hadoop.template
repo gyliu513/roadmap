@@ -211,7 +211,7 @@
           "cp /hadoop_package/bvt.pem  /root/.ssh/id_rsa\n", 
           "yes | /hadoop_package/jdk-6u30-linux-x64-rpm.bin\n",
           "scp  -o StrictHostKeyChecking=no -r ", {"Fn::GetAtt": ["HadoopM", "PublicIp"]}, ":/opt/hadoop-1.2.1 ", "/opt/\n",
-          "ssh -t ", {"Fn::GetAtt": ["HadoopM", "PublicIp"]}, "\" echo `hostname` >> /opt/hadoop-1.2.1/conf/slaves\"\n",
+          "ssh -t ", {"Fn::GetAtt": ["HadoopM", "PublicIp"]}, " \" echo `hostname` >> /opt/hadoop-1.2.1/conf/slaves\"\n",
           "/opt/hadoop-1.2.1/bin/hadoop-daemon.sh start datanode \n",
           "/opt/hadoop-1.2.1/bin/hadoop-daemon.sh start tasktracker \n",
           "echo \"OK>>>>>>>>>\" >> /tmp/autoscale.txt"
