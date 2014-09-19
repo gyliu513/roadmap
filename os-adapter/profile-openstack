@@ -1,0 +1,16 @@
+# EC2 Profile variables
+
+export RI_OPENSTACK_RG=OPENSTACK-RG
+export RI_OPENSTACK_NOVACONTROLLER=172.17.27.11
+export RI_OPENSTACK_USERNAME=admin
+export RI_OPENSTACK_PASSWORD=nova
+export RI_OPENSTACK_DB=172.17.27.11
+export RI_OPENSTACK_DBUSERNAME=root
+export RI_OPENSTACK_DBPASSWORD=nova
+
+export JAVA_HOME=/opt/gyliu/ae0607/jre/linux-x86_64
+
+export RI_OPENSTACK_CMDS=/usr/bin/
+export PATH=$PATH:$RI_OPENSTACK_CMDS
+
+

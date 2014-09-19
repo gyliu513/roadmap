@@ -1,0 +1,16 @@
+{
+    "AWSTemplateFormatVersion" : "2010-09-09",
+
+    "Description" : "AWS CloudFormation Sample Template WordPress_Single_Instance: WordPress is web software you can use to create a beautiful website or blog. This template installs a single-instance WordPress deployment using a local MySQL database to store the data.",
+
+    "Resources" : {
+        "gyliu1": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "ImageId" : "cirros-0.3.2-x86_64-uec", 
+                "InstanceType" : "m1.small",
+                "KeyName" : "demo"
+            }
+        }
+    }
+}

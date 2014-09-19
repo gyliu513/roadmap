@@ -1,0 +1,52 @@
+heat_template_version: 2013-05-23
+
+description: >
+  Dockerize a multi-node application with OpenStack Heat.
+  This template defines two docker containers running
+  apache with php and mysql database.
+
+parameters:
+  key:
+    type: string
+    description: >
+      Name of a KeyPair to enable SSH access to the instance. Note that the
+      default user is ec2-user.
+    default: key1
+
+  flavor:
+    type: string
+    description: Instance type for the docker server.
+    default: m1.medium
+
+  image:
+    type: string
+    description: >
+      Name or ID of the image to use for the Docker server.  This needs to be
+      built with os-collect-config tools from a fedora base image.
+    default: fedora-software-config
+
+resources:
+  mysql:
+    type: DockerInc::Docker::Container
+    properties:
+      image: marouen/mysql
+      port_specs:
+        - 3306
+      docker_endpoint: 'tcp://127.0.0.1:3128'
+
+  apache:
+    type: DockerInc::Docker::Container
+    properties:
+      image: marouen/apache
+      port_specs:
+        - 80
+      docker_endpoint: 'tcp://127.0.0.1:3128'
+
+outputs:
+  url:
+    description: Public address of apache
+    value:
+      str_replace:
+        template: http://host
+        params:
+          host: "9.111.242.59"

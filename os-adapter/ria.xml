@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--$Id: ria.xml,v 1.1.2.3 2012/06/15 14:38:12 gyliu Exp $-->
+<Adapter id="8">
+     <!-- Enable this adapter by setting: true -->
+    <Enabled>true</Enabled>
+
+     <!-- Adapter Instance Definition -->
+    <Name>OPENSTACK</Name>
+    <Description>IBM OpenStack</Description>
+    <Type>OPENSTACK</Type>
+    <Version>3.0</Version>
+
+    <ParamList>
+         <Param id="RI_OPENSTACK_RG" value="OPENSTACK-RG"/>
+         <Param id="RI_OPENSTACK_NOVACONTROLLER" value="172.17.27.11"/>
+         <Param id="RI_OPENSTACK_USERNAME" value="admin"/>
+         <Param id="RI_OPENSTACK_PASSWORD" value="nova"/>
+         <Param id="RI_OPENSTACK_DB" value="172.17.27.11"/>
+         <Param id="RI_OPENSTACK_DBUSERNAME" value="root"/>
+         <Param id="RI_OPENSTACK_DBPASSWORD" value="nova"/>
+    </ParamList>
+</Adapter>

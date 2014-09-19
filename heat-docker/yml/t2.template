@@ -1,0 +1,52 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "Template to represent cluster.",
+
+  "Parameters" : {
+    "KeyName" : {
+      "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instances",
+      "Type" : "String",
+      "Default" : "weaver_sample"
+    },
+    "InstanceType" : {
+      "Description" : "Instance type",
+      "Type" : "String",
+      "Default" : "m1.tiny",
+      "AllowedValues" : [ "m1.tiny", "m1.small", "m1.medium", "m1.large", "m1.xlarge" ],
+      "ConstraintDescription" : "must be a valid EC2 instance type."
+    },
+    "ImageId" : {
+      "Description" : "Name of the image to use",
+      "Type" : "String",
+      "Default" : "hchentest"
+    }
+},
+
+  "Resources" : {
+    "hchenAutoScalingGroup" : {
+	"Type" : "OS::Heat::AutoScalingGroup",
+	"Properties" : {
+        	"max_size" : "2",
+	        "min_size" : "1",
+		"desired_capacity" : "2",
+		"resource" : {
+      				"type" : "OS::Nova::Server",
+      				"properties" : {
+	       				"availability_zone" : "nova",
+					"flavor" : "m1.tiny",
+					"image" : "cirros-0.3.2-x86_64-uec",
+					"scheduler_hints" :  {"Value": {"Ref": "ServerGroup"}, "Key": "group"}
+						}
+    					}
+				}
+				},
+    "ServerGroup" : {
+	"Type" : "OS::Nova::ServerGroup",
+	"Properties" : {
+		"name": "ServerGroup",
+		"policies" : ["affinity"]
+			}
+		    }
+		}
+}
