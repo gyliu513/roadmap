@@ -1,0 +1,14 @@
+heat_template_version: 2013-05-23
+description: >
+  Heat template to deploy Docker containers to an existing host
+resources:
+  nginx-01:
+    type: IBMInc::EGO::Service 
+    properties:
+      description: 'ego service'
+      min_instances: 1
+      max_instances: 1
+      control_policy: {
+          start_type: 'AUTOMATIC',
+          max_restarts: 10,
+      }
