@@ -1,0 +1,29 @@
+gyliu@devstack007:~/src/jay-work$ heat stack-create e1 --template-file=/home/gyliu/heat-template/egosc/test.yml 
++--------------------------------------+------------+--------------+----------------------+
+| id                                   | stack_name | stack_status | creation_time        |
++--------------------------------------+------------+--------------+----------------------+
+| 1ce2eda1-1a6b-4737-923d-0ce2a861c189 | e1         | _            | 2014-09-19T08:22:34Z |
++--------------------------------------+------------+--------------+----------------------+
+gyliu@devstack007:~/src/jay-work$ heat resource-list e1
++---------------+----------------------+----------------------+-----------------+----------------------+
+| resource_name | physical_resource_id | resource_type        | resource_status | updated_time         |
++---------------+----------------------+----------------------+-----------------+----------------------+
+| nginx-01      | nginx-01             | IBMInc::EGO::Service | CREATE_COMPLETE | 2014-09-19T08:22:34Z |
++---------------+----------------------+----------------------+-----------------+----------------------+
+root@devstack007:/opt/sym71/eservice/esc/conf/services# egosh service list | grep  nginx-01
+nginx-01 STARTED  14    /Manage* Manag* devstac* 1     1      RUN        37    
+root@devstack007:/opt/sym71/eservice/esc/conf/services# egosh service stop  nginx-01
+Service <nginx-01> has been stopped successfully
+root@devstack007:/opt/sym71/eservice/esc/conf/services# egosh service list | grep  nginx-01
+root@devstack007:/opt/sym71/eservice/esc/conf/services# 
+gyliu@devstack007:~/src/jay-work$ heat stack-delete e1
++--------------------------------------+------------+--------------------+----------------------+
+| id                                   | stack_name | stack_status       | creation_time        |
++--------------------------------------+------------+--------------------+----------------------+
+| 1ce2eda1-1a6b-4737-923d-0ce2a861c189 | e1         | DELETE_IN_PROGRESS | 2014-09-19T08:22:34Z |
++--------------------------------------+------------+--------------------+----------------------+
+gyliu@devstack007:~/src/jay-work$ heat stack-list
++----+------------+--------------+---------------+
+| id | stack_name | stack_status | creation_time |
++----+------------+--------------+---------------+
++----+------------+--------------+---------------+
