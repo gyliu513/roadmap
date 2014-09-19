@@ -14,8 +14,6 @@ root@devstack007:/opt/sym71/eservice/esc/conf/services# egosh service list | gre
 nginx-01 STARTED  14    /Manage* Manag* devstac* 1     1      RUN        37    
 root@devstack007:/opt/sym71/eservice/esc/conf/services# egosh service stop  nginx-01
 Service <nginx-01> has been stopped successfully
-root@devstack007:/opt/sym71/eservice/esc/conf/services# egosh service list | grep  nginx-01
-root@devstack007:/opt/sym71/eservice/esc/conf/services# 
 gyliu@devstack007:~/src/jay-work$ heat stack-delete e1
 +--------------------------------------+------------+--------------------+----------------------+
 | id                                   | stack_name | stack_status       | creation_time        |
@@ -27,3 +25,5 @@ gyliu@devstack007:~/src/jay-work$ heat stack-list
 | id | stack_name | stack_status | creation_time |
 +----+------------+--------------+---------------+
 +----+------------+--------------+---------------+
+root@devstack007:/opt/sym71/eservice/esc/conf/services# egosh service list | grep  nginx-01
+root@devstack007:/opt/sym71/eservice/esc/conf/services# 
