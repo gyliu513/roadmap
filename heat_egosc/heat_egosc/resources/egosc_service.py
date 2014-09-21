@@ -30,7 +30,15 @@ ego = None
 # conditionally import so tests can work without having the dependency
 # satisfied
 try:
+    import pdb; pdb.set_trace()
     import os
+    '''
+    os.environ['EGO_CONFDIR'] = "/opt/ibm/platformsymphony/3.1/linux2.6-glibc2.3-x86_64/lib"
+    os.environ['EGO_LIBDIR'] = "/opt/ibm/platformsymphony/3.1/linux2.6-glibc2.3-x86_64/lib"
+    os.environ['EGO_SEC_CONF'] = "/opt/ibm/platformsymphony/3.1/linux2.6-glibc2.3-x86_64/lib"
+    os.environ['EGO_MASTER_LIST'] = "sym-001"
+    os.environ['EGO_KD_PORT'] = "7870"
+    '''
     os.environ['EGO_CONFDIR'] = "/opt/sym71/3.1/linux2.6-glibc2.3-x86_64/lib"
     os.environ['EGO_LIBDIR'] = "/opt/sym71/3.1/linux2.6-glibc2.3-x86_64/lib"
     os.environ['EGO_SEC_CONF'] = "/opt/sym71/3.1/linux2.6-glibc2.3-x86_64/lib"
@@ -47,10 +55,10 @@ class EGOService(resource.Resource):
  
     PROPERTIES = (
         DESCRIPTION, MIN_INSTANCES, MAX_INSTANCES, CONTROL_POLICY,
-        ACTIVITY_DESCRIPTION, 
+        ALLOCATION_SPECIFICATION, ACTIVITY_DESCRIPTION, 
     ) = (
         'description', 'min_instances', 'max_instances', 'control_policy',
-        'activity_description'
+        'allocation_specification', 'activity_description'
     )
  
     _CONTROL_POLICY_KEYS = (
@@ -65,6 +73,18 @@ class EGOService(resource.Resource):
         'dtype', 'satisfy', 'keep', 'auto_start', 'svc_name'
     )
     
+    _ALLOCATION_SPECIFICATION_KEYS = (
+        CONSUMER_ID, RESOURCE_SPECIFICATION, 
+    ) = (
+        'consumer_id', 'resource_specification',
+    )
+    
+    _RESOURCE_SPECIFICATION_KEYS = (
+        RESOURCE_GROUP, RESOURCE_REQUIREMENT, 
+    ) = (
+        'resource_group', 'resource_requirement',
+    )
+    
     _ACTIVITY_DESCRIPTION_KEYS = (
         HOST_TYPE, ACTIVITY_SPECIFICATION, 
     ) = (
@@ -72,9 +92,9 @@ class EGOService(resource.Resource):
     )
     
     _ACTIVITY_SPECIFICATION_KEYS = (
-        COMMAND, JOB_CONTROLLER, 
+        COMMAND, JOB_CONTROLLER, JOB_MONITOR, JOB_MONITOR_MAX_UPDATE_INTERVAL
     ) = (
-        'command', 'job_controller',
+        'command', 'job_controller', 'job_monitor', 'job_monitor_max_update_interval'
     )
     
     properties_schema = {
@@ -145,6 +165,33 @@ class EGOService(resource.Resource):
                 ),
             }
         ),
+        ALLOCATION_SPECIFICATION: properties.Schema(
+            properties.Schema.MAP,
+            _('EGO Service Allocation Specification.'),
+            schema={
+                CONSUMER_ID: properties.Schema(
+                    properties.Schema.STRING,
+                    _('EGO Service Consumer ID'),
+                    default='/ManagementServices/EGOManagementServices'
+                ),
+                RESOURCE_SPECIFICATION: properties.Schema(
+                    properties.Schema.MAP,
+                    _('EGO Service Allocation Resource Specification'),
+                    schema={
+                        RESOURCE_GROUP: properties.Schema(
+                            properties.Schema.STRING,
+                            _('EGO Service Resource Group.'),
+                            default='ManagementHosts'
+                        ),
+                        RESOURCE_REQUIREMENT: properties.Schema(
+                            properties.Schema.STRING,
+                            _('EGO Service Resource Requirement.'),
+                            default='select(!NTIA64 &amp;&amp; !SOL64)'
+                        ),
+                    },
+                ),
+            }
+        ),
         ACTIVITY_DESCRIPTION: properties.Schema(
             properties.Schema.MAP,
             _('EGO Service Activity Description.'),
@@ -168,11 +215,20 @@ class EGOService(resource.Resource):
                             _('EGO Service Job Controller.'),
                             default='STARTED'
                         ),
+                        JOB_MONITOR: properties.Schema(
+                            properties.Schema.STRING,
+                            _('EGO Service Job Monitor.'),
+                            default= None
+                        ),
+                        JOB_MONITOR_MAX_UPDATE_INTERVAL: properties.Schema(
+                            properties.Schema.INTEGER,
+                            _('EGO Service Job Controller.'),
+                            default=60
+                        ),
                     },
                 ),
             }
         ),
-        
     }
  
     def get_client(self):
@@ -204,7 +260,6 @@ class EGOService(resource.Resource):
                           self.properties[self.CONTROL_POLICY][self.MAX_RESTARTS])
  
     def _get_dependency_policy(self):
-        import pdb; pdb.set_trace()
         if self.properties[self.CONTROL_POLICY][self.DEPENDENCY]:
             return '<sc:Dependency type="%s" satisfy="%s" keep="%s" \
 autoStart="%s">%s</sc:Dependency> ' % (self.properties[self.CONTROL_POLICY][self.DEPENDENCY][self.DTYPE],
@@ -212,32 +267,47 @@ autoStart="%s">%s</sc:Dependency> ' % (self.properties[self.CONTROL_POLICY][self
                                                       self.properties[self.CONTROL_POLICY][self.DEPENDENCY][self.KEEP],
                                                       self.properties[self.CONTROL_POLICY][self.DEPENDENCY][self.AUTO_START],
                                                       self.properties[self.CONTROL_POLICY][self.DEPENDENCY][self.SVC_NAME],)
+        else:
+            return ' '
  
     def _get_allocation_spec(self):
         return ' </sc:ControlPolicy> \
     <sc:AllocationSpecification> \
-    <ego:ConsumerID>/ManagementServices/EGOManagementServices</ego:ConsumerID> \
+    <ego:ConsumerID>%s</ego:ConsumerID> \
     <!--The ResourceType specifies a "compute element" identified by the URI used below--> \
     <sc:ResourceSpecification ResourceType="http://www.platform.com/ego/2005/05/schema/ce"> \
-      <ego:ResourceGroupName>ManagementHosts</ego:ResourceGroupName> \
-      <ego:ResourceRequirement>select(!NTIA64 &amp;&amp; !SOL64)</ego:ResourceRequirement> \
-    </sc:ResourceSpecification> \
-  </sc:AllocationSpecification> '
+      <ego:ResourceGroupName>%s</ego:ResourceGroupName> \
+      <ego:ResourceRequirement>%s</ego:ResourceRequirement> \
+    </sc:ResourceSpecification> ' % (self.properties[self.ALLOCATION_SPECIFICATION][self.CONSUMER_ID],
+                                     self.properties[self.ALLOCATION_SPECIFICATION][self.RESOURCE_SPECIFICATION][self.RESOURCE_GROUP],
+                                     self.properties[self.ALLOCATION_SPECIFICATION][self.RESOURCE_SPECIFICATION][self.RESOURCE_REQUIREMENT])
  
     def _get_activity_desc(self):
-        return '<sc:ActivityDescription> \
+        return '</sc:AllocationSpecification>  \
+        <sc:ActivityDescription> \
     <ego:Attribute name="hostType" type="xsd:string">%s</ego:Attribute> \
     <ego:ActivitySpecification> \
       <ego:Command>%s</ego:Command> \
-      <ego:JobController>%s</ego:JobController> \
-      <ego:ExecutionUser>root</ego:ExecutionUser> \
-      <ego:Umask>0777</ego:Umask> \
-    </ego:ActivitySpecification> \
-  </sc:ActivityDescription> \
-</sc:ServiceDefinition>' % (self.properties[self.ACTIVITY_DESCRIPTION][self.HOST_TYPE],
+      <ego:JobController>%s</ego:JobController> ' % (self.properties[self.ACTIVITY_DESCRIPTION][self.HOST_TYPE],
                            self.properties[self.ACTIVITY_DESCRIPTION][self.ACTIVITY_SPECIFICATION][self.COMMAND],
                            self.properties[self.ACTIVITY_DESCRIPTION][self.ACTIVITY_SPECIFICATION][self.JOB_CONTROLLER])
- 
+
+    def _get_job_monitor(self):
+        import pdb; pdb.set_trace()
+        if self.properties[self.ACTIVITY_DESCRIPTION][self.ACTIVITY_SPECIFICATION][self.JOB_MONITOR]:
+            return '<ego:JobMonitor>%s</ego:JobMonitor> \
+        <ego:JobMonitorMaxUpdateInterval>%d</ego:JobMonitorMaxUpdateInterval> ' % (self.properties[self.ACTIVITY_DESCRIPTION][self.ACTIVITY_SPECIFICATION][self.JOB_MONITOR],
+                            self.properties[self.ACTIVITY_DESCRIPTION][self.ACTIVITY_SPECIFICATION][self.JOB_MONITOR_MAX_UPDATE_INTERVAL])
+        else:
+            return ' '
+
+    def _get_final(self):
+        return ' <ego:ExecutionUser>root</ego:ExecutionUser> \
+               <ego:Umask>0777</ego:Umask> \
+               </ego:ActivitySpecification> \
+               </sc:ActivityDescription> \
+               </sc:ServiceDefinition>'
+
     def handle_create(self):
         import pdb; pdb.set_trace()
         client = self.get_client()
@@ -246,7 +316,9 @@ autoStart="%s">%s</sc:Dependency> ' % (self.properties[self.CONTROL_POLICY][self
                    + self._get_controll_policy()
                    + self._get_dependency_policy()
                    + self._get_allocation_spec()
-                   + self._get_activity_desc())
+                   + self._get_activity_desc()
+                   + self._get_job_monitor()
+                   + self._get_final())
         print xml_str
         result = client.esc_create_service(xml_str)
         self.resource_id_set(self.name)
