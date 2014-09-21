@@ -1,0 +1,63 @@
+heat_template_version: 2013-05-23
+description: >
+  Heat template to deploy EGO services
+resources:
+  hadm:
+    type: IBMInc::EGO::Service
+    properties:
+      description: 'data nodes'
+      min_instances: 1
+      max_instances: 1
+      control_policy: {
+        start_type: 'AUTOMATIC',
+        max_restarts: 10,
+        dependency: {
+          dtype: 'conditional',
+          satisfy: 'STARTED',
+          keep: 'STARTED',
+          auto_start: 'TRUE',
+          svc_name: 'SD',
+        }
+      }
+      activity_description: {
+        htype: 'all',
+        activity_specification: {
+          command: 'sleep 10000',
+          job_controller: 'sleep 10000'
+        }
+      }
+  hadc:
+    type: OS::Heat::AutoScalingGroup
+    properties:
+      min_size: 1
+      max_size: 3
+      resource:
+        type: IBMInc::EGO::Service
+        properties:
+          description: 'data nodes'
+          min_instances: 1
+          max_instances: 1
+          control_policy: {
+            start_type: 'AUTOMATIC',
+            max_restarts: 10,
+            dependency: {
+              dtype: 'conditional',
+              satisfy: 'STARTED',
+              keep: 'STARTED',
+              auto_start: 'TRUE',
+              svc_name: 'hadm',
+            }
+          }
+          activity_description: {
+            htype: 'all',
+            activity_specification: {
+              command: 'sleep 10000',
+              job_controller: 'sleep 10000'
+            }
+          }
+  up-policy:
+    type: OS::Heat::ScalingPolicy
+    properties:
+      auto_scaling_group_id: {get_resource: hadc}
+      adjustment_type: change_in_capacity
+      scaling_adjustment: 1
