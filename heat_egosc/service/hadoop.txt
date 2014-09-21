@@ -1,0 +1,62 @@
+gyliu@devstack007:~/heat-template/egosc$ heat stack-create e1 --template-file=/home/gyliu/heat-template/egosc/hadoop.yml 
++--------------------------------------+------------+--------------+----------------------+
+| id                                   | stack_name | stack_status | creation_time        |
++--------------------------------------+------------+--------------+----------------------+
+| 4ab8ae83-61d2-45dd-83da-58c22e953eac | e1         | _            | 2014-09-21T10:09:21Z |
++--------------------------------------+------------+--------------+----------------------+
+gyliu@devstack007:~/heat-template/egosc$ heat resource-list e1
++---------------+--------------------------------------+----------------------------+-----------------+----------------------+
+| resource_name | physical_resource_id                 | resource_type              | resource_status | updated_time         |
++---------------+--------------------------------------+----------------------------+-----------------+----------------------+
+| hadm          | hadm                                 | IBMInc::EGO::Service       | CREATE_COMPLETE | 2014-09-21T10:09:22Z |
+| hadc          | a61995e7-e8bc-4361-b10f-2add1d6792bb | OS::Heat::AutoScalingGroup | CREATE_COMPLETE | 2014-09-21T10:09:23Z |
+| up-policy     | 6c000d55c7f546ed841d6a6b3ceb6bd7     | OS::Heat::ScalingPolicy    | CREATE_COMPLETE | 2014-09-21T10:09:29Z |
++---------------+--------------------------------------+----------------------------+-----------------+----------------------+
+root@devstack007:/opt/sym71/eservice/esc/conf/services# egosh service list
+SERVICE  STATE    ALLOC CONSUMER RGROUP RESOURCE SLOTS SEQ_NO INST_STATE ACTI  
+eefugnv* STARTED  43    /Manage* Manag* devstac* 1     1      RUN        75   << Hadoop Compute
+hadm     STARTED  42    /Manage* Manag* devstac* 1     1      RUN        74   << Hadoop Master 
+purger   STARTED  18    /Manage* Manag* devstac* 1     1      RUN        48    
+psmrlc   STARTED  19    /Manage* Manag* devstac* 1     1      RUN        49    
+plc      STARTED  20    /Manage* Manag* devstac* 1     1      RUN        50    
+WEBGUI   STARTED  21    /Manage* Manag* devstac* 1     1      RUN        51    
+GPFSmon* DEFINED        /Manage* Manag*                                        
+derbydb  DEFINED        /Manage* Manag*                                        
+NameNode DEFINED        /HDFS/N*                                               
+ascd     STARTED  22    /Manage* Manag* devstac* 1     1      RUN        52    
+DataNode DEFINED        /HDFS/D*                                               
+WebServ* STARTED  23    /Manage* Manag* devstac* 1     1      RUN        53    
+SD       STARTED  24    /Manage* Manag* devstac* 1     1      RUN        54    
+MRSS     STARTED  25    /Comput* MapRe* devstac* 1     1      RUN        55    
+RS       STARTED  26    /Manage* Manag* devstac* 1     1      RUN        56    
+YARNRes* DEFINED        /YARN/R* Manag*                                        
+RSA      STARTED  27    /Cluste* Inter* devstac* 1     1      RUN        57    
+USSD     DEFINED        /Cluste* Inter*                                        
+SMCP     DEFINED        /Manage* Manag*                                        
+Seconda* DEFINED        /HDFS/S*                                               
+Service* DEFINED        /Manage* Manag*                        
+gyliu@devstack007:~/heat-template/egosc$ heat resource-signal e1 up-policy  << Scale Up
+root@devstack007:/opt/sym71/eservice/esc/conf/services# egosh service list
+SERVICE  STATE    ALLOC CONSUMER RGROUP RESOURCE SLOTS SEQ_NO INST_STATE ACTI  
+qmagosc* STARTED  44    /Manage* Manag* devstac* 1     1      RUN        76    << New Hadoop Compute
+eefugnv* STARTED  43    /Manage* Manag* devstac* 1     1      RUN        75    
+hadm     STARTED  42    /Manage* Manag* devstac* 1     1      RUN        74    
+purger   STARTED  18    /Manage* Manag* devstac* 1     1      RUN        48    
+psmrlc   STARTED  19    /Manage* Manag* devstac* 1     1      RUN        49    
+plc      STARTED  20    /Manage* Manag* devstac* 1     1      RUN        50    
+WEBGUI   STARTED  21    /Manage* Manag* devstac* 1     1      RUN        51    
+GPFSmon* DEFINED        /Manage* Manag*                                        
+derbydb  DEFINED        /Manage* Manag*                                        
+NameNode DEFINED        /HDFS/N*                                               
+ascd     STARTED  22    /Manage* Manag* devstac* 1     1      RUN        52    
+DataNode DEFINED        /HDFS/D*                                               
+WebServ* STARTED  23    /Manage* Manag* devstac* 1     1      RUN        53    
+SD       STARTED  24    /Manage* Manag* devstac* 1     1      RUN        54    
+MRSS     STARTED  25    /Comput* MapRe* devstac* 1     1      RUN        55    
+RS       STARTED  26    /Manage* Manag* devstac* 1     1      RUN        56    
+YARNRes* DEFINED        /YARN/R* Manag*                                        
+RSA      STARTED  27    /Cluste* Inter* devstac* 1     1      RUN        57    
+USSD     DEFINED        /Cluste* Inter*                                        
+SMCP     DEFINED        /Manage* Manag*                                        
+Seconda* DEFINED        /HDFS/S*                                               
+Service* DEFINED        /Manage* Manag*                        
