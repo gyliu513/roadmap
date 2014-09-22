@@ -17,3 +17,5 @@ gyliu@devstack007:~$ cat /etc/heat/heat.conf | grep plugin
 #plugin_dirs=/usr/lib64/heat,/usr/lib/heat
 #plugin_dirs=/usr/local/lib/heat/docker
 plugin_dirs=/opt/stack/heat/contrib/heat_docker/heat_docker/resources
+
+heat create a1 --template-file=/home/gyliu/hadoop_heat/signal.autoscale.template 
