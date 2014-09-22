@@ -5,26 +5,6 @@ description: >
   This template defines two docker containers running
   apache with php and mysql database.
 
-parameters:
-  key:
-    type: string
-    description: >
-      Name of a KeyPair to enable SSH access to the instance. Note that the
-      default user is ec2-user.
-    default: key1
-
-  flavor:
-    type: string
-    description: Instance type for the docker server.
-    default: m1.medium
-
-  image:
-    type: string
-    description: >
-      Name or ID of the image to use for the Docker server.  This needs to be
-      built with os-collect-config tools from a fedora base image.
-    default: fedora-software-config
-
 resources:
   sql_server_group:
     type: OS::Heat::AutoScalingGroup
