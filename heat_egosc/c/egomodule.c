@@ -1172,32 +1172,11 @@ PyEGO_get_all_resource_group(PyEGO * self, PyObject * args)
  */
 static PyObject *
 PyEGO_esc_create_service(PyEGO * self, PyObject * args){
-    char      *xmlFile = NULL;
     char      *xmlstr = NULL;
     int       cc;
-    long      len;
-    FILE      *fp = NULL;
     esc_security_def_t  sec;
  
     PyArg_ParseTuple(args, "s", &xmlstr);
-    
-    /*fp = fopen(xmlstr, "r");
-    if (fp == NULL) {
-        fprintf(stderr, "Cannot open file %s.\n", xmlFile);
-        return Py_BuildValue("b", 1 != 1);   
-    }
- 
-    fseek(fp, 0, SEEK_END);
-    len = ftell(fp);
-    fseek(fp, 0, SEEK_SET);
-    xmlstr = calloc(len+4, sizeof(char));
-    if (xmlstr == NULL) {
-        fprintf(stderr, "Not enough memory loading xml file %s.\n", xmlFile);
-        fclose(fp);
-        return Py_BuildValue("b", 1 != 1);  
-    }
-    fread(xmlstr, len, 1, fp);
-    fclose(fp);*/
     
     sec.username = "Admin";
     sec.password = "Admin";
@@ -1206,6 +1185,7 @@ PyEGO_esc_create_service(PyEGO * self, PyObject * args){
     if (cc != 0){
         fprintf(stderr, "Failed to create service in SC, %s\n",
                 esc_strerror(escerrno));
+	return Py_BuildValue("b", 0 == 1);
     } else {
         printf("create service success.\n");
     }
@@ -1242,6 +1222,83 @@ PyEGO_esc_delete_service (PyEGO * self, PyObject * args){
     cc = esc_removeservice(name,&sec);
     return Py_BuildValue("b", 1 == 1);    /* Boolean */   
 } /* PyEGO_esc_delete_service */
+
+/*
+ *-------------------------------------------------------------------
+ *
+ * do_query
+ *
+ *  DESCRIPTION: 
+ *   Remove a specified service.
+ *
+ *  PARAMETERS:
+ *   argc [IN] : the number of parameters
+ *   argv [IN] : the parameter array
+ *  RETURN:  
+ *   NONE
+ *--------------------------------------------------------------------
+ */
+static PyObject *
+PyEGO_esc_query_service (PyEGO * self, PyObject * args){
+    int    cc;
+    char   *name = NULL;
+    esc_security_def_t  sec;
+    esc_service_info_reply_t    reply;
+
+    PyArg_ParseTuple(args, "s", &name);
+
+    sec.username = "Admin";
+    sec.password = "Admin";
+    sec.credential = NULL;
+    printf("Getting sevice %s\n", name);
+    cc = esc_sec_queryservice(name, &reply, &sec);
+    if (cc == 0) {
+        printf("OK>>>>>>>>>>>>");
+        return Py_BuildValue("b", 1 == 1);    /* Boolean */   
+    } else {
+        printf("KO>>>>>>>>>>>>");
+        return Py_BuildValue("b", 0 == 1);    /* Boolean */
+    }
+} /* PyEGO_esc_query_service */
+
+/*
+ *-------------------------------------------------------------------
+ *
+ * do_update
+ *
+ *  DESCRIPTION: 
+ *   Create a specified service.
+ *
+ *  PARAMETERS:
+ *   argc [IN] : the number of parameters
+ *   argv [IN] : the parameter array
+ *  RETURN:  
+ *   NONE
+ *--------------------------------------------------------------------
+ */
+static PyObject *
+PyEGO_esc_update_service(PyEGO * self, PyObject * args){
+    char      *xmlstr = NULL;
+    int       cc;
+    esc_security_def_t  sec;
+ 
+    PyArg_ParseTuple(args, "s", &xmlstr);
+    
+    sec.username = "Admin";
+    sec.password = "Admin";
+    sec.credential = NULL;
+    cc = esc_updateservice(xmlstr,&sec);    
+    if (cc != 0){
+        fprintf(stderr, "Failed to create service in SC, %s\n",
+                esc_strerror(escerrno));
+	return Py_BuildValue("b", 0 == 1);  
+    } else {
+        printf("create service success.\n");
+    }
+ 
+    return Py_BuildValue("b", 1 == 1);    /* Boolean */
+}/* PyEGO_esc_update_service() */
+
 
 static PyMethodDef PyEGO_methods[] = {
     {"open", (PyCFunction) PyEGO_open, METH_VARARGS,
@@ -1316,6 +1373,12 @@ static PyMethodDef PyEGO_methods[] = {
     {"esc_delete_service", (PyCFunction) PyEGO_esc_delete_service, METH_VARARGS,
         "Delete EGO services"},
 
+    {"esc_query_service", (PyCFunction) PyEGO_esc_query_service, METH_VARARGS,
+        "Query EGO services"},
+	
+    {"esc_update_service", (PyCFunction) PyEGO_esc_update_service, METH_VARARGS,
+        "Update EGO services"},
+	
     {NULL, NULL, 0, NULL}   /* Sentinel */
 };  /* PyEGO_methods */
 

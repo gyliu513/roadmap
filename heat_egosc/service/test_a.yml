@@ -11,16 +11,17 @@ resources:
       resource:
         type: IBMInc::EGO::Activity
         properties:
+          svc_name: 'hadc'
           description: 'data nodes'
           control_policy: {
             start_type: 'AUTOMATIC',
             max_restarts: 10,
-            dependency: {
-              dtype: 'conditional',
-              satisfy: 'STARTED',
-              keep: 'STARTED',
-              auto_start: 'TRUE',
-              svc_name: 'hadm',
+          }
+          allocation_specification: {
+            consumer_id: '/ManagementServices/EGOManagementServices',
+            resource_specification: {
+              resource_group: 'ManagementHosts',
+              resource_requirement: 'select(!NTIA64 &amp;&amp; !SOL64)',
             }
           }
           activity_description: {
