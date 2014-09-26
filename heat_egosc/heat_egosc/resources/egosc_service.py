@@ -41,8 +41,8 @@ try:
     os.environ['EGO_CONFDIR'] = "/opt/sym71/3.1/linux2.6-glibc2.3-x86_64/lib"
     os.environ['EGO_LIBDIR'] = "/opt/sym71/3.1/linux2.6-glibc2.3-x86_64/lib"
     os.environ['EGO_SEC_CONF'] = "/opt/sym71/3.1/linux2.6-glibc2.3-x86_64/lib"
-    os.environ['EGO_MASTER_LIST'] = "devstack007"
-    os.environ['EGO_KD_PORT'] = "17870"
+    os.environ['EGO_MASTER_LIST'] = "devstack1"
+    os.environ['EGO_KD_PORT'] = "7870"
     sys.path.insert(0, os.environ['EGO_LIBDIR'])
     ego = __import__('ego')
     EGO_INSTALLED = True
