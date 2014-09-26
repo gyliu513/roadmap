@@ -6,7 +6,7 @@ description: >
   apache with php and mysql database.
 
 resources:
-  sql_server_group:
+  scale_group:
     type: OS::Heat::AutoScalingGroup
     properties:
       min_size: 1
@@ -19,6 +19,12 @@ resources:
             - 3306
           docker_endpoint: 'tcp://127.0.0.1:3128'
 
+  up-policy:
+    type: OS::Heat::ScalingPolicy
+    properties:
+      auto_scaling_group_id: {get_resource: scale_group}
+      adjustment_type: change_in_capacity
+      scaling_adjustment: 1
 outputs:
   url:
     description: Public address of apache
