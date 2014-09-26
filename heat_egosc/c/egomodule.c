@@ -17,12 +17,84 @@
 
 static PyObject *EGOError;
 
+static char *safe_strdup(char *);
+static void *gcalloc(size_t, size_t);
+static void topo_parser(PyObject *dict, ego_topo_t **p);
+static void topo_policy_parser(PyObject *dict, ego_topo_policy_t **p);
+static void inter_sub_demand_policy_parser(PyObject *dict, ego_inter_sub_demand_policy_t **p);
+static void ego_alloc_sub_demand_parser(PyObject *dict, ego_alloc_sub_demand_t **p);
+
+static char *   conv_py2str(PyObject *);
+static int      conv_py2int(PyObject *);
+static int      get_py_list_size(PyObject *);
+
+static char *
+safe_strdup(char *p)
+{
+    if(NULL == p) {
+        return NULL;
+    } else {
+        return strdup(p);
+    }
+}
+
 static PyObject *
 py_error()
 {
-	return PyErr_Format(EGOError,
+    return PyErr_Format(EGOError,
             "EGO error code: %d, EGO error message: %s",
             egoerrno, ego_strerror(egoerrno));
+}
+
+static void *
+gcalloc(size_t n, size_t L)
+{
+    void *p;
+
+    assert(n > 0 && L > 0);
+
+    p = calloc(n, L);
+    if (p == NULL) {
+        fprintf(stderr, "gcalloc: calloc failed! "
+                "The number of members to be allocated from memory is %u. "
+                "The size of each member is %u byte(s).", (unsigned int) n,
+                (unsigned int) L);
+        exit(-1);
+    }
+
+    return (p);
+
+} /* gcalloc() */
+
+
+static char *
+conv_py2str(PyObject *io)
+{
+    if(NULL == io || !PyString_Check(io)) {
+        return NULL;
+    } else {
+        return PyString_AsString(io);
+    }
+}
+
+static int
+conv_py2int(PyObject *io)
+{
+    if(NULL == io || !PyInt_Check(io)) {
+        return 0;
+    } else {
+        return (int)PyInt_AsLong(io);
+    }
+}
+
+static int
+get_py_list_size(PyObject *io)
+{
+    if(NULL == io || !PyList_Check(io)) {
+        return 0;
+    } else {
+        return PyList_Size(io);
+    }
 }
 
 typedef struct {
@@ -267,24 +339,6 @@ PyEGO_logonAndRegister(PyEGO * self, PyObject * args)
     return Py_BuildValue("b", (retval == 0));
 }   /* PyEGO_logonAndRegister() */
 
-#if 0
-static PyObject *
-PyEGO_logoff(PyEGO * self, PyObject * args)
-{
-    int retval;
-
-#ifdef _DEBUG
-    fprintf(stderr, "PyEGO_logoff(): handle = %p\n", self->handle);
-#endif
-
-    retval = ego_logoff(self->handle);
-    if (retval != 0) {
-        return py_error();
-    }
-
-    return Py_BuildValue("b", (retval == 0));
-}   /* PyEGO_logoff() */
-#endif
 
 /*
  * ego_allocreply
@@ -308,10 +362,14 @@ PyEGO_read_resource_add(ego_allocreply_t * allocreply)
     for (nCount = 0; nCount < allocreply->nhost; nCount++) {
         PyObject *host;
 
-        host = Py_BuildValue("(sis)", allocreply->host[nCount]->name,
-            allocreply->host[nCount]->slots,
-            allocreply->host[nCount]->schedDecID);
-
+        host = Py_BuildValue("(sssiss)",
+                allocreply->host[nCount]->name,
+                allocreply->host[nCount]->schedDecID,
+                allocreply->host[nCount]->subDemandname,
+                allocreply->host[nCount]->slots,
+                allocreply->host[nCount]->resreq,
+                allocreply->host[nCount]->resourceGroup
+                );
         assert(host != NULL);
 
         PyList_SetItem(hostList, nCount, host);
@@ -421,7 +479,7 @@ PyEGO_setResourcePlan(PyEGO * self, PyObject * args)
     fprintf(stderr, "PyEGO_setResourcePlan(): xmlstr = %s\n", cstr);
 #endif
 
-    retval = ego_setresourceplan(self->handle, "/", cstr);
+    retval = ego_setresourceplan(self->handle, "/", cstr, FALSE);
 
     if (retval < 0) {
         return py_error();
@@ -494,125 +552,179 @@ PyEGO_getRPIRes(PyEGO * self, PyObject * args)
     return hostlist;
 }   /* PyEGO_getRPIRes() */
 
-#if 0
-static PyObject *
-PyEGO_getRPIResGrps(PyEGO * self, PyObject * args)
+
+static void
+topo_parser(PyObject *dict, ego_topo_t **p)
 {
-    struct rpiGroup **groups = NULL;
-    struct rpiGroup **grpPtr = NULL;
-    PyObject *grplist;
-    int nCount = 0;
-    int count = 0;
+    if(NULL == dict) {
+        return;
+    }
 
-#ifdef _DEBUG
-    fprintf(stderr, "PyEGO_getRPIResGrps(): handle = %p\n", self->handle);
-#endif
+    (*p) = gcalloc(1, sizeof(ego_topo_t));
+    (*p)->pTopoNS = safe_strdup(conv_py2str(PyDict_GetItemString(dict, "namespace")));
+    (*p)->pTopoLvl = safe_strdup(conv_py2str(PyDict_GetItemString(dict, "level")));
+    (*p)->nMinTopoNode = conv_py2int(PyDict_GetItemString(dict, "min_nodes"));
+    (*p)->nMaxSlotsPerNode = conv_py2int(PyDict_GetItemString(dict, "max_slots_per_host"));
+}
 
-    groups = ego_getrpigroupinfo(self->handle);
-    if (groups == NULL) {
-        if (egoerrno != EGOE_NO_ERR) {
-#ifdef _DEBUG
-            fprintf(stderr, "\
-ego_getrpigroupinfo() failed %s\n", ego_strerror(egoerrno));
-#endif
-            return Py_BuildValue("s", "");
+/* Parse ego_topo_policy_t */
+static void
+topo_policy_parser(PyObject *dict, ego_topo_policy_t **p)
+{
+    if(NULL == dict) {
+        return;
+    }
+
+    (*p) = gcalloc(1, sizeof(ego_topo_policy_t));
+
+    (*p)->nPolicyType = conv_py2int(PyDict_GetItemString(dict, "policy_type"));
+
+    if(PyDict_Contains(dict, PyString_FromString("policy_flag"))) {
+        (*p)->nPolicyFlag = conv_py2int(PyDict_GetItemString(dict, "policy_flag"));
+    } else {
+        (*p)->nPolicyFlag = 1;
+    }
+
+    topo_parser(PyDict_GetItemString(dict, "topology"), &(*p)->pPolicyTopo);
+
+}
+/* Parse ego_topo_policy_t end */
+
+/* Parse ego_inter_sub_demand_policy_t */
+static void
+inter_sub_demand_policy_parser(PyObject *dict, ego_inter_sub_demand_policy_t **p)
+{
+    int         i = 0;
+    int         tmpNum = 0;
+    PyObject    *tmpList = NULL;
+
+    if(NULL == dict) {
+        return;
+    }
+
+    tmpList = PyDict_GetItemString(dict, "sub_demands");
+    tmpNum = get_py_list_size(tmpList);
+    if(tmpNum > 0) {
+        (*p) = gcalloc(1, sizeof(ego_inter_sub_demand_policy_t));
+
+        (*p)->nSubDmd = tmpNum;
+
+        (*p)->vecSubDmdName = gcalloc(tmpNum, sizeof(char *));
+        for(i = 0; i < tmpNum; i++) {
+            (*p)->vecSubDmdName[i] = safe_strdup(conv_py2str(PyList_GetItem(tmpList, i)));
         }
-        grplist = PyList_New(0);
-        return Py_BuildValue("O", grplist);
     }
 
-    grpPtr = groups;
+    topo_policy_parser(PyDict_GetItemString(dict, "policy"), &(*p)->pTPolicy);
+}
+/* Parse ego_inter_sub_demand_policy_t end */
 
-    while (grpPtr[count]) {
-        count++;
-    }
-
-    grplist = PyList_New(count);
-    if (grplist == NULL) {
-        return NULL;
-    }
-
-    for (nCount = 0; nCount < count; nCount++) {
-        PyList_SetItem(grplist, nCount,
-            Py_BuildValue("s", groups[nCount]->name));
-    }
-
-    ego_free_rpigroup(groups);
-    return grplist;
-}   /* PyEGO_getRPIResGrps() */
-
-static PyObject *
-PyEGO_createReservations(PyEGO * self, PyObject * args)
+/* parse ego_alloc_sub_demand_t */
+static void
+ego_alloc_sub_demand_parser(PyObject *dict, ego_alloc_sub_demand_t **p)
 {
-    struct rsvRequest req;
-    struct rsvReply rep;
+    int         i = 0;
+    int         num = 0;
+    PyObject    *tmpList;
 
-    const char *policyXml = NULL;
-    const char *rsvXml = NULL;
-    char *retstr = NULL;
-
-    PyArg_ParseTuple(args, "ss", &policyXml, &rsvXml);
-    req.xmlPolicy = strdup(policyXml);
-    req.xmlBuf = strdup(rsvXml);
-
-    /* Create a reservation */
-    if (ego_rsvcreate(self->handle, &req, &rep) != 0) {
-        return py_error();
+    if(NULL == dict) {
+        return;
     }
 
-    switch (rep.replyType) {
-        case REPLY_RSV_ID:
-            /* remember that ANSI compiler
-             * casts for you
-             */
-            retstr = rep.reply;
-            break;
-        case REPLY_RSV_CONFLICT:
-        case REPLY_NO_DATA:
-            retstr = "Create reservation failed.";
-            break;
+    (*p) = gcalloc(1, sizeof(ego_alloc_sub_demand_t));
+    (*p)->name = safe_strdup(conv_py2str(PyDict_GetItemString(dict, "name")));
+    (*p)->resreq = safe_strdup(conv_py2str(PyDict_GetItemString(dict, "resreq")));
+    (*p)->extraResreq = safe_strdup(conv_py2str(PyDict_GetItemString(dict, "extra_resreq")));
+    (*p)->maxslots = conv_py2int(PyDict_GetItemString(dict, "maxslots"));
+    (*p)->flag = 0;
+    if(conv_py2int(PyDict_GetItemString(dict, "force_realloc_migrate"))) {
+        (*p)->flag |= EGO_REALLOC_MIGRATE_FORCE;
     }
-
-    return Py_BuildValue("s", retstr);
-}   /* PyEGO_createReservations() */
-#endif
+    if(conv_py2int(PyDict_GetItemString(dict, "clear_policy"))) {
+        (*p)->flag |= EGO_FORCE_CLEAN_POLICY;
+    }
+    if(PyDict_Contains(dict, PyString_FromString("policy"))) {
+        tmpList = PyDict_GetItemString(dict, "policy");
+        num = get_py_list_size(tmpList);
+        if(num > 0) {
+            (*p)->nPolicy = num;
+            (*p)->vecTPolicy = gcalloc(num, sizeof(ego_topo_policy_t *));
+            for(i = 0; i < num; i++) {
+                topo_policy_parser(PyList_GetItem(tmpList, i), &(*p)->vecTPolicy[i]);
+            }
+        }
+    }
+}
+/* parse ego_alloc_sub_demand_t end */
 
 static PyObject *
 PyEGO_create_alloc(PyEGO * self, PyObject * args)
 {
-    ego_allocreq_t *areq = NULL;
-    ego_allocation_id_t alocid = NULL;
-    int rc = 0;
-    int forceOverCommit = 0;
-    char *name = NULL;
-    char *consumer = NULL;
-    char *resreq = NULL;
-    char *extraResreq = NULL;
-    PyObject *obj = NULL;
+    ego_allocreq_t          *areq = NULL;
+    ego_allocation_id_t     alocid = NULL;
+    int                     rc = 0;
+    int                     forceOverCommit = 0;
+    char                    *name = NULL;
+    char                    *consumer = NULL;
+    PyObject                *interPolicies = NULL;  /* list -> dict == {subDemands:[name1,name2], policy:dict} */
+    int                     nInterSubDmdPolicy = 0;
+    PyObject                *subDemand = NULL;      /* list -> dict */
+    int                     numSubDemand = 0;
+    int                     i = 0;
+    PyObject                *tmpDict = NULL;
+    PyObject                *obj = NULL;
 
+    /* allocate areq */
     areq = ego_alloc_allocreq();
     if (areq == NULL) {
         return py_error();
     }
 
-    PyArg_ParseTuple(args, "ssssi", &name, &consumer, &resreq, &extraResreq, &forceOverCommit);
+    /* Parse args */
+    PyArg_ParseTuple(args, "ssOO", &name, &consumer, &interPolicies, &subDemand);
 
-    areq->name = name;
-    areq->consumer = consumer;
-    areq->resreq = resreq;
-    areq->extraResreq= extraResreq;
-    areq->resplan = PRS_DEFAULT_PLAN_NAME;
-    areq->tile = 0;
-    areq->maxslots = 1;
+    /* asign value */
+    areq->name      = safe_strdup(name);
+    areq->consumer  = safe_strdup(consumer);
+    areq->resplan   = strdup(PRS_DEFAULT_PLAN_NAME);
+    areq->tile      = 0;
+    areq->maxslots  = 1;
+
     if (forceOverCommit) {
         areq->flags |= EGO_REALLOC_MIGRATE_FORCE;
     }
+
+    numSubDemand = get_py_list_size(subDemand);
+    if(numSubDemand > 0) {
+        areq->flags |= VEM_ALLOC_SUB_DEMAND;
+        areq->numSubDemand = numSubDemand;
+        areq->subdemands = gcalloc(numSubDemand, sizeof(ego_alloc_sub_demand_t *));
+        for(i = 0; i < numSubDemand; i++) {
+            tmpDict = PyList_GetItem(subDemand, i);
+            ego_alloc_sub_demand_parser(tmpDict, &areq->subdemands[i]);
+        }
+    }
+
+    /* interPolicies */
+    nInterSubDmdPolicy = get_py_list_size(interPolicies);
+    if(nInterSubDmdPolicy > 0) {
+        areq->nInterSubDmdPolicy = nInterSubDmdPolicy;
+        areq->vecInterSubDmdPolicy = gcalloc(nInterSubDmdPolicy, sizeof(ego_inter_sub_demand_policy_t *));
+        for(i=0; i<nInterSubDmdPolicy; i++) {
+            tmpDict = PyList_GetItem(interPolicies,i);
+            inter_sub_demand_policy_parser(tmpDict, &areq->vecInterSubDmdPolicy[i]);
+        }
+    }
+
+    /* call ego native function */
     rc = ego_alloc(self->handle, areq, &alocid);
+
     ego_free_allocreq(areq);
     if (rc < 0) {
         return py_error();
     }
 
+    /* Build Return Value */
     obj = Py_BuildValue("is", rc, alocid);
     ego_free_allocation_id(alocid);
     return (obj);
@@ -621,36 +733,46 @@ PyEGO_create_alloc(PyEGO * self, PyObject * args)
 static PyObject *
 PyEGO_resize_alloc(PyEGO * self, PyObject * args)
 {
-    ego_reallocreq_t *req = NULL;
-    int rc = 0;
-    char *allocId = NULL;
-    char *resreq = NULL;
-    int preferSameHost = 0;
-    int forceOverCommit = 0;
-    char *extraResreq = NULL;
-    int newMaxSlot = 1;
-    PyObject *obj = NULL;
+    /* args var */
+    char                *allocId = NULL;
+    PyObject            *subDemand = NULL; /* list -> dict */
 
+    /* return var */
+    int                 rc = 0;
+    PyObject            *obj = NULL;
+
+    /* temporary var */
+    int                 i = 0;
+    int                 numSubDemand = 0;
+    ego_reallocreq_t    *req = NULL;
+    PyObject            *tmpDict = NULL;
+
+    /* allocate areq */
     req = ego_alloc_reallocreq();
     if (req == NULL) {
         return py_error();
     }
 
-    PyArg_ParseTuple(args, "ssiiis", &allocId, &resreq, &preferSameHost,
-                     &newMaxSlot, &forceOverCommit, &extraResreq);
+    /* parse args */
+    PyArg_ParseTuple(args, "sO", &allocId, &subDemand);
 
-    req->allocId = allocId;
-    req->filter = resreq;
-    req->extraResreq= extraResreq;
-    req->newMaxSlot = newMaxSlot;
+    /* asign value */
+    req->flags = 0;
+    req->flags |= VEM_ALLOC_SUB_DEMAND;
+    req->newMaxSlot = 999999;
+    req->allocId = safe_strdup(allocId);
 
-    if (preferSameHost) {
-        req->flags |= EGO_REALLOC_PREFERSAME;
+    /* subDemand */
+    numSubDemand = get_py_list_size(subDemand);
+    if(numSubDemand > 0) {
+        req->numSubDemand = numSubDemand;
+        req->subdemands = gcalloc(numSubDemand, sizeof(ego_alloc_sub_demand_t *));
+        for(i = 0; i < numSubDemand; i++) {
+            tmpDict = PyList_GetItem(subDemand, i);
+            ego_alloc_sub_demand_parser(tmpDict, &req->subdemands[i]);
+        }
     }
-
-    if (forceOverCommit) {
-        req->flags |= EGO_REALLOC_MIGRATE_FORCE;
-    }
+    /* subDemand end */
 
     rc = ego_realloc(self->handle, req);
     ego_free_reallocreq(req);
@@ -662,11 +784,87 @@ PyEGO_resize_alloc(PyEGO * self, PyObject * args)
     return (obj);
 }   /* PyEGO_resize_alloc */
 
+static PyObject *
+PyEGO_updateDecision(PyEGO *self, PyObject *args)
+{
+    /* args var */
+    char *allocId = NULL;
+    char *decId = NULL;
+    char *resreq = NULL;
+    char *extraResreq = NULL;
+    int prefer_same_host = 0;
+    int force_realloc_migrate = 0;
+    int use = 0;
+
+    /* return var */
+    int rc = 0;
+    PyObject *obj = NULL;
+
+    /* temporary var */
+    ego_updatedecisionreq_t *req = NULL;
+
+    /* parse args */
+    PyArg_ParseTuple(args, "ssssiii", &allocId, &decId, &resreq, &extraResreq, &prefer_same_host, &force_realloc_migrate, &use);
+
+    req = gcalloc(1, sizeof(ego_updatedecisionreq_t));
+    req->allocId = allocId;
+    req->schedDecId = decId;
+    req->resreq = resreq;
+    req->extraResreq = extraResreq;
+    req->use = use;
+
+    if (prefer_same_host) {
+        req->flag |= EGO_REALLOC_PREFERSAME;
+    }
+    if (force_realloc_migrate) {
+        req->flag |= EGO_REALLOC_MIGRATE_FORCE;
+    }
+
+    rc = ego_update_decision(self->handle, req);
+    FREEUP(req);
+
+    if (rc < 0) {
+        return py_error();
+    }
+
+    obj = Py_BuildValue("is", rc, allocId);
+    return (obj);
+}
+
+static PyObject *
+PyEGO_releaseDecision(PyEGO *self, PyObject *args)
+{
+    char *allocId = NULL;
+    char *decId = NULL;
+
+    int rc = 0;
+    PyObject *obj = NULL;
+
+    ego_releasereq_t *req = NULL;
+
+    PyArg_ParseTuple(args, "ss", &allocId, &decId);
+
+    req = gcalloc(1, sizeof(ego_releasereq_t));
+    req->allocId = allocId;
+    req->nhosts = 1;
+    req->hosts = gcalloc(1, sizeof(ego_host_t));
+    req->hosts->schedDecID = decId;
+
+    rc = ego_release(self->handle, req);
+    FREEUP(req->hosts);
+    FREEUP(req);
+
+    if (rc < 0) {
+        return py_error();
+    }
+
+    obj = Py_BuildValue("is", rc, allocId);
+    return (obj);
+}
 
 static PyObject *
 PyEGO_free_alloc(PyEGO * self, PyObject * args)
 {
-
     ego_allocfreereq_t *afree = NULL;
     char *allocid = NULL;
     int rc = 0;
@@ -686,37 +884,6 @@ PyEGO_free_alloc(PyEGO * self, PyObject * args)
     return Py_BuildValue("i", rc);
 }   /* PyEGO_free_alloc */
 
-#if 0
-static PyObject *
-PyEGO_free_rsv(PyEGO * self, PyObject * args)
-{
-    char *rsvid = NULL;
-    int rc = 0;
-
-    PyArg_ParseTuple(args, "s", &rsvid);
-
-
-    struct rsvFree req;
-    struct rsvReply rep;
-
-    memset(&req, 0, sizeof(struct rsvFree));
-    memset(&rep, 0, sizeof(struct rsvReply));
-
-    /* Check input */
-    if (rsvid == NULL) {
-        return py_error();
-    }
-
-    req.rsvID = strdup(rsvid);
-
-    /* Delete a reservation */
-    if ((rc = ego_rsvfree(self->handle, &req, &rep)) != 0) {
-        return py_error();
-    }
-
-    return Py_BuildValue("is", rc, "succeed");
-}   /* PyEGO_free_rsv */
-#endif
 
 static PyObject *
 PyEGO_migrate_decision(PyEGO * self, PyObject * args)
@@ -733,7 +900,7 @@ PyEGO_migrate_decision(PyEGO * self, PyObject * args)
     struct ego_migratedecision *mig;
 
     mig = ego_alloc_migratedecision();
-    mig->policyPlugin = "placetorus";
+    mig->policyPlugin = "prs";
     mig->schedDecID = schedDecID;
     mig->allocID = allocID;
     mig->extraResreq= extraResreq;
@@ -820,59 +987,6 @@ PyEGO_create_dynamic_resource_group: create dynamic resource group failed becaus
 
 }   /* PyEGO_create_dynamic_resource_group */
 
-#if 0
-static PyObject *
-PyEGO_create_RPI_hierarchy_resource_group(PyEGO * self, PyObject * args)
-{
-    char *xmlStr = NULL;
-    struct rpiGroupTree tree;
-
-    memset(&tree, 0, sizeof(struct rpiGroupTree));
-
-    PyArg_ParseTuple(args, "s", &xmlStr);
-
-    tree.xmlBuf = strdup(xmlStr);
-
-    /* Create RPI hierachy resoruce groups */
-    if (ego_createrpigroup(self->handle, &tree) != 0) {
-        return py_error();
-    }
-
-    if (tree.xmlBuf != NULL) {
-        FREEUP(tree.xmlBuf);
-    }
-    return Py_BuildValue("i", 0);
-
-}   /* PyEGO_create_RPI_hierarchy_resource_group */
-
-static PyObject *
-PyEGO_getConsumerTree(PyEGO * self, PyObject * args)
-{
-    char *xmlStr = NULL;
-    ego_consumertreereq_t *req = NULL;
-    int cc = 0;
-    PyObject *obj = NULL;
-
-    /*fetch all conusmer */
-    req = ego_alloc_consumertreereq();
-    if (req == NULL) {
-        return py_error();
-    }
-
-    req->flag |=
-        EGO_GETCONSUMERTREE_AS_CONSUMER_ADMIN |
-        EGO_GETCONSUMERTREE_AS_CONSUMER_USER;
-    cc = ego_getconsumertree(self->handle, req, &xmlStr);
-    ego_free_consumertreereq(req);
-    if (cc < 0) {
-        return py_error();
-    }
-
-    obj = Py_BuildValue("s", xmlStr);
-    FREEUP(xmlStr);
-    return (obj);
-}   /* PyEGO_getConsumerTree */
-#endif
 
 static PyObject *
 PyEGO_getAllAlloc(PyEGO * self, PyObject * args)
@@ -881,7 +995,10 @@ PyEGO_getAllAlloc(PyEGO * self, PyObject * args)
     int nCount = 0;
     ego_allocinforeq_t *req = NULL;
     ego_allocation_t **alloc = NULL;
-    PyObject *alloclist;
+    PyObject *alloclist = NULL;
+    PyObject *decisionlist = NULL;
+    int i = 0;
+    int num = 0;
 
     req = ego_alloc_allocinforeq();
     if (req == NULL) {
@@ -920,27 +1037,149 @@ PyEGO_getAllAlloc() failed %s\n", ego_strerror(egoerrno));
     }
 
     for (nCount = 0; nCount < naoc; nCount++) {
-        if (alloc[nCount]->host && alloc[nCount]->host[0]) {
-            PyList_SetItem(alloclist, nCount,
-                Py_BuildValue("ssssssis", alloc[nCount]->allocReq->name,
-                    alloc[nCount]->allocId, alloc[nCount]->host[0]->schedDecID,
-                    alloc[nCount]->client, alloc[nCount]->host[0]->name,
-                    alloc[nCount]->allocReq->resreq,
-                    alloc[nCount]->allocReq->maxslots,
-                    alloc[nCount]->allocReq->hgroup));
-        } else {
-            PyList_SetItem(alloclist, nCount,
-                Py_BuildValue("ssssssis", alloc[nCount]->allocReq->name,
-                    alloc[nCount]->allocId, "-1", alloc[nCount]->client, "",
-                    alloc[nCount]->allocReq->resreq,
-                    alloc[nCount]->allocReq->maxslots,
-                    alloc[nCount]->allocReq->hgroup));
+        // build decisionlist
+        num = alloc[nCount]->nhost;
+        decisionlist = PyList_New(num);
+        for(i=0; i< num; i++) {
+            PyList_SetItem(decisionlist, i,
+                    Py_BuildValue("sssiss", alloc[nCount]->host[i]->name,
+                            alloc[nCount]->host[i]->schedDecID,
+                            alloc[nCount]->host[i]->subDemandname,
+                            alloc[nCount]->host[i]->slots,
+                            alloc[nCount]->host[i]->resreq,
+                            alloc[nCount]->host[i]->resourceGroup));
         }
+
+        // build alloclist
+        PyList_SetItem(alloclist, nCount,
+                Py_BuildValue("ssOs", alloc[nCount]->allocReq->name,
+                        alloc[nCount]->allocId,
+                        decisionlist,
+                        alloc[nCount]->client
+                )
+        );
     }
 
     ego_free_allocation_array(alloc, naoc);
     return alloclist;
 }   /* PyEGO_getAllAlloc() */
+
+static PyObject *
+PyEGO_getDecisionsByFilter(PyEGO * self, PyObject * args)
+{
+    int naoc = 0;
+    int nCount = 0;
+    ego_decisioninforeq_t *req = NULL;
+    vem_host_t **decision = NULL;
+    PyObject *decisionlist = NULL;
+    PyObject *tmpDict = NULL;
+    PyObject *tmpListKey = NULL;
+    PyObject *key = NULL;
+    int num = 0;
+    int i = 0;
+
+    PyArg_ParseTuple(args, "O", &tmpDict);
+    if(!PyDict_Check(tmpDict)) {
+        return py_error();
+    }
+
+    ego_decision_filter_spec_t  **filters = NULL;
+    req = ego_decisioninforeq();
+    if (req == NULL) {
+        if (egoerrno != EGOE_NO_ERR) {
+            return py_error();
+        }
+    }
+
+    num = PyDict_Size(tmpDict);
+    if(num > 0){
+        req->nfilter = num;
+        filters = (ego_decision_filter_spec_t  **)calloc(num, sizeof(ego_decision_filter_spec_t  *));
+        tmpListKey = PyDict_Keys(tmpDict);
+        for(i=0;i<num;i++){
+            key = PyList_GetItem(tmpListKey, i);
+            filters[i] = (ego_decision_filter_spec_t  *)calloc(1, sizeof(ego_decision_filter_spec_t ));
+            filters[i]->filter = PyInt_AsLong(key);
+            filters[i]->value_t = PyString_AsString(PyDict_GetItem(tmpDict, key));
+        }
+
+        req->filters = filters;
+    }
+
+    /*call the API */
+    naoc = ego_getdecisioninfo(self->handle, req, &decision);
+    ego_free_decisioninforeq(req);
+    FREEUP(filters);
+
+    if (naoc < 0) {
+        if (egoerrno != EGOE_NO_ERR) {
+            return py_error();
+        }
+        decisionlist = PyList_New(0);
+        return Py_BuildValue("O", decisionlist);
+    }
+
+    if (naoc == 0) {
+        ego_free_decision_array(decision, naoc);
+        if (egoerrno != EGOE_NO_ERR) {
+            return py_error();
+        }
+        decisionlist = PyList_New(0);
+        return Py_BuildValue("O", decisionlist);
+    }
+
+    decisionlist = PyList_New(naoc);
+    if (decisionlist == NULL) {
+#ifdef _DEBUG
+        fprintf(stderr, "\
+PyEGO_getHostDec() failed %s\n", ego_strerror(egoerrno));
+#endif
+        return Py_BuildValue("s", ego_strerror(egoerrno));
+    }
+
+    for (nCount = 0; nCount < naoc; nCount++) {
+        if (decision[nCount]->schedDecID[0] != '\0') {
+            PyList_SetItem(decisionlist, nCount,
+                 Py_BuildValue("sssiss",
+                     decision[nCount]->name,
+                     decision[nCount]->schedDecID,
+                     decision[nCount]->subDemandname,
+                     decision[nCount]->slots,
+                     decision[nCount]->resreq,
+                     decision[nCount]->resourceGroup
+                 )
+            );
+        } else {
+            PyList_SetItem(decisionlist, nCount,
+                 Py_BuildValue("sssiss",
+                     decision[nCount]->name,
+                     "",
+                     decision[nCount]->subDemandname,
+                     decision[nCount]->slots,
+                     decision[nCount]->resreq,
+                     decision[nCount]->resourceGroup
+                )
+            );
+        }
+    }
+
+    ego_free_decision_array(decision, naoc);
+    return decisionlist;
+}   /* PyEGO_getDecisionsByFilter() */
+
+static PyObject *
+PyEGO_getReleaseCandidates(PyEGO *self, PyObject *args)
+{
+    int num_unit = 0;
+    char *allocation_name = NULL;
+    char *sub_demand_name = NULL;
+
+    PyObject *obj = NULL;
+
+    PyArg_ParseTuple(args, "ssi", &allocation_name, &sub_demand_name, &num_unit);
+
+    return obj;
+}
 
 static PyObject *
 PyEGO_getAllocByID(PyEGO * self, PyObject * args)
@@ -1000,7 +1239,7 @@ PyEGO_get_possible_hosts(PyEGO * self, PyObject * args)
 {
     struct rpiResource **rpiRes = NULL;
     PyObject *hostlist;
-    char *allocId = NULL;
+    ego_decision_id_t  schedDecId;
     char *extraResreq = NULL;
     struct rpiResource **pRec;
     struct rpiAttribute **attr;
@@ -1008,10 +1247,10 @@ PyEGO_get_possible_hosts(PyEGO * self, PyObject * args)
     int count = 0;
     ego_getpossiblehost_req_t *req;
 
-    PyArg_ParseTuple(args, "ss", &allocId, &extraResreq);
+    PyArg_ParseTuple(args, "ss", &schedDecId, &extraResreq);
 
     req = ego_alloc_getpossiblehost_req();
-    req->allocId = allocId;
+    req->schedDecId = schedDecId;
     req->extraResreq = extraResreq;
 
     rpiRes = ego_getpossiblehosts(self->handle, req);
@@ -1101,7 +1340,7 @@ PyEGO_get_all_resource_group(PyEGO * self, PyObject * args)
         cc = 0;
         if (hginfo[i]->members) {
             char seps[] = " ";
-            char *hostlist = strdup(hginfo[i]->members);
+            char *hostlist = safe_strdup(hginfo[i]->members);
 
             if (!hostlist) {
                 if (egoerrno != EGOE_NO_ERR) {
@@ -1128,7 +1367,7 @@ PyEGO_get_all_resource_group(PyEGO * self, PyObject * args)
         PyObject *host = NULL;
         if (hginfo[i]->members) {
             char seps[] = " ";
-            char *hostlist = strdup(hginfo[i]->members);
+            char *hostlist = safe_strdup(hginfo[i]->members);
              if (!hostlist) {
                 if (egoerrno != EGOE_NO_ERR) {
                     return py_error();
@@ -1183,8 +1422,6 @@ PyEGO_esc_create_service(PyEGO * self, PyObject * args){
     sec.credential = NULL;
     cc = esc_createservice(xmlstr,&sec);    
     if (cc != 0){
-        fprintf(stderr, "Failed to create service in SC, %s\n",
-                esc_strerror(escerrno));
 	return Py_BuildValue("b", 0 == 1);
     } else {
         printf("create service success.\n");
@@ -1289,8 +1526,6 @@ PyEGO_esc_update_service(PyEGO * self, PyObject * args){
     sec.credential = NULL;
     cc = esc_updateservice(xmlstr,&sec);    
     if (cc != 0){
-        fprintf(stderr, "Failed to create service in SC, %s\n",
-                esc_strerror(escerrno));
 	return Py_BuildValue("b", 0 == 1);  
     } else {
         printf("create service success.\n");
@@ -1298,7 +1533,6 @@ PyEGO_esc_update_service(PyEGO * self, PyObject * args){
  
     return Py_BuildValue("b", 1 == 1);    /* Boolean */
 }/* PyEGO_esc_update_service() */
-
 
 static PyMethodDef PyEGO_methods[] = {
     {"open", (PyCFunction) PyEGO_open, METH_VARARGS,
@@ -1346,6 +1580,18 @@ static PyMethodDef PyEGO_methods[] = {
     {"getAllAlloc", (PyCFunction) PyEGO_getAllAlloc, METH_VARARGS,
         "get all EGO allocations"},
 
+    {"getDecisionsByFilter", (PyCFunction) PyEGO_getDecisionsByFilter, METH_VARARGS,
+        "get decisions by filter"},
+
+    {"getReleaseCandidates", (PyCFunction) PyEGO_getReleaseCandidates, METH_VARARGS,
+        "get release candidates"},
+
+    {"updateDecision", (PyCFunction) PyEGO_updateDecision, METH_VARARGS,
+        "update decision"},
+
+    {"releaseDecision", (PyCFunction) PyEGO_releaseDecision, METH_VARARGS,
+        "release decision"},
+
     {"getAllocHostByID", (PyCFunction) PyEGO_getAllocByID, METH_VARARGS,
         "get EGO allocation host by ID"},
 
@@ -1378,7 +1624,7 @@ static PyMethodDef PyEGO_methods[] = {
 	
     {"esc_update_service", (PyCFunction) PyEGO_esc_update_service, METH_VARARGS,
         "Update EGO services"},
-	
+
     {NULL, NULL, 0, NULL}   /* Sentinel */
 };  /* PyEGO_methods */
 
