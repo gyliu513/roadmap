@@ -30,7 +30,6 @@ ego = None
 # conditionally import so tests can work without having the dependency
 # satisfied
 try:
-    import pdb; pdb.set_trace()
     import os
     '''
     os.environ['EGO_CONFDIR'] = "/opt/ibm/platformsymphony/3.1/linux2.6-glibc2.3-x86_64/lib"
@@ -291,25 +290,23 @@ autoStart="%s">%s</sc:Dependency> ' % (self.properties[self.CONTROL_POLICY][self
       <ego:JobController>%s</ego:JobController> ' % (self.properties[self.ACTIVITY_DESCRIPTION][self.HOST_TYPE],
                            self.properties[self.ACTIVITY_DESCRIPTION][self.ACTIVITY_SPECIFICATION][self.COMMAND],
                            self.properties[self.ACTIVITY_DESCRIPTION][self.ACTIVITY_SPECIFICATION][self.JOB_CONTROLLER])
-
+ 
     def _get_job_monitor(self):
-        import pdb; pdb.set_trace()
         if self.properties[self.ACTIVITY_DESCRIPTION][self.ACTIVITY_SPECIFICATION][self.JOB_MONITOR]:
             return '<ego:JobMonitor>%s</ego:JobMonitor> \
         <ego:JobMonitorMaxUpdateInterval>%d</ego:JobMonitorMaxUpdateInterval> ' % (self.properties[self.ACTIVITY_DESCRIPTION][self.ACTIVITY_SPECIFICATION][self.JOB_MONITOR],
                             self.properties[self.ACTIVITY_DESCRIPTION][self.ACTIVITY_SPECIFICATION][self.JOB_MONITOR_MAX_UPDATE_INTERVAL])
         else:
             return ' '
-
+ 
     def _get_final(self):
         return ' <ego:ExecutionUser>root</ego:ExecutionUser> \
                <ego:Umask>0777</ego:Umask> \
                </ego:ActivitySpecification> \
                </sc:ActivityDescription> \
                </sc:ServiceDefinition>'
-
+ 
     def handle_create(self):
-        import pdb; pdb.set_trace()
         client = self.get_client()
         xml_str = (self._get_service_header() 
                    +self._get_service_instance_conf()
