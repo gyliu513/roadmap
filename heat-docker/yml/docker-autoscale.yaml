@@ -19,6 +19,12 @@ resources:
             - 3306
           docker_endpoint: 'tcp://127.0.0.1:3128'
 
+  down-policy:
+    type: OS::Heat::ScalingPolicy
+    properties:
+      auto_scaling_group_id: {get_resource: scale_group}
+      adjustment_type: change_in_capacity
+      scaling_adjustment: -1
   up-policy:
     type: OS::Heat::ScalingPolicy
     properties:
