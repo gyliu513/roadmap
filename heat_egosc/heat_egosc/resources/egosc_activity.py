@@ -116,9 +116,9 @@ class EGOActivity(resource.Resource):
             default=1
         ),
         SVC_NAME: properties.Schema(
-            properties.Schema.INTEGER,
+            properties.Schema.STRING,
             _('SVC Name'),
-            default=1
+            default=None
         ),
         CONTROL_POLICY: properties.Schema(
             properties.Schema.MAP,
@@ -327,7 +327,7 @@ autoStart="%s">%s</sc:Dependency> ' % (self.properties[self.CONTROL_POLICY][self
                    + self._get_final())
         print xml_str
         result = client.esc_create_service(xml_str)
-        self.resource_id_set(self.name)
+        self.resource_id_set(self.properties[self.SVC_NAME])
         return self.resource_id
  
     def check_create_complete(self, service_name):

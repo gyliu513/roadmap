@@ -31,6 +31,7 @@ ego = None
 # satisfied
 try:
     import os
+    import pdb; pdb.set_trace()
     '''
     os.environ['EGO_CONFDIR'] = "/opt/ibm/platformsymphony/3.1/linux2.6-glibc2.3-x86_64/lib"
     os.environ['EGO_LIBDIR'] = "/opt/ibm/platformsymphony/3.1/linux2.6-glibc2.3-x86_64/lib"
