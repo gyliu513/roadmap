@@ -46,7 +46,7 @@ module1 = Extension('ego',
                 '-L' + openssl_lib_dir + LM_ARCH + '/lib',
                 '-L' + ego_top_dir + '/kernel/lib',
                 '-L' + icu_lib_dir + LM_ARCH + '/lib',
-                '-lstdc++', '-lvem', '-lpccutilstatic', '-L/usr/lib',
+                '-lstdc++', '-lvem', '-lesc', '-lpccutilstatic', '-L/usr/lib',
                 '-lxml2', '-lz', '-lm', '-L/usr/kerberos/lib',
                 '-lssl', '-lcrypto', '-ldl', '-lz', '-lsicui18n',
                 '-lsicuuc', '-lsicudata', '-lsicuio'
