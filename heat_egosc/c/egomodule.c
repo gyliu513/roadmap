@@ -1492,17 +1492,17 @@ PyEGO_esc_query_service (PyEGO * self, PyObject * args){
     printf("Getting sevice %s\n", name);
     cc = esc_sec_queryservice(name, &reply, &sec);
     if (cc == 0) {
-        printf("OK>>>>>>>>>>>>");
 	ilist = PyList_New(reply.serviceV[0].instC);
 	for(i=0; i<reply.serviceV[0].instC; i++) {
-            PyList_SetItem(ilist, i,
-		    Py_BuildValue("i", reply.serviceV[0].instV[i].seqno));	    
+        PyList_SetItem(ilist, i,
+	    Py_BuildValue("i", reply.serviceV[0].instV[i].seqno));	    
 	}
-	obj = Py_BuildValue("siO", name, reply.serviceV[0].instC, ilist);
+	obj = Py_BuildValue("siiiO", name, reply.serviceV[0].instC,
+	                    reply.serviceV[0].context.minInstances,
+		            reply.serviceV[0].context.maxInstances, ilist);
 	return (obj);
     } else {
-        printf("KO>>>>>>>>>>>>");
-	obj = Py_BuildValue("siO", name, -1, NULL);
+	obj = Py_BuildValue("siiiO", name, -1, -1, -1, NULL);
         return (obj);
     }
 } /* PyEGO_esc_query_service */
@@ -1542,6 +1542,30 @@ PyEGO_esc_update_service(PyEGO * self, PyObject * args){
  
     return Py_BuildValue("b", 1 == 1);    /* Boolean */
 }/* PyEGO_esc_update_service() */
+
+/*
+ *-------------------------------------------------------------------
+ *
+ * PyEGO_esc_config_service
+ *
+ *  DESCRIPTION:
+ *   Config a specified service.
+ *
+ *  PARAMETERS:
+ *   argc [IN] : the number of parameters
+ *   argv [IN] : the parameter array
+ *  RETURN:
+ *   NONE
+ *--------------------------------------------------------------------
+ */
+static PyObject *
+PyEGO_esc_config_service (PyEGO * self, PyObject * args){
+	esc_service_config_req_t req;
+
+	PyArg_ParseTuple(args, "ssi", &allocation_name, &sub_demand_name, &num_unit);
+
+
+} /* PyEGO_esc_config_service */
 
 static PyMethodDef PyEGO_methods[] = {
     {"open", (PyCFunction) PyEGO_open, METH_VARARGS,
@@ -1633,6 +1657,9 @@ static PyMethodDef PyEGO_methods[] = {
 	
     {"esc_update_service", (PyCFunction) PyEGO_esc_update_service, METH_VARARGS,
         "Update EGO services"},
+
+    {"esc_config_service", (PyCFunction) PyEGO_esc_config_service, METH_VARARGS,
+        "Config EGO services"},
 
     {NULL, NULL, 0, NULL}   /* Sentinel */
 };  /* PyEGO_methods */
