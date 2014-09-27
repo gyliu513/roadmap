@@ -1477,10 +1477,12 @@ PyEGO_esc_delete_service (PyEGO * self, PyObject * args){
  */
 static PyObject *
 PyEGO_esc_query_service (PyEGO * self, PyObject * args){
-    int    cc;
+    int    cc, i;
     char   *name = NULL;
     esc_security_def_t  sec;
     esc_service_info_reply_t    reply;
+    PyObject *obj = NULL;
+    PyObject *ilist = NULL;
 
     PyArg_ParseTuple(args, "s", &name);
 
@@ -1491,10 +1493,17 @@ PyEGO_esc_query_service (PyEGO * self, PyObject * args){
     cc = esc_sec_queryservice(name, &reply, &sec);
     if (cc == 0) {
         printf("OK>>>>>>>>>>>>");
-        return Py_BuildValue("b", 1 == 1);    /* Boolean */   
+	ilist = PyList_New(reply.serviceV[0].instC);
+	for(i=0; i<reply.serviceV[0].instC; i++) {
+            PyList_SetItem(ilist, i,
+		    Py_BuildValue("i", reply.serviceV[0].instV[i].seqno));	    
+	}
+	obj = Py_BuildValue("siO", name, reply.serviceV[0].instC, ilist);
+	return (obj);
     } else {
         printf("KO>>>>>>>>>>>>");
-        return Py_BuildValue("b", 0 == 1);    /* Boolean */
+	obj = Py_BuildValue("siO", name, -1, NULL);
+        return (obj);
     }
 } /* PyEGO_esc_query_service */
 
