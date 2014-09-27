@@ -317,18 +317,25 @@ autoStart="%s">%s</sc:Dependency> ' % (self.properties[self.CONTROL_POLICY][self
     def handle_create(self):
         import pdb; pdb.set_trace()
         client = self.get_client()
-        xml_str = (self._get_service_header() 
-                   +self._get_service_instance_conf()
-                   + self._get_controll_policy()
-                   + self._get_dependency_policy()
-                   + self._get_allocation_spec()
-                   + self._get_activity_desc()
-                   + self._get_job_monitor()
-                   + self._get_final())
-        print xml_str
-        result = client.esc_create_service(xml_str)
-        self.resource_id_set(self.properties[self.SVC_NAME])
-        return self.resource_id
+        ret = client.esc_query_service(self.properties[self.SVC_NAME])
+        if ret[1] == -1: 
+            xml_str = (self._get_service_header() 
+                       +self._get_service_instance_conf()
+                       + self._get_controll_policy()
+                       + self._get_dependency_policy()
+                       + self._get_allocation_spec()
+                       + self._get_activity_desc()
+                       + self._get_job_monitor()
+                       + self._get_final())
+            print xml_str
+            result = client.esc_create_service(xml_str)
+            self.resource_id_set(self.properties[self.SVC_NAME])
+            return self.resource_id
+        else:
+            (name, num_inst, min_int, max_inst, inst_list) = ret
+            cc = client.esc_config_service(name, 1, max_inst+1, None)
+            self.resource_id_set(self.properties[self.SVC_NAME])
+            return self.resource_id
  
     def check_create_complete(self, service_name):
         return True
@@ -338,8 +345,18 @@ autoStart="%s">%s</sc:Dependency> ' % (self.properties[self.CONTROL_POLICY][self
         if self.resource_id is None:
             return
         client = self.get_client()
-        result = client.esc_delete_service(self.resource_id)        
- 
+        ret = client.esc_query_service(self.properties[self.SVC_NAME])
+        if ret[1] == -1:
+            return
+        else:
+            (name, num_inst, min_int, max_inst, inst_list) = ret 
+            if num_inst > 1:
+                cc = client.esc_config_service(name, 1, max_inst-1, str(inst_list[0]))
+            elif num_inst == 1:
+                result = client.esc_delete_service(self.resource_id)
+            else:
+                return
+
     def check_delete_complete(self, service_name):
         if service_name is None:
             return True
