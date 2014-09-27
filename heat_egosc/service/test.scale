@@ -1,0 +1,98 @@
+jay@devstack1:~/src/jay-work/heat_egosc/service$ heat stack-create d1 --template-file=./test_a.yml 
++--------------------------------------+------------+--------------------+----------------------+
+| id                                   | stack_name | stack_status       | creation_time        |
++--------------------------------------+------------+--------------------+----------------------+
+| ea6f403e-ff78-483b-92c0-d5027f3bd1f6 | d1         | CREATE_IN_PROGRESS | 2014-09-27T14:49:50Z |
++--------------------------------------+------------+--------------------+----------------------+
+root@devstack1:/opt/sym71/3.1/linux2.6-glibc2.3-x86_64/lib# egosh service list
+SERVICE  STATE    ALLOC CONSUMER RGROUP RESOURCE SLOTS SEQ_NO INST_STATE ACTI  
+hadc     STARTED  15    /Manage* Manag* devstac* 1     1      RUN        26    
+test     STARTED  13    /Manage* Manag* devstac* 3     4      RUN        17    
+                                                       1      RUN        21    
+                                                       6      RUN        23    
+WEBGUI   STARTED  2     /Manage* Manag* devstac* 1     1      RUN        1     
+purger   STARTED  3     /Manage* Manag* devstac* 1     1      RUN        2     
+derbydb  DEFINED        /Manage* Manag*                                        
+GPFSmon* DEFINED        /Manage* Manag*                                        
+plc      STARTED  4     /Manage* Manag* devstac* 1     1      RUN        3     
+psmrlc   STARTED  5     /Manage* Manag* devstac* 1     1      RUN        4     
+ascd     STARTED  6     /Manage* Manag* devstac* 1     1      RUN        5     
+RSA      STARTED  7     /Cluste* Inter* devstac* 1     1      RUN        6     
+YARNRes* DEFINED        /YARN/R* Manag*                                        
+DataNode DEFINED        /HDFS/D*                                               
+SD       STARTED  8     /Manage* Manag* devstac* 1     1      RUN        7     
+Seconda* DEFINED        /HDFS/S*                                               
+RS       STARTED  9     /Manage* Manag* devstac* 1     1      RUN        8     
+MRSS     STARTED  10    /Comput* MapRe* devstac* 1     1      RUN        9     
+USSD     DEFINED        /Cluste* Inter*                                        
+WebServ* STARTED  11    /Manage* Manag* devstac* 1     1      RUN        10    
+NameNode DEFINED        /HDFS/N*                                               
+Service* DEFINED        /Manage* Manag*                                        
+SMCP     DEFINED        /Manage* Manag*          
+jay@devstack1:~/src/jay-work/heat_egosc/service$ heat resource-signal d1 up-policy
+jay@devstack1:~/src/jay-work/heat_egosc/service$ heat stack-list
++--------------------------------------+------------+-----------------+----------------------+
+| id                                   | stack_name | stack_status    | creation_time        |
++--------------------------------------+------------+-----------------+----------------------+
+| ea6f403e-ff78-483b-92c0-d5027f3bd1f6 | d1         | CREATE_COMPLETE | 2014-09-27T14:49:50Z |
++--------------------------------------+------------+-----------------+----------------------+
+root@devstack1:/opt/sym71/3.1/linux2.6-glibc2.3-x86_64/lib# egosh service list
+SERVICE  STATE    ALLOC CONSUMER RGROUP RESOURCE SLOTS SEQ_NO INST_STATE ACTI  
+hadc     STARTED  15    /Manage* Manag* devstac* 2     1      RUN        26    
+                                                       2      RUN        27    
+test     STARTED  13    /Manage* Manag* devstac* 3     4      RUN        17    
+                                                       1      RUN        21    
+                                                       6      RUN        23    
+WEBGUI   STARTED  2     /Manage* Manag* devstac* 1     1      RUN        1     
+purger   STARTED  3     /Manage* Manag* devstac* 1     1      RUN        2     
+derbydb  DEFINED        /Manage* Manag*                                        
+GPFSmon* DEFINED        /Manage* Manag*                                        
+plc      STARTED  4     /Manage* Manag* devstac* 1     1      RUN        3     
+psmrlc   STARTED  5     /Manage* Manag* devstac* 1     1      RUN        4     
+ascd     STARTED  6     /Manage* Manag* devstac* 1     1      RUN        5     
+RSA      STARTED  7     /Cluste* Inter* devstac* 1     1      RUN        6     
+YARNRes* DEFINED        /YARN/R* Manag*                                        
+DataNode DEFINED        /HDFS/D*                                               
+SD       STARTED  8     /Manage* Manag* devstac* 1     1      RUN        7     
+Seconda* DEFINED        /HDFS/S*                                               
+RS       STARTED  9     /Manage* Manag* devstac* 1     1      RUN        8     
+MRSS     STARTED  10    /Comput* MapRe* devstac* 1     1      RUN        9     
+USSD     DEFINED        /Cluste* Inter*                                        
+WebServ* STARTED  11    /Manage* Manag* devstac* 1     1      RUN        10    
+NameNode DEFINED        /HDFS/N*                                               
+Service* DEFINED        /Manage* Manag*                                        
+SMCP     DEFINED        /Manage* Manag*       
+jay@devstack1:~/src/jay-work/heat_egosc/service$ heat resource-signal d1 up-policy
+jay@devstack1:~/src/jay-work/heat_egosc/service$ heat stack-delete d1
++--------------------------------------+------------+--------------------+----------------------+
+| id                                   | stack_name | stack_status       | creation_time        |
++--------------------------------------+------------+--------------------+----------------------+
+| ea6f403e-ff78-483b-92c0-d5027f3bd1f6 | d1         | DELETE_IN_PROGRESS | 2014-09-27T14:49:50Z |
++--------------------------------------+------------+--------------------+----------------------+
+root@devstack1:/opt/sym71/3.1/linux2.6-glibc2.3-x86_64/lib# egosh service list
+SERVICE  STATE    ALLOC CONSUMER RGROUP RESOURCE SLOTS SEQ_NO INST_STATE ACTI  
+hadc     STARTED  15    /Manage* Manag* devstac* 3     1      RUN        26    
+                                                       2      RUN        27    
+                                                       3      RUN        28    
+test     STARTED  13    /Manage* Manag* devstac* 3     4      RUN        17    
+                                                       1      RUN        21    
+                                                       6      RUN        23    
+WEBGUI   STARTED  2     /Manage* Manag* devstac* 1     1      RUN        1     
+purger   STARTED  3     /Manage* Manag* devstac* 1     1      RUN        2     
+derbydb  DEFINED        /Manage* Manag*                                        
+GPFSmon* DEFINED        /Manage* Manag*                                        
+plc      STARTED  4     /Manage* Manag* devstac* 1     1      RUN        3     
+psmrlc   STARTED  5     /Manage* Manag* devstac* 1     1      RUN        4     
+ascd     STARTED  6     /Manage* Manag* devstac* 1     1      RUN        5     
+RSA      STARTED  7     /Cluste* Inter* devstac* 1     1      RUN        6     
+YARNRes* DEFINED        /YARN/R* Manag*                                        
+DataNode DEFINED        /HDFS/D*                                               
+SD       STARTED  8     /Manage* Manag* devstac* 1     1      RUN        7     
+Seconda* DEFINED        /HDFS/S*                                               
+RS       STARTED  9     /Manage* Manag* devstac* 1     1      RUN        8     
+MRSS     STARTED  10    /Comput* MapRe* devstac* 1     1      RUN        9     
+USSD     DEFINED        /Cluste* Inter*                                        
+WebServ* STARTED  11    /Manage* Manag* devstac* 1     1      RUN        10    
+NameNode DEFINED        /HDFS/N*                                               
+Service* DEFINED        /Manage* Manag*                                        
+SMCP     DEFINED        /Manage* Manag*                  
