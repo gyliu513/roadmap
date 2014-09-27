@@ -1561,9 +1561,33 @@ PyEGO_esc_update_service(PyEGO * self, PyObject * args){
 static PyObject *
 PyEGO_esc_config_service (PyEGO * self, PyObject * args){
 	esc_service_config_req_t req;
+	int minInstances = 0;
+	int maxInstances = 0;
+	char *seqno = NULL;
+	char *sName = NULL;
+	esc_security_def_t  sec;
+	sec.username = "Admin";
+	sec.password = "Admin";
+	sec.credential = NULL;
 
-	PyArg_ParseTuple(args, "ssi", &allocation_name, &sub_demand_name, &num_unit);
+	PyArg_ParseTuple(args, "siis", &sName, &minInstances, &maxInstances, &seqno);
 
+	req.maxInstances      = maxInstances;
+	req.minInstances      = minInstances;
+	if (seqno != NULL) {
+    	req->seqNoArray = (char **)calloc(1, sizeof(char *));
+	    req->numOfInstanceToKill = 1;
+	    req->seqNoArray[0] = strdup(seqno);
+	} else {
+		printf("seqno is empty!\n");
+	}
+
+	cc = esc_configService(&req, &sec);
+	if (cc<0) {
+		return Py_BuildValue("b", 1 == 1);    /* Boolean */
+	} else {
+		return Py_BuildValue("b", 0 == 1);    /* Boolean */
+	}
 
 } /* PyEGO_esc_config_service */
 
