@@ -1561,6 +1561,7 @@ PyEGO_esc_update_service(PyEGO * self, PyObject * args){
 static PyObject *
 PyEGO_esc_config_service (PyEGO * self, PyObject * args){
 	esc_service_config_req_t req;
+	int cc = 0;
 	int minInstances = 0;
 	int maxInstances = 0;
 	char *seqno = NULL;
@@ -1572,20 +1573,32 @@ PyEGO_esc_config_service (PyEGO * self, PyObject * args){
 
 	PyArg_ParseTuple(args, "siis", &sName, &minInstances, &maxInstances, &seqno);
 
+	/*$7 = {serviceName = 0x14c6e40 "test", maxInstances = 5, numOfInstanceToKill = 0, seqNoArray = 0x0, maxInstancesValue = 5, 
+	 *   maxInstancesFlag = 0, minInstances = 1, minInstancesValue = 1, minInstancesFlag = 0}*/
+	req.serviceName = strdup(sName);
 	req.maxInstances      = maxInstances;
 	req.minInstances      = minInstances;
+	req.numOfInstanceToKill = 0;
+	req.seqNoArray = NULL;
+	req.maxInstancesValue = maxInstances;
+	req.maxInstancesFlag = 0;
+	req.minInstancesValue = minInstances;
+	req.minInstancesFlag = 0;
+	printf("min %d max %d\n", minInstances, maxInstances);
 	if (seqno != NULL) {
-    	req->seqNoArray = (char **)calloc(1, sizeof(char *));
-	    req->numOfInstanceToKill = 1;
-	    req->seqNoArray[0] = strdup(seqno);
+    	    req.seqNoArray = (char **)calloc(1, sizeof(char *));
+	    req.numOfInstanceToKill = 1;
+	    req.seqNoArray[0] = strdup(seqno);
 	} else {
 		printf("seqno is empty!\n");
 	}
 
 	cc = esc_configService(&req, &sec);
 	if (cc<0) {
+		printf("KO\n");
 		return Py_BuildValue("b", 1 == 1);    /* Boolean */
 	} else {
+		printf("OK\n");
 		return Py_BuildValue("b", 0 == 1);    /* Boolean */
 	}
 
