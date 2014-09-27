@@ -1502,7 +1502,8 @@ PyEGO_esc_query_service (PyEGO * self, PyObject * args){
 		            reply.serviceV[0].context.maxInstances, ilist);
 	return (obj);
     } else {
-	obj = Py_BuildValue("siiiO", name, -1, -1, -1, NULL);
+        ilist = PyList_New(0);
+	obj = Py_BuildValue("siiiO", name, -1, -1, -1, ilist);
         return (obj);
     }
 } /* PyEGO_esc_query_service */
