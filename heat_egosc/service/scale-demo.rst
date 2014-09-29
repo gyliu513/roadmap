@@ -131,28 +131,28 @@ Create Stack With HEAT::
     +---------------+--------------------------------------+----------------------------+-----------------+----------------------+
     root@devstack1:/tmp# egosh service list
     SERVICE  STATE    ALLOC CONSUMER RGROUP RESOURCE SLOTS SEQ_NO INST_STATE ACTI  
-hadm     STARTED  18    /Manage* Manag* devstac* 1     1      RUN        39    
-hadc     STARTED  19    /Manage* Manag* devstac* 1     1      RUN        40    
-WEBGUI   STARTED  2     /Manage* Manag* devstac* 1     1      RUN        38    
-ascd     STARTED  6     /Manage* Manag* devstac* 1     1      RUN        36    
-SD       STARTED  8     /Manage* Manag* devstac* 1     1      RUN        37   
+    hadm     STARTED  18    /Manage* Manag* devstac* 1     1      RUN        39    
+    hadc     STARTED  19    /Manage* Manag* devstac* 1     1      RUN        40    
+    WEBGUI   STARTED  2     /Manage* Manag* devstac* 1     1      RUN        38    
+    ascd     STARTED  6     /Manage* Manag* devstac* 1     1      RUN        36    
+    SD       STARTED  8     /Manage* Manag* devstac* 1     1      RUN        37   
 
-y@devstack1:~/src/jay-work/heat_egosc/service$ heat resource-signal s1 up-policy
-jay@devstack1:~/src/jay-work/heat_egosc/service$ 
-root@devstack1:/tmp# egosh service list
-SERVICE  STATE    ALLOC CONSUMER RGROUP RESOURCE SLOTS SEQ_NO INST_STATE ACTI  
-hadm     STARTED  18    /Manage* Manag* devstac* 1     1      RUN        39    
-hadc     STARTED  19    /Manage* Manag* devstac* 2     1      RUN        40    
-                                                       2      RUN        41    
-WEBGUI   STARTED  2     /Manage* Manag* devstac* 1     1      RUN        38    
-ascd     STARTED  6     /Manage* Manag* devstac* 1     1      RUN        36    
-SD       STARTED  8     /Manage* Manag* devstac* 1     1      RUN        37   
-jay@devstack1:~/src/jay-work/heat_egosc/service$ heat resource-signal s1 up-policy
-jay@devstack1:~/src/jay-work/heat_egosc/service$ 
-root@devstack1:/tmp# egosh service list
-SERVICE  STATE    ALLOC CONSUMER RGROUP RESOURCE SLOTS SEQ_NO INST_STATE ACTI  
-hadm     STARTED  18    /Manage* Manag* devstac* 1     1      RUN        39    
-hadc     STARTED  19    /Manage* Manag* devstac* 3     1      RUN        40    
+    jay@devstack1:~/src/jay-work/heat_egosc/service$ heat resource-signal s1 up-policy
+    jay@devstack1:~/src/jay-work/heat_egosc/service$ 
+    root@devstack1:/tmp# egosh service list
+    SERVICE  STATE    ALLOC CONSUMER RGROUP RESOURCE SLOTS SEQ_NO INST_STATE ACTI  
+    hadm     STARTED  18    /Manage* Manag* devstac* 1     1      RUN        39    
+    hadc     STARTED  19    /Manage* Manag* devstac* 2     1      RUN        40    
+                                                           2      RUN        41    
+    WEBGUI   STARTED  2     /Manage* Manag* devstac* 1     1      RUN        38    
+    ascd     STARTED  6     /Manage* Manag* devstac* 1     1      RUN        36    
+    SD       STARTED  8     /Manage* Manag* devstac* 1     1      RUN        37   
+    jay@devstack1:~/src/jay-work/heat_egosc/service$ heat resource-signal s1 up-policy
+    jay@devstack1:~/src/jay-work/heat_egosc/service$ 
+    root@devstack1:/tmp# egosh service list
+    SERVICE  STATE    ALLOC CONSUMER RGROUP RESOURCE SLOTS SEQ_NO INST_STATE ACTI  
+    hadm     STARTED  18    /Manage* Manag* devstac* 1     1      RUN        39    
+    hadc     STARTED  19    /Manage* Manag* devstac* 3     1      RUN        40    
                                                        2      RUN        41    
                                                        3      RUN        42    
     WEBGUI   STARTED  2     /Manage* Manag* devstac* 1     1      RUN        38    
