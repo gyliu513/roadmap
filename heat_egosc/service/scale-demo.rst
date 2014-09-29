@@ -7,7 +7,7 @@ EGOSC + HEAT Auto Scaling Demo
 Pre-conditions
 --------------
 
-EGO is running well::
+1. EGO is running well::
 
     root@devstack1:/tmp# egosh service list
     SERVICE  STATE    ALLOC CONSUMER RGROUP RESOURCE SLOTS SEQ_NO INST_STATE ACTI  
@@ -15,7 +15,7 @@ EGO is running well::
     ascd     STARTED  6     /Manage* Manag* devstac* 1     1      RUN        36    
     SD       STARTED  8     /Manage* Manag* devstac* 1     1      RUN        37  
 
-Prepare the YAML template::
+2. Prepare the YAML template::
 
     jay@devstack1:~/src/jay-work/heat_egosc/service$ cat sleep.scale.yml 
     heat_template_version: 2013-05-23
@@ -105,7 +105,7 @@ Prepare the YAML template::
 Create the Stack
 ----------------
 
-Create Stack With HEAT::
+1. Create Stack With HEAT::
 
     jay@devstack1:~/src/jay-work/heat_egosc/service$ heat stack-create s1 --template-file=./sleep.scale.yml
     +--------------------------------------+------------+--------------------+----------------------+
@@ -113,6 +113,10 @@ Create Stack With HEAT::
     +--------------------------------------+------------+--------------------+----------------------+
     | 12ced74b-5ae0-4adc-8a20-62e2284c4e70 | s1         | CREATE_IN_PROGRESS | 2014-09-29T07:57:43Z |
     +--------------------------------------+------------+--------------------+----------------------+
+
+2. Check Stack Status::
+
+Stack was created successfully.
 
     jay@devstack1:~/src/jay-work/heat_egosc/service$ heat stack-list
     +--------------------------------------+------------+-----------------+----------------------+
