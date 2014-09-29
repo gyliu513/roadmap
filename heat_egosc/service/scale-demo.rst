@@ -1,9 +1,12 @@
-Docker plugin for OpenStack Heat
-================================
- 
-This is a demo for EGOSC + HEAT Auto Scaling
+EGOSC + HEAT Auto Scaling Demo
+==============================
 
-### 1. Pre-conditions
+.. contents:: Contents:
+   :local: 
+
+Pre-conditions
+--------------
+
 EGO is running well.
 
 root@devstack1:/tmp# egosh service list
