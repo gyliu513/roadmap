@@ -132,7 +132,7 @@ Create the Stack
     | up-policy     | 36d11bc3219d4d9d82bdd13ce94ebcbe     | OS::Heat::ScalingPolicy    | CREATE_COMPLETE | 2014-09-29T07:57:46Z |
     +---------------+--------------------------------------+----------------------------+-----------------+----------------------+
 
-3. EGO Services are created successfully, one hadm (Hadoop Master) and the other is hadc (Hadoop Compute), both of the two services have only one service instance::
+3. EGO Services were created successfully, one hadm (Hadoop Master) and the other is hadc (Hadoop Compute), both of the two services have only one service instance::
 
     root@devstack1:/tmp# egosh service list
     SERVICE  STATE    ALLOC CONSUMER RGROUP RESOURCE SLOTS SEQ_NO INST_STATE ACTI  
@@ -150,7 +150,7 @@ Scale Up the Stack
     jay@devstack1:~/src/jay-work/heat_egosc/service$ heat resource-signal s1 up-policy
     jay@devstack1:~/src/jay-work/heat_egosc/service$ 
 
-2. Check scale up result, the hadc (Hadoop Compute) was scale up successfully, you can see there are two service instances for hadc::
+2. Check scale up result, the hadc (Hadoop Compute) was scale up successfully, you can see there were two service instances for hadc::
 
     root@devstack1:/tmp# egosh service list
     SERVICE  STATE    ALLOC CONSUMER RGROUP RESOURCE SLOTS SEQ_NO INST_STATE ACTI  
@@ -166,7 +166,7 @@ Scale Up the Stack
     jay@devstack1:~/src/jay-work/heat_egosc/service$ heat resource-signal s1 up-policy
     jay@devstack1:~/src/jay-work/heat_egosc/service$ 
 
-4. Check scale up result, the hadc (Hadoop Compute) was scale up successfully, you can see there are three service instances for hadc::
+4. Check scale up result, the hadc (Hadoop Compute) was scale up successfully, you can see there were three service instances for hadc::
 
     root@devstack1:/tmp# egosh service list
     SERVICE  STATE    ALLOC CONSUMER RGROUP RESOURCE SLOTS SEQ_NO INST_STATE ACTI  
@@ -186,7 +186,7 @@ Scale Down the Stack
     jay@devstack1:~/src/jay-work/heat_egosc/service$ heat resource-signal s1 down-policy
     jay@devstack1:~/src/jay-work/heat_egosc/service$ 
 
-2. Check scale down result, the hadc (Hadoop Compute) was scale down successfully, you can see there are two service instances for hadc::::
+2. Check scale down result, the hadc (Hadoop Compute) was scale down successfully, you can see there were two service instances for hadc::::
 
     root@devstack1:/tmp# egosh service list
     SERVICE  STATE    ALLOC CONSUMER RGROUP RESOURCE SLOTS SEQ_NO INST_STATE ACTI  
