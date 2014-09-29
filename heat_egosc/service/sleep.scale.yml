@@ -52,7 +52,7 @@ resources:
               satisfy: 'STARTED',
               keep: 'STARTED',
               auto_start: 'TRUE',
-              svc_name: 'SD',
+              dep_name: 'hadm',
             }
           }
           allocation_specification: {
