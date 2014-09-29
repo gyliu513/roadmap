@@ -2,6 +2,37 @@ heat_template_version: 2013-05-23
 description: >
   Heat template to deploy EGO services
 resources:
+  hadm:
+    type: IBMInc::EGO::Service
+    properties:
+      description: 'data nodes'
+      min_instances: 1
+      max_instances: 1
+      control_policy: {
+        start_type: 'AUTOMATIC',
+        max_restarts: 10,
+        dependency: {
+          dtype: 'conditional',
+          satisfy: 'STARTED',
+          keep: 'STARTED',
+          auto_start: 'TRUE',
+          svc_name: 'SD',
+        }
+      }
+      allocation_specification: {
+        consumer_id: '/ManagementServices/EGOManagementServices',
+        resource_specification: {
+          resource_group: 'ManagementHosts',
+          resource_requirement: 'select(!NTIA64 &amp;&amp; !SOL64)',
+        }
+      }
+      activity_description: {
+        htype: 'all',
+        activity_specification: {
+          command: 'sleep 10000',
+          job_controller: 'sleep 10000'
+        }
+      }
   hadc:
     type: OS::Heat::AutoScalingGroup
     properties:
@@ -21,7 +52,7 @@ resources:
               satisfy: 'STARTED',
               keep: 'STARTED',
               auto_start: 'TRUE',
-              dep_name: 'SD',
+              svc_name: 'SD',
             }
           }
           allocation_specification: {

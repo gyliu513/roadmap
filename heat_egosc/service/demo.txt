@@ -1,0 +1,7 @@
+root@devstack1:/tmp# egosh service list
+SERVICE  STATE    ALLOC CONSUMER RGROUP RESOURCE SLOTS SEQ_NO INST_STATE ACTI  
+WEBGUI   STARTED  2     /Manage* Manag* devstac* 1     1      RUN        34    
+ascd     STARTED  6     /Manage* Manag* devstac* 1     1      RUN        36    
+SD       STARTED  8     /Manage* Manag* devstac* 1     1      RUN        37  
+
+
