@@ -7,13 +7,13 @@ EGOSC + HEAT Auto Scaling Demo
 Pre-conditions
 --------------
 
-EGO is running well.
+EGO is running well::
 
-root@devstack1:/tmp# egosh service list
-SERVICE  STATE    ALLOC CONSUMER RGROUP RESOURCE SLOTS SEQ_NO INST_STATE ACTI  
-WEBGUI   STARTED  2     /Manage* Manag* devstac* 1     1      RUN        34    
-ascd     STARTED  6     /Manage* Manag* devstac* 1     1      RUN        36    
-SD       STARTED  8     /Manage* Manag* devstac* 1     1      RUN        37  
+    root@devstack1:/tmp# egosh service list
+    SERVICE  STATE    ALLOC CONSUMER RGROUP RESOURCE SLOTS SEQ_NO INST_STATE ACTI  
+    WEBGUI   STARTED  2     /Manage* Manag* devstac* 1     1      RUN        34    
+    ascd     STARTED  6     /Manage* Manag* devstac* 1     1      RUN        36    
+    SD       STARTED  8     /Manage* Manag* devstac* 1     1      RUN        37  
 
 jay@devstack1:~/src/jay-work/heat_egosc/service$ cat sleep.scale.yml 
 heat_template_version: 2013-05-23
