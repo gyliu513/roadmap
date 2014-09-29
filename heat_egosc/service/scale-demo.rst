@@ -136,8 +136,8 @@ Create the Stack
 
     root@devstack1:/tmp# egosh service list
     SERVICE  STATE    ALLOC CONSUMER RGROUP RESOURCE SLOTS SEQ_NO INST_STATE ACTI  
-    ``hadm     STARTED  18    /Manage* Manag* devstac* 1     1      RUN        39``
-    ``hadc     STARTED  19    /Manage* Manag* devstac* 1     1      RUN        40``
+    hadm     STARTED  18    /Manage* Manag* devstac* 1     1      RUN        39
+    hadc     STARTED  19    /Manage* Manag* devstac* 1     1      RUN        40
     WEBGUI   STARTED  2     /Manage* Manag* devstac* 1     1      RUN        38    
     ascd     STARTED  6     /Manage* Manag* devstac* 1     1      RUN        36    
     SD       STARTED  8     /Manage* Manag* devstac* 1     1      RUN        37   
