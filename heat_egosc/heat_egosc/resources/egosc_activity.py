@@ -272,7 +272,7 @@ autoStart="%s">%s</sc:Dependency> ' % (self.properties[self.CONTROL_POLICY][self
                                                       self.properties[self.CONTROL_POLICY][self.DEPENDENCY][self.SATISFY],
                                                       self.properties[self.CONTROL_POLICY][self.DEPENDENCY][self.KEEP],
                                                       self.properties[self.CONTROL_POLICY][self.DEPENDENCY][self.AUTO_START],
-                                                      self.properties[self.CONTROL_POLICY][self.DEPENDENCY][self.SVC_NAME],)
+                                                      self.properties[self.CONTROL_POLICY][self.DEPENDENCY][self.DEP_NAME],)
         else:
             return ' '
  
