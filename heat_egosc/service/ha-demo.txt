@@ -1,0 +1,76 @@
+jay@devstack1:~/src/jay-work/heat_egosc/service$ heat stack-create s1 --template-file=./sleep.scale.yml 
++--------------------------------------+------------+--------------------+----------------------+
+| id                                   | stack_name | stack_status       | creation_time        |
++--------------------------------------+------------+--------------------+----------------------+
+| 2c644400-da4c-4d2e-86d4-4113ecd4b891 | s1         | CREATE_IN_PROGRESS | 2014-09-29T08:17:53Z |
++--------------------------------------+------------+--------------------+----------------------+
+jay@devstack1:~/src/jay-work/heat_egosc/service$ heat stack-list
++--------------------------------------+------------+-----------------+----------------------+
+| id                                   | stack_name | stack_status    | creation_time        |
++--------------------------------------+------------+-----------------+----------------------+
+| 2c644400-da4c-4d2e-86d4-4113ecd4b891 | s1         | CREATE_COMPLETE | 2014-09-29T08:17:53Z |
++--------------------------------------+------------+-----------------+----------------------+
+root@devstack1:/opt/sym71/eservice/esc/conf/services# egosh service list
+SERVICE  STATE    ALLOC CONSUMER RGROUP RESOURCE SLOTS SEQ_NO INST_STATE ACTI  
+hadc     STARTED  21    /Manage* Manag* devstac* 1     1      RUN        44    
+hadm     STARTED  20    /Manage* Manag* devstac* 1     1      RUN        43    
+WEBGUI   STARTED  2     /Manage* Manag* devstac* 1     1      RUN        38    
+ascd     STARTED  6     /Manage* Manag* devstac* 1     1      RUN        36    
+SD       STARTED  8     /Manage* Manag* devstac* 1     1      RUN        37  
+root@devstack1:/opt/sym71/eservice/esc/conf/services# egosh service list
+SERVICE  STATE    ALLOC CONSUMER RGROUP RESOURCE SLOTS SEQ_NO INST_STATE ACTI  
+hadc     STARTED  21    /Manage* Manag* devstac* 1     1      RUN        44    
+hadm     STARTED  20    /Manage* Manag* devstac* 1     1      RUN        43    
+WEBGUI   STARTED  2     /Manage* Manag* devstac* 1     1      RUN        38    
+ascd     STARTED  6     /Manage* Manag* devstac* 1     1      RUN        36    
+SD       STARTED  8     /Manage* Manag* devstac* 1     1      RUN        37    
+root@devstack1:/opt/sym71/eservice/esc/conf/services# ps -ef | grep sleep
+root     21684 21683  0 16:18 ?        00:00:00 sleep 10000
+root     22087 22086  0 16:18 ?        00:00:00 sleep 10000
+root     22541 17496  0 16:18 ?        00:00:00 sleep 20
+root     22552  4285  0 16:18 pts/8    00:00:00 grep --color=auto sleep
+root@devstack1:/opt/sym71/eservice/esc/conf/services# kill -9 22087
+root@devstack1:/opt/sym71/eservice/esc/conf/services# egosh service list
+SERVICE  STATE    ALLOC CONSUMER RGROUP RESOURCE SLOTS SEQ_NO INST_STATE ACTI  
+hadc     STARTED  21    /Manage* Manag* devstac* 1     1      RUN        45    
+hadm     STARTED  20    /Manage* Manag* devstac* 1     1      RUN        43    
+WEBGUI   STARTED  2     /Manage* Manag* devstac* 1     1      RUN        38    
+ascd     STARTED  6     /Manage* Manag* devstac* 1     1      RUN        36    
+SD       STARTED  8     /Manage* Manag* devstac* 1     1      RUN        37  
+root@devstack1:/opt/sym71/eservice/esc/conf/services# egosh service list
+SERVICE  STATE    ALLOC CONSUMER RGROUP RESOURCE SLOTS SEQ_NO INST_STATE ACTI  
+hadc     STARTED  21    /Manage* Manag* devstac* 1     1      RUN        44    
+hadm     STARTED  20    /Manage* Manag* devstac* 1     1      RUN        43    
+WEBGUI   STARTED  2     /Manage* Manag* devstac* 1     1      RUN        38    
+ascd     STARTED  6     /Manage* Manag* devstac* 1     1      RUN        36    
+SD       STARTED  8     /Manage* Manag* devstac* 1     1      RUN        37    
+root@devstack1:/opt/sym71/eservice/esc/conf/services# ps -ef | grep sleep
+root     21684 21683  0 16:18 ?        00:00:00 sleep 10000
+root     22087 22086  0 16:18 ?        00:00:00 sleep 10000
+root     22541 17496  0 16:18 ?        00:00:00 sleep 20
+root     22552  4285  0 16:18 pts/8    00:00:00 grep --color=auto sleep
+root@devstack1:/opt/sym71/eservice/esc/conf/services# kill -9 22087
+root@devstack1:/opt/sym71/eservice/esc/conf/services# egosh service list
+SERVICE  STATE    ALLOC CONSUMER RGROUP RESOURCE SLOTS SEQ_NO INST_STATE ACTI  
+hadc     STARTED  21    /Manage* Manag* devstac* 1     1      RUN        45    
+hadm     STARTED  20    /Manage* Manag* devstac* 1     1      RUN        43    
+WEBGUI   STARTED  2     /Manage* Manag* devstac* 1     1      RUN        38    
+ascd     STARTED  6     /Manage* Manag* devstac* 1     1      RUN        36    
+SD       STARTED  8     /Manage* Manag* devstac* 1     1      RUN        37    
+
+jay@devstack1:~/src/jay-work/heat_egosc/service$ heat stack-delete s1
++--------------------------------------+------------+--------------------+----------------------+
+| id                                   | stack_name | stack_status       | creation_time        |
++--------------------------------------+------------+--------------------+----------------------+
+| 2c644400-da4c-4d2e-86d4-4113ecd4b891 | s1         | DELETE_IN_PROGRESS | 2014-09-29T08:17:53Z |
++--------------------------------------+------------+--------------------+----------------------+
+jay@devstack1:~/src/jay-work/heat_egosc/service$ heat stack-list
++----+------------+--------------+---------------+
+| id | stack_name | stack_status | creation_time |
++----+------------+--------------+---------------+
++----+------------+--------------+---------------+
+root@devstack1:/opt/sym71/eservice/esc/conf/services# egosh service list
+SERVICE  STATE    ALLOC CONSUMER RGROUP RESOURCE SLOTS SEQ_NO INST_STATE ACTI  
+WEBGUI   STARTED  2     /Manage* Manag* devstac* 1     1      RUN        38    
+ascd     STARTED  6     /Manage* Manag* devstac* 1     1      RUN        36    
+SD       STARTED  8     /Manage* Manag* devstac* 1     1      RUN        37   
