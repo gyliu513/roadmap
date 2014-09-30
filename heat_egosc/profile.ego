@@ -1,0 +1,678 @@
+#!/bin/sh
+# $Id: TMPL.profile.ego.x86_64,v 1.1.4.2 2013/10/31 07:13:55 lunzhou Exp $
+#--------------------------------------------------------------------------
+# This code gets the binary type when setting EGO user environment.
+#---------------------------------------------------------------------------
+
+#-----------------------------------
+# Name: is_slurm_host
+# Synopsis: is_slurm_host
+# Environment Variables:
+# Description:
+#       It checks whether or not the current host is
+#       installed with slurm system (slurm server host).
+#       Currently, we check signature file: /var/lsf/lsfslurm
+# Return Value:
+#       0 slurm host; 1 non-slurm host
+#-----------------------------------
+is_slurm_host ()
+{
+    _slurm_signature_file="/var/lsf/lsfslurm"
+
+    if [ -f  "$_slurm_signature_file" ]; then
+        # SLURM server host
+        return 0
+    fi
+    return 1
+} # is_slurm_host
+
+#-----------------------------------
+# Name: is_cpuset_host
+# Synopsis: is_cpuset_host
+# Environment Variables:
+# Description:
+#       It checkes whether or not the current host is a cpuset host
+#       Check if libcpuset.so exist or not
+#       /usr/lib/libcpuset.so
+#       /lib32/libcpuset.so
+#       /lib64/libcpuset.so
+# Return Value:
+#       0 cpuset host; 1 non-cpuset host
+#-----------------------------------
+is_cpuset_host ()
+{
+    if [ -f  "/usr/lib/libcpuset.so" -o -f "/lib32/libcpuset.so" -o -f "/lib64/libcpuset.so" ]; then
+# cpuset host
+       return 0
+    fi
+# Non-cpuset hosts
+     return 1
+} # is_cpuset_host
+
+
+_CUR_PATH_ENV="$PATH"
+PATH=/usr/bin:/bin:/usr/local/bin:/local/bin:/sbin:/usr/sbin:/usr/ucb:/usr/sbin:/usr/bsd:${PATH}
+
+# handle difference between system V and BSD echo
+# To echo "foo" with no newline, do
+# echo $enf "foo" $enl
+
+if [ "`echo -n`" = "-n" ] ; then
+    enf=
+    enl="\c"
+else
+    enf=-n
+    enl=
+fi
+export enf enl
+
+LSNULFILE=/dev/null
+
+# Find a version of awk we can trust
+AWK=""
+for tmp in nawk  /usr/toolbox/nawk gawk awk 
+do
+#   This is the real test, for functions & tolower
+#    if foo=`(echo FOO | $tmp 'function tl(str) { return tolower(str) } { print tl($1) }') 2>$LSNULFILE` \
+#       && test "$foo" = "foo"
+#   A simpler test, just for executability
+    if ($tmp 'BEGIN{ } { }') < $LSNULFILE > $LSNULFILE 2>&1  
+    then
+	AWK=$tmp
+        break
+    fi
+done
+
+if test "$AWK" = ""
+then
+    echo "Cannot find a correct version of awk."
+    echo "Exiting ... "
+    exit 1
+fi
+export AWK
+
+EGO_TOP=/opt/sym71
+EGO_VERSION=3.1
+
+uname_val=`uname -a`
+EGO_BINARY_TYPE="fail"
+EGO_BINARY_TYPE_PRIMARY=""
+export EGO_BINARY_TYPE
+field1=`echo $uname_val |$AWK '{print $1}'`
+case "$field1" in
+    Darwin)
+        EGO_BINARY_TYPE="macosx"
+        ;;
+    IRIX*)
+        version=`echo $uname_val | $AWK '{split($3, a, "."); print a[1]}'`
+        release=`echo $uname_val | $AWK '{split($3, a, "."); print a[2]}'`
+        if [ $version = "6" -a $release -ge "2" ]; then
+	    mls=`sysconf MAC`
+	    if [ "$mls" = "1" ]
+	    then
+        	if [ $version = "6" -a $release -eq "5" ]; then
+                    modification=`/sbin/uname -R | awk '{split($2, a, "."); print a[3]}' | awk -F'[.a-zA-Z]' '{print $1}'`
+                    if [ -z "$modification" ]; then
+                        EGO_BINARY_TYPE="trix6"
+                    else
+                        if [ $modification -ge "8" ]; then
+                            EGO_BINARY_TYPE="trix6.5.24"
+                        else
+                            EGO_BINARY_TYPE="trix6"
+                        fi
+                    fi 
+		else
+		    EGO_BINARY_TYPE="trix6"
+                fi
+	    else
+        	if [ $version = "6" -a $release -eq "5" ]; then
+                    modification=`/sbin/uname -R | awk '{split($2, a, "."); print a[3]}' | awk -F'[.a-zA-Z]' '{print $1}'`
+                    if [ -z "$modification" ]; then
+                        EGO_BINARY_TYPE="sgi6.5"
+                    else
+                        if [ $modification -ge "8" ]; then
+                            EGO_BINARY_TYPE="irix6.5.24"
+                        else
+                            EGO_BINARY_TYPE="sgi6.5"
+                        fi
+                    fi
+	        elif [ $version = "6" -a $release -eq "4" ]; then
+	            EGO_BINARY_TYPE="sgi6"
+	        elif [ $version = "6" -a $release -eq "2" ]; then
+	            EGO_BINARY_TYPE="sgi6"
+		fi
+	    fi
+         else
+	    EGO_BINARY_TYPE="sgi5"
+ 	fi
+	;;
+    SunOS)
+        version=`echo $uname_val | $AWK '{split($3, a, "."); print a[1]}'`
+        minorver=`echo $uname_val | $AWK '{split($3, a, "."); print a[2]}'`
+        machine=`echo $uname_val | $AWK '{print $5}'`
+        if [ $version = "4" ]; then
+            EGO_BINARY_TYPE="sunos4"
+        else
+            if [ "$machine" = "i86pc" ]; then
+                BIT64=`/usr/bin/isainfo -vk | grep -c '64.bit' 2> /dev/null`
+                if [ "$BIT64" -eq "0" ] ; then
+                    if [ "$minorver" = "7" -o "$minorver" = "8" -o "$minorver" = "9" ] ; then
+                        EGO_BINARY_TYPE="x86-sol7"
+                    else
+                        if [ "$minorver" -ge "10" ]; then
+                            EGO_BINARY_TYPE="x86-sol10"
+                        else
+                            EGO_BINARY_TYPE="x86-sol2"
+			fi
+                    fi
+                else
+                    if [ "$minorver" -ge "10" ] ; then
+                        EGO_BINARY_TYPE="x86-64-sol10"
+                    fi
+                fi
+            else
+                EGO_BINARY_TYPE="sparc-sol2"
+                if [ "$minorver" -ge "7" -a "$minorver" -le "9" ]; then
+                    BIT64=`/usr/bin/isainfo -vk | grep -c '64.bit' 2> /dev/null`
+                    if [ "$BIT64" -eq "0" ]; then
+                        EGO_BINARY_TYPE="sparc-sol7-32"
+                    else
+                        EGO_BINARY_TYPE="sparc-sol7-64"
+                    fi
+                elif [ "$minorver" -ge "10" ]; then
+                    BIT64=`/usr/bin/isainfo -vk | grep -c '64.bit' 2> /dev/null`
+                    if [ "$BIT64" -eq "0" ]; then
+                        EGO_BINARY_TYPE="sparc-sol10-32"
+                    else
+                        EGO_BINARY_TYPE="sparc-sol10-64"
+                    fi
+                fi
+            fi
+        fi
+        ;;
+   HI-UX)
+           EGO_BINARY_TYPE="hppa"
+           ;;
+   HP-UX)
+        # spp need to run uname -C to find the version
+        uname -C 2>$LSNULFILE
+        if [ $? = 1 ]; then
+            version=`echo $uname_val | $AWK '{split($3, a, "."); print a[2]}'`
+            if [ $version = "09" ] ; then
+                EGO_BINARY_TYPE="hppa9"
+            elif [ $version = "10" ] ; then
+                subver=`echo $uname_val | $AWK '{split($3, a, "."); print a[3]}'`
+                if [ $subver = "10" ]; then
+                    EGO_BINARY_TYPE="hppa10"
+                elif [ $subver = "20" ]; then
+                    EGO_BINARY_TYPE="hppa10.20"
+                fi
+            elif [ $version = "11" ] ; then
+                machine=`echo $uname_val | $AWK '{print $5}'`
+                subver=`echo $uname_val | $AWK '{split($3, a, "."); print a[3]}'`
+                if [ "$machine" = "ia64" ]; then
+                    EGO_BINARY_TYPE="hppa11-64"
+                    #
+                    # The order in EGO_BINARY_TYPE_PRIMARY matters
+                    # the order determines how profile.ego/cshrc.ego
+                    # sets the EGO_BINDIR. The correct order should be
+                    # from high version of OS to low version of OS.
+                    #
+                    EGO_BINARY_TYPE_PRIMARY="hpuxia64 hppa11i-64 hppa11-64"
+                else
+                    kernel=`/usr/bin/getconf KERNEL_BITS`
+                  if [ "$subver" = "00" ]; then
+                        if [ "$kernel" = "32" ] ; then
+                            EGO_BINARY_TYPE="hppa11-32"
+                        else
+                            EGO_BINARY_TYPE="hppa11-64"
+                        fi
+                   else
+                        if [ "$kernel" = "32" ] ; then
+                            EGO_BINARY_TYPE="hppa11-32"
+                            EGO_BINARY_TYPE_PRIMARY="hppa11i-32 hppa11-32"
+                            # reset to standard EGO binary type
+                            for ARCH in hppa11i-32 hppa11-32
+                            do
+                                if [ -f $EGO_TOP/$EGO_VERSION/$ARCH/etc/vemkd ]; then
+                                    EGO_BINARY_TYPE="$ARCH"
+                                    break;
+                                fi
+                            done
+                        else
+                            EGO_BINARY_TYPE="hppa11-64"
+                            EGO_BINARY_TYPE_PRIMARY="hppa11i-64 hppa11-64"
+                            # reset to standard EGO binary type
+                            for ARCH in hppa11i-64 hppa11-64
+                            do
+                                if [ -f $EGO_TOP/$EGO_VERSION/$ARCH/etc/vemkd ]; then
+                                    EGO_BINARY_TYPE="$ARCH"
+                                    break;
+                                fi
+                            done
+                        fi
+
+                    fi
+
+                fi
+            else
+                echo "Cannot figure out the HP version."
+                exit 1
+            fi
+         else
+            version=`uname -C -a |  $AWK '{split($3, a, "."); print a[1]}'`
+            if [ $version = "5" ]; then
+                EGO_BINARY_TYPE="spp"
+            elif  [ $version = "4" ]; then
+                EGO_BINARY_TYPE="spp4"
+             fi
+         fi
+        ;;
+    AIX)
+        version=`echo $uname_val | $AWK '{print $4}'`
+        release=`echo $uname_val | $AWK '{print $3}'`
+        if [ $version = "4" -a $release -ge 1 ]; then
+           if [ $release -lt 2 ]; then
+                EGO_BINARY_TYPE="aix4"
+           elif [ $release -ge 2 ]; then
+                 EGO_BINARY_TYPE="aix4.2"
+           fi
+        elif [ $version = "5" -a $release -ge 1 ]; then
+            #On AIX, only in 64bit mode, you can see shlap64 process
+            #check shlap64 process is safer than check kernel_bit
+            if [ `ps -e -o "comm" |grep shlap64` ]; then
+               EGO_BINARY_TYPE="aix-64"
+            else
+	        EGO_BINARY_TYPE="aix-32"
+            fi
+	elif [ $version = "3" ]; then
+            EGO_BINARY_TYPE="aix3"
+	elif [ $version = "6" ]; then
+            if [ `ps -e -o "comm" |grep shlap64` ]; then
+               EGO_BINARY_TYPE="aix-64"
+            else
+	        EGO_BINARY_TYPE="aix-32"
+            fi
+  	fi
+	;;
+    Linux)
+        version=`echo $uname_val | $AWK '{split($3, a, "."); print a[1]}'`
+        #get glibc version
+        #=========================== Ubuntu Linux =======================================
+        machine=`uname -m`
+        if [ "$machine" != "k1om" ] ; then
+        ubuntu=`cat /etc/*release | grep "Ubuntu"`
+        fi
+        if [ "$ubuntu" != "" ] ; then
+                echo 222222
+	        for glibc in `ldconfig -p | grep libc.so.6 | sed 's/.*=>//'`
+	        do
+	            if [ -x "$glibc" ] ; then
+	                $glibc >/dev/null 2>&1
+	                if [ "$?" != "0" ] ; then
+	                    continue
+	                fi
+	                _libcver=`$glibc 2>/dev/null | grep "GNU C Library" | $AWK '{print $10}' | $AWK -F. '{print $2}' | sed 's/,//'`
+	            fi
+	            if [ "$_libcver" != "" ] ; then
+	                break
+	            fi
+	        done
+	        if [ "$_libcver" = "" ] ; then
+	            echo "Cannot figure out the GLibc version."
+	            exit 1
+	        fi
+	        subver=`echo $uname_val | $AWK '{split($3, a, "."); print a[1]"."a[2]}'`
+                echo $subver
+	        if [ $version = "3" ]; then
+	            if [ $subver = "3.8" ]; then
+	                machine=`uname -m`
+                    case "$machine" in
+                    x86_64)
+                        echo $_libcver
+                        if [ "$_libcver" = "15" ]; then
+			                EGO_BINARY_TYPE="linux2.6-glibc2.3-x86_64"
+                        fi
+                        ;;
+                    esac
+	            fi
+	        fi
+	    else
+        # modified to work without ldconfig
+        if [ -x /bin/sh -a -x /usr/bin/ldd ]; then
+            _libclocation=`/usr/bin/ldd /bin/sh | grep libc.so.6 | sed 's/.*=>//; s/(.*//'`
+        else
+            _libclocation=`ldconfig -p | grep libc.so.6 | sed 's/.*=>//'`
+        fi
+        for glibc in $_libclocation
+        do
+            if [ -x "$glibc" ] ; then
+                $glibc >/dev/null 2>&1
+                if [ "$?" != "0" ] ; then
+                    continue
+                fi
+                _libcver=`$glibc 2>/dev/null | grep "GNU C Library" | awk '{print substr($0,match($0,/version/))}' | awk '{print $2}' | awk -F. '{print $2}'| sed 's/,//'`
+            fi
+            if [ "$_libcver" != "" ] ; then
+                break
+            fi
+        done
+        if [ "$_libcver" = "" ] ; then
+            echo "Cannot figure out the GLibc version."
+            exit 1
+        fi
+
+        if [ $version = "1" ]; then
+	    EGO_BINARY_TYPE="linux"
+        elif [  $version = "2" ]; then
+            subver=`echo $uname_val | $AWK '{split($3, a, "."); print a[1]"."a[2]}'`
+
+            if [ $subver = "2.0" ]; then
+	        EGO_BINARY_TYPE="linux2"
+                machine=`echo $uname_val | $AWK '{print $11}'`
+                if [ "$machine" = "alpha" ]; then
+                    EGO_BINARY_TYPE="linux2-alpha"
+                else
+                    EGO_BINARY_TYPE="linux2-intel"
+                fi
+            elif [  $subver = "2.2" ]; then
+                EGO_BINARY_TYPE="linux2.2"
+
+                smp=`echo $uname_val | $AWK '{print $5}'`
+                if [ "$smp" = "SMP" ]; then
+                    machine=`echo $uname_val | $AWK '{print $12}'`
+                else
+                    machine=`echo $uname_val | $AWK '{print $11}'`
+                fi
+
+                if [ "$machine" = "alpha" ]; then
+                    EGO_BINARY_TYPE="linux2.2-glibc2.1-alpha"
+                elif [ "$machine" = "sparc" -o "$machine" =  "sparc64" ]; then
+		    EGO_BINARY_TYPE="linux2.2-glibc2.1-sparc"
+                elif [ "$machine" = "ppc" ]; then
+		    EGO_BINARY_TYPE="linux2.2-glibc2.1-powerpc"
+		else
+                    EGO_BINARY_TYPE="linux2.2-glibc2.1-x86"
+                fi
+
+            elif [  $subver = "2.4" ]; then
+                EGO_BINARY_TYPE="linux2.4"
+
+# ia64 is the family of 64-bit CPUs from Intel. We shouldn't need a new
+# distribution for each processor
+                smp=`echo $uname_val | $AWK '{print $5}'`
+                if [ "$smp" = "SMP" ]; then
+                    machine=`echo $uname_val | $AWK '{print $12}'`
+                else
+                    machine=`echo $uname_val | $AWK '{print $11}'`
+                fi
+
+                if [ "$machine" = "ia64" ]; then
+		    if [ "$_libcver" = "1" ]; then
+		        EGO_BINARY_TYPE="linux2.4-glibc2.1-ia64"
+	            elif [ "$_libcver" = "2" ]; then
+                        EGO_BINARY_TYPE="linux2.4-glibc2.2-ia64"
+                    else
+		        EGO_BINARY_TYPE="linux2.4-glibc2.3-ia64"
+		    fi
+                elif [ "$machine" = "ppc64" ]; then
+                    EGO_BINARY_TYPE="linux2.4-glibc2.2-ppc64"
+                elif [ "$machine" = "s390" ]; then
+                    EGO_BINARY_TYPE="linux2.4-glibc2.2-s390-32"
+                elif [ "$machine" = "s390x" ]; then
+                    EGO_BINARY_TYPE="linux2.4-glibc2.2-s390x-64"
+	        elif [ "$machine" = "armv5l" ]; then
+                    EGO_BINARY_TYPE="linux2.4-glibc2.2-armv5l"
+                elif [ "$machine" = "x86_64" ]; then
+                    _cputype=`cat /proc/cpuinfo | grep -i vendor | $AWK '{print $3}' | uniq`
+                    if [ "$_libcver" = "1" ]; then
+                        if [ "$_cputype" = "GenuineIntel" ]; then
+                            EGO_BINARY_TYPE="linux2.4-glibc2.1-x86"
+                            #EGO_BINARY_TYPE="linux2.4-glibc2.1-ia32e"
+                        else
+                            EGO_BINARY_TYPE="linux2.4-glibc2.1-x86"
+                            #EGO_BINARY_TYPE="linux2.4-glibc2.1-amd64"
+                        fi
+                    elif [ "$_libcver" = "2" ]; then
+                        if [ "$_cputype" = "GenuineIntel" ]; then
+                            #EGO_BINARY_TYPE="linux2.4-glibc2.2-x86"
+                            EGO_BINARY_TYPE="linux2.4-glibc2.2-x86_64"
+                        else
+                            #EGO_BINARY_TYPE="linux2.4-glibc2.2-x86"
+                            EGO_BINARY_TYPE="linux2.4-glibc2.2-x86_64"
+                        fi
+                    elif [ "$_libcver" = "3" ]; then
+                        if [ "$_cputype" = "GenuineIntel" ]; then
+                            #EGO_BINARY_TYPE="linux2.4-glibc2.3-x86"
+                            EGO_BINARY_TYPE="linux2.4-glibc2.2-x86_64"
+                        else
+                            #EGO_BINARY_TYPE="linux2.4-glibc2.3-x86"
+                            EGO_BINARY_TYPE="linux2.4-glibc2.2-x86_64"
+                        fi
+                    fi
+                elif [ "$machine" = "alpha" ]; then
+                    EGO_BINARY_TYPE="linux2.4-glibc2.2-alpha"
+                else
+                    EGO_BINARY_TYPE="fail"
+                    if [ "$_libcver" = "1" ]; then
+                        EGO_BINARY_TYPE="linux2.4-glibc2.1-x86"
+                    elif [ "$_libcver" = "2" ]; then
+                        EGO_BINARY_TYPE="linux2.4-glibc2.2-x86"
+                    elif [ "$_libcver" = "3" ]; then
+                        EGO_BINARY_TYPE="linux2.4-glibc2.3-x86"
+                    fi
+                fi
+            elif [  $subver = "2.6" ]; then
+                EGO_BINARY_TYPE="fail"
+                machine=`uname -m`
+                case "$machine" in
+                    ia64)
+                        if [ "$_libcver" = "1" ]; then
+                            EGO_BINARY_TYPE="linux2.6-glibc2.1-ia64"
+                        elif [ "$_libcver" = "2" ]; then
+                            EGO_BINARY_TYPE="linux2.6-glibc2.2-ia64"
+                        elif [ "$_libcver" = "3" ]; then
+                            EGO_BINARY_TYPE="linux2.6-glibc2.3-ia64"
+			     is_cpuset_host
+                             if [ "$?" = "0" ]; then
+                                EGO_BINARY_TYPE_PRIMARY="linux2.6-glibc2.3-sn-ipf"
+                             fi
+
+                             is_slurm_host
+                             if [ "$?" = "0" ]; then
+                                 EGO_BINARY_TYPE="${EGO_BINARY_TYPE}-slurm"
+                             fi
+                        elif [ "$_libcver" = "4" ]; then
+                            EGO_BINARY_TYPE="linux2.6-glibc2.3-ia64"
+			# regular linux 2.6 glibc 2.4 is not supported without cpusets	
+			    EGO_BINARY_TYPE_PRIMARY="linux2.6-glibc2.4-sn-ipf"
+                        elif [ "$_libcver" = "5" ]; then
+                            EGO_BINARY_TYPE="linux2.6-glibc2.3-ia64"
+			# regular linux 2.6 glibc 2.5 is not supported without cpusets	
+			    EGO_BINARY_TYPE_PRIMARY="linux2.6-glibc2.5-sn-ipf"
+                        fi
+                        ;;
+                    x86_64)
+                        echo 1111111111
+                        _cputype=`cat /proc/cpuinfo | grep -i vendor | $AWK '{print $3}' | uniq`
+                        if [ "$_libcver" = "1" ]; then
+                            if [ "$_cputype" = "GenuineIntel" ]; then
+                                EGO_BINARY_TYPE="linux2.6-glibc2.1-x86"
+                                #EGO_BINARY_TYPE="linux2.6-glibc2.1-ia32e"
+                            else 
+                                EGO_BINARY_TYPE="linux2.6-glibc2.1-x86"
+                                #EGO_BINARY_TYPE="linux2.6-glibc2.1-amd64"
+                            fi
+                        elif [ "$_libcver" = "2" ]; then
+                            if [ "$_cputype" = "GenuineIntel" ]; then
+                                #EGO_BINARY_TYPE="linux2.6-glibc2.2-x86"
+                                EGO_BINARY_TYPE="linux2.6-glibc2.2-x86_64"
+                            else
+                                #EGO_BINARY_TYPE="linux2.6-glibc2.2-x86"
+                                EGO_BINARY_TYPE="linux2.6-glibc2.2-x86_64"
+                            fi
+                        elif [ "$_libcver" = "3" ]; then
+                            if [ "$_cputype" = "GenuineIntel" ]; then
+                                #EGO_BINARY_TYPE="linux2.6-glibc2.3-x86"
+                                EGO_BINARY_TYPE="linux2.6-glibc2.3-x86_64"
+                            else
+                                #EGO_BINARY_TYPE="linux2.6-glibc2.3-x86"
+                                EGO_BINARY_TYPE="linux2.6-glibc2.3-x86_64"
+                            fi
+                        elif [ "$_libcver" = "4" ]; then
+                                EGO_BINARY_TYPE="linux2.6-glibc2.3-x86_64"
+                        elif [ "$_libcver" = "5" ]; then
+                                EGO_BINARY_TYPE="linux2.6-glibc2.3-x86_64"
+			elif [ "$_libcver" -ge "6" ]; then
+			        EGO_BINARY_TYPE="linux2.6-glibc2.3-x86_64"
+                        fi
+
+                        if [ "$_libcver" -ge 3 ]; then
+                            #Check Cray XT3
+                            #
+                            if [ -f /etc/node_classes ]; then
+                                nid=`xtuname`
+                                nid=`expr ${nid}`
+                                role=`grep "^$nid:" /etc/node_classes | cut -f2 -d':' 2>/dev/null`
+                            else
+                                role=unknown
+                            fi
+
+                            if [ "$role" = "login" -o "$role" = "service" ]; then
+                                EGO_BINARY_TYPE="${EGO_BINARY_TYPE}-xt3"
+                            fi
+                            
+                            is_slurm_host
+                            if [ "$?" = "0" ]; then
+                                EGO_BINARY_TYPE="${EGO_BINARY_TYPE}-slurm"
+                            fi
+                        fi
+                        ;;
+                   k1om)
+                        EGO_BINARY_TYPE="linux2.6-glibc2.14-k1om"
+                        ;;
+                   i[3456]86)
+                        if [ "$_libcver" = "1" ]; then
+                            EGO_BINARY_TYPE="linux2.6-glibc2.1-x86"
+                        elif [ "$_libcver" = "2" ]; then
+                            EGO_BINARY_TYPE="linux2.6-glibc2.2-x86"
+                        elif [ "$_libcver" -ge 3 ]; then
+                            EGO_BINARY_TYPE="linux2.6-glibc2.3-x86"
+                        fi
+                        ;;
+                   ppc64)
+                        _cputype=`cat /proc/cpuinfo | grep -i cpu | $AWK '{print $3,$4,$5}' | $AWK -F, '{print $1}' | uniq`		   
+                        if [ "$_libcver" = "1" ]; then
+                            EGO_BINARY_TYPE="linux2.6-glibc2.1-ppc64"
+                        elif [ "$_libcver" = "2" ]; then
+                            EGO_BINARY_TYPE="linux2.6-glibc2.2-ppc64"
+                        elif [ "$_libcver" = "3" ]; then
+                            EGO_BINARY_TYPE="linux2.6-glibc2.3-ppc64"
+                        elif [ "$_libcver" = "4" -o "$_libcver" = "5" ]; then
+                            if [ "$_libcver" = "5" -a "$_cputype" = "Cell Broadband Engine" ]; then
+                                EGO_BINARY_TYPE="linux2.6-glibc2.5-ppc64_CellBE"
+                            else
+                                EGO_BINARY_TYPE="linux2.6-glibc2.5-ppc64"
+                            fi
+                        elif [ "$_libcver" -ge "6" ]; then
+                            EGO_BINARY_TYPE="linux2.6-glibc2.5-ppc64"
+                        fi
+                        ;;
+                   s390x)
+                        if [ "$_libcver" = "1" ]; then
+                            BINARY_TYPE="linux2.6-glibc2.1-s390x-64"
+                        elif [ "$_libcver" = "2" ]; then
+                            BINARY_TYPE="linux2.6-glibc2.2-s390x-64"
+                        elif [ "$_libcver" = "3" ]; then
+                            BINARY_TYPE="linux2.6-glibc2.3-s390x-64"
+                        elif [ "$_libcver" -ge "4" ]; then
+                            BINARY_TYPE="linux2.6-glibc2.4-s390x-64"
+                        fi
+                        ;;                                                
+                esac
+            fi  #### end of if subver = 2.6 ####
+        elif [ $version = "3" ]; then
+            subver=`echo $uname_val | $AWK '{split($3, a, "."); print a[2]}'`
+            if [ $subver -ge "0" ]; then
+                EGO_BINARY_TYPE="fail"
+                machine=`uname -m`
+                case "$machine" in
+                    x86_64)
+                        if [ "$_libcver" -ge "3" ]; then
+                            EGO_BINARY_TYPE="linux2.6-glibc2.3-x86_64"
+                        fi
+                        ;;
+                    ppc64)
+                        BINARY_TYPE="linux2.6-glibc2.5-ppc64"
+                        ;;
+                esac
+            fi
+        fi
+        fi
+        ;;
+    *)
+	;;
+esac
+if [ $EGO_BINARY_TYPE = "fail" ]; then
+    echo "Cannot get binary type"
+fi
+if [ "$EGO_BINARY_TYPE_PRIMARY" != "" ]; then
+    for _ARCH in $EGO_BINARY_TYPE_PRIMARY
+    do
+        if [ -f "$EGO_TOP/$EGO_VERSION/$_ARCH/etc/vemkd" ]; then
+            EGO_BINARY_TYPE="$_ARCH"
+            break
+        fi
+    done
+    export EGO_BINARY_TYPE
+fi
+
+EGO_SERVERDIR=$EGO_TOP/$EGO_VERSION/$EGO_BINARY_TYPE/etc
+EGO_BINDIR=$EGO_TOP/$EGO_VERSION/$EGO_BINARY_TYPE/bin
+EGO_LIBDIR=$EGO_TOP/$EGO_VERSION/$EGO_BINARY_TYPE/lib
+EGO_ESRVDIR=$EGO_TOP/eservice
+
+if [ -z "$LD_LIBRARY_PATH" ] ; then
+    LD_LIBRARY_PATH=$EGO_TOP/$EGO_VERSION/$EGO_BINARY_TYPE/lib
+else
+    echo "${LD_LIBRARY_PATH}" | grep "$EGO_TOP/$EGO_VERSION/$EGO_BINARY_TYPE/lib" > /dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        LD_LIBRARY_PATH=$EGO_TOP/$EGO_VERSION/$EGO_BINARY_TYPE/lib:$LD_LIBRARY_PATH
+    fi
+fi
+EGO_CONFDIR=$EGO_TOP/kernel/conf
+EGO_LOCAL_CONFDIR=$EGO_TOP/kernel/conf
+
+echo "${_CUR_PATH_ENV}" | grep "${EGO_BINDIR}" > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+    PATH=$EGO_BINDIR:$_CUR_PATH_ENV
+else
+       PATH=$_CUR_PATH_ENV
+fi
+
+echo "${_CUR_PATH_ENV}" | grep "${EGO_SERVERDIR}" > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+    PATH=$EGO_SERVERDIR:$PATH
+fi
+
+
+if [ -z "$MANPATH" ] ; then
+    MANPATH=$EGO_TOP/$EGO_VERSION/man
+    uname | grep "Linux" > /dev/null 2>&1
+    if [ "$?" = "0" ]; then
+        MANPATH=${MANPATH}:
+    fi
+else
+    MANPATH=$EGO_TOP/$EGO_VERSION/man:$MANPATH
+fi
+
+#set user's JAVA_HOME to temp var for MR
+if [ $EGO_BINARY_TYPE = "linux2.6-glibc2.3-x86_64" -o $EGO_BINARY_TYPE = "linux2.6-glibc2.5-ppc64" -o $EGO_BINARY_TYPE = "sparc-sol10-64" ]; then
+    if [ ! -z "$JAVA_HOME" ]; then
+        export JAVA_HOME_TEMP=$JAVA_HOME
+    fi
+fi
+
+unset EGO_VERSION EGO_BINARY_TYPE enf enl AWK
+export EGO_SERVERDIR EGO_BINDIR EGO_LIBDIR EGO_CONFDIR LD_LIBRARY_PATH PATH MANPATH EGO_ESRVDIR EGO_LOCAL_CONFDIR EGO_TOP
+. /opt/sym71/perf/conf/profile.perf
