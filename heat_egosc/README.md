@@ -1,5 +1,5 @@
-Docker plugin for OpenStack Heat
-================================
+EGO Service and Activity plugin for OpenStack Heat
+==================================================
 
 This plugin enable using EGO Service and Activity as resources in a Heat template.
 
