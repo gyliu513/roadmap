@@ -563,7 +563,7 @@ topo_parser(PyObject *dict, ego_topo_t **p)
     (*p) = gcalloc(1, sizeof(ego_topo_t));
     (*p)->pTopoNS = safe_strdup(conv_py2str(PyDict_GetItemString(dict, "namespace")));
     (*p)->pTopoLvl = safe_strdup(conv_py2str(PyDict_GetItemString(dict, "level")));
-    (*p)->nMinTopoNode = conv_py2int(PyDict_GetItemString(dict, "min_nodes"));
+    (*p)->nMaxPercentPerNode = conv_py2int(PyDict_GetItemString(dict, "max_percent_per_node"));
     (*p)->nMaxSlotsPerNode = conv_py2int(PyDict_GetItemString(dict, "max_slots_per_host"));
 }
 
@@ -1070,25 +1070,25 @@ PyEGO_getDecisionsByFilter(PyEGO * self, PyObject * args)
     int naoc = 0;
     int nCount = 0;
     ego_decisioninforeq_t *req = NULL;
-    vem_host_t **decision = NULL;
+    ego_host_t **decision = NULL;
     PyObject *decisionlist = NULL;
     PyObject *tmpDict = NULL;
     PyObject *tmpListKey = NULL;
     PyObject *key = NULL;
     int num = 0;
     int i = 0;
-
-    PyArg_ParseTuple(args, "O", &tmpDict);
-    if(!PyDict_Check(tmpDict)) {
-        return py_error();
-    }
-
     ego_decision_filter_spec_t  **filters = NULL;
+
     req = ego_decisioninforeq();
     if (req == NULL) {
         if (egoerrno != EGOE_NO_ERR) {
             return py_error();
         }
+    }
+
+    PyArg_ParseTuple(args, "O", &tmpDict);
+    if(!PyDict_Check(tmpDict)) {
+        return py_error();
     }
 
     num = PyDict_Size(tmpDict);
@@ -1100,7 +1100,7 @@ PyEGO_getDecisionsByFilter(PyEGO * self, PyObject * args)
             key = PyList_GetItem(tmpListKey, i);
             filters[i] = (ego_decision_filter_spec_t  *)calloc(1, sizeof(ego_decision_filter_spec_t ));
             filters[i]->filter = PyInt_AsLong(key);
-            filters[i]->value_t = PyString_AsString(PyDict_GetItem(tmpDict, key));
+            filters[i]->value_t = safe_strdup(PyString_AsString(PyDict_GetItem(tmpDict, key)));
         }
 
         req->filters = filters;
@@ -1109,7 +1109,6 @@ PyEGO_getDecisionsByFilter(PyEGO * self, PyObject * args)
     /*call the API */
     naoc = ego_getdecisioninfo(self->handle, req, &decision);
     ego_free_decisioninforeq(req);
-    FREEUP(filters);
 
     if (naoc < 0) {
         if (egoerrno != EGOE_NO_ERR) {
@@ -1422,14 +1421,14 @@ PyEGO_esc_create_service(PyEGO * self, PyObject * args){
     sec.credential = NULL;
     cc = esc_createservice(xmlstr,&sec);    
     if (cc != 0){
-	return Py_BuildValue("b", 0 == 1);
+        return Py_BuildValue("b", 0 == 1);
     } else {
         printf("create service success.\n");
     }
  
     return Py_BuildValue("b", 1 == 1);    /* Boolean */
 }/* PyEGO_esc_create_service() */
-
+ 
 /*
  *-------------------------------------------------------------------
  *
@@ -1450,16 +1449,16 @@ PyEGO_esc_delete_service (PyEGO * self, PyObject * args){
     int    cc;
     char   *name = NULL;
     esc_security_def_t  sec;
-
+ 
     PyArg_ParseTuple(args, "s", &name);
-
+ 
     sec.username = "Admin";
     sec.password = "Admin";
     sec.credential = NULL;
     cc = esc_removeservice(name,&sec);
     return Py_BuildValue("b", 1 == 1);    /* Boolean */   
 } /* PyEGO_esc_delete_service */
-
+ 
 /*
  *-------------------------------------------------------------------
  *
@@ -1483,31 +1482,31 @@ PyEGO_esc_query_service (PyEGO * self, PyObject * args){
     esc_service_info_reply_t    reply;
     PyObject *obj = NULL;
     PyObject *ilist = NULL;
-
+ 
     PyArg_ParseTuple(args, "s", &name);
-
+ 
     sec.username = "Admin";
     sec.password = "Admin";
     sec.credential = NULL;
     printf("Getting sevice %s\n", name);
     cc = esc_sec_queryservice(name, &reply, &sec);
     if (cc == 0) {
-	ilist = PyList_New(reply.serviceV[0].instC);
-	for(i=0; i<reply.serviceV[0].instC; i++) {
+        ilist = PyList_New(reply.serviceV[0].instC);
+        for(i=0; i<reply.serviceV[0].instC; i++) {
         PyList_SetItem(ilist, i,
-	    Py_BuildValue("i", reply.serviceV[0].instV[i].seqno));	    
-	}
-	obj = Py_BuildValue("siiiO", name, reply.serviceV[0].instC,
-	                    reply.serviceV[0].context.minInstances,
-		            reply.serviceV[0].context.maxInstances, ilist);
-	return (obj);
+            Py_BuildValue("i", reply.serviceV[0].instV[i].seqno));          
+        }
+        obj = Py_BuildValue("siiiO", name, reply.serviceV[0].instC,
+                            reply.serviceV[0].context.minInstances,
+                            reply.serviceV[0].context.maxInstances, ilist);
+        return (obj);
     } else {
         ilist = PyList_New(0);
-	obj = Py_BuildValue("siiiO", name, -1, -1, -1, ilist);
+        obj = Py_BuildValue("siiiO", name, -1, -1, -1, ilist);
         return (obj);
     }
 } /* PyEGO_esc_query_service */
-
+ 
 /*
  *-------------------------------------------------------------------
  *
@@ -1536,14 +1535,14 @@ PyEGO_esc_update_service(PyEGO * self, PyObject * args){
     sec.credential = NULL;
     cc = esc_updateservice(xmlstr,&sec);    
     if (cc != 0){
-	return Py_BuildValue("b", 0 == 1);  
+        return Py_BuildValue("b", 0 == 1);  
     } else {
         printf("create service success.\n");
     }
  
     return Py_BuildValue("b", 1 == 1);    /* Boolean */
 }/* PyEGO_esc_update_service() */
-
+ 
 /*
  *-------------------------------------------------------------------
  *
@@ -1561,49 +1560,50 @@ PyEGO_esc_update_service(PyEGO * self, PyObject * args){
  */
 static PyObject *
 PyEGO_esc_config_service (PyEGO * self, PyObject * args){
-	esc_service_config_req_t req;
-	int cc = 0;
-	int minInstances = 0;
-	int maxInstances = 0;
-	char *seqno = NULL;
-	char *sName = NULL;
-	esc_security_def_t  sec;
-	sec.username = "Admin";
-	sec.password = "Admin";
-	sec.credential = NULL;
-
-	PyArg_ParseTuple(args, "siis", &sName, &minInstances, &maxInstances, &seqno);
-
-	/*$7 = {serviceName = 0x14c6e40 "test", maxInstances = 5, numOfInstanceToKill = 0, seqNoArray = 0x0, maxInstancesValue = 5, 
-	 *   maxInstancesFlag = 0, minInstances = 1, minInstancesValue = 1, minInstancesFlag = 0}*/
-	req.serviceName = strdup(sName);
-	req.maxInstances      = maxInstances;
-	req.minInstances      = minInstances;
-	req.numOfInstanceToKill = 0;
-	req.seqNoArray = NULL;
-	req.maxInstancesValue = maxInstances;
-	req.maxInstancesFlag = 0;
-	req.minInstancesValue = minInstances;
-	req.minInstancesFlag = 0;
-	printf("min %d max %d\n", minInstances, maxInstances);
-	if (seqno != NULL) {
-    	    req.seqNoArray = (char **)calloc(1, sizeof(char *));
-	    req.numOfInstanceToKill = 1;
-	    req.seqNoArray[0] = strdup(seqno);
-	} else {
-		printf("seqno is empty!\n");
-	}
-
-	cc = esc_configService(&req, &sec);
-	if (cc<0) {
-		printf("KO\n");
-		return Py_BuildValue("b", 1 == 1);    /* Boolean */
-	} else {
-		printf("OK\n");
-		return Py_BuildValue("b", 0 == 1);    /* Boolean */
-	}
-
+        esc_service_config_req_t req;
+        int cc = 0;
+        int minInstances = 0;
+        int maxInstances = 0;
+        char *seqno = NULL;
+        char *sName = NULL;
+        esc_security_def_t  sec;
+        sec.username = "Admin";
+        sec.password = "Admin";
+        sec.credential = NULL;
+ 
+        PyArg_ParseTuple(args, "siis", &sName, &minInstances, &maxInstances, &seqno);
+ 
+        /*$7 = {serviceName = 0x14c6e40 "test", maxInstances = 5, numOfInstanceToKill = 0, seqNoArray = 0x0, maxInstancesValue = 5, 
+         *   maxInstancesFlag = 0, minInstances = 1, minInstancesValue = 1, minInstancesFlag = 0}*/
+        req.serviceName = strdup(sName);
+        req.maxInstances      = maxInstances;
+        req.minInstances      = minInstances;
+        req.numOfInstanceToKill = 0;
+        req.seqNoArray = NULL;
+        req.maxInstancesValue = maxInstances;
+        req.maxInstancesFlag = 0;
+        req.minInstancesValue = minInstances;
+        req.minInstancesFlag = 0;
+        printf("min %d max %d\n", minInstances, maxInstances);
+        if (seqno != NULL) {
+            req.seqNoArray = (char **)calloc(1, sizeof(char *));
+            req.numOfInstanceToKill = 1;
+            req.seqNoArray[0] = strdup(seqno);
+        } else {
+                printf("seqno is empty!\n");
+        }
+ 
+        cc = esc_configService(&req, &sec);
+        if (cc<0) {
+                printf("KO\n");
+                return Py_BuildValue("b", 1 == 1);    /* Boolean */
+        } else {
+                printf("OK\n");
+                return Py_BuildValue("b", 0 == 1);    /* Boolean */
+        }
+ 
 } /* PyEGO_esc_config_service */
+ 
 
 static PyMethodDef PyEGO_methods[] = {
     {"open", (PyCFunction) PyEGO_open, METH_VARARGS,
@@ -1686,16 +1686,16 @@ static PyMethodDef PyEGO_methods[] = {
 
     {"esc_create_service", (PyCFunction) PyEGO_esc_create_service, METH_VARARGS,
         "Create EGO services"},
-
+ 
     {"esc_delete_service", (PyCFunction) PyEGO_esc_delete_service, METH_VARARGS,
         "Delete EGO services"},
-
+ 
     {"esc_query_service", (PyCFunction) PyEGO_esc_query_service, METH_VARARGS,
         "Query EGO services"},
-	
+        
     {"esc_update_service", (PyCFunction) PyEGO_esc_update_service, METH_VARARGS,
         "Update EGO services"},
-
+ 
     {"esc_config_service", (PyCFunction) PyEGO_esc_config_service, METH_VARARGS,
         "Config EGO services"},
 
