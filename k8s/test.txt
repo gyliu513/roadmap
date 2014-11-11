@@ -1,0 +1,43 @@
+
+[vagrant@kubernetes-minion-2 ~]$ sudo docker ps -a
+CONTAINER ID        IMAGE                   COMMAND               CREATED             STATUS                     PORTS                    NAMES
+4ed6ddd86657        google/cadvisor:0.5.0   "/usr/bin/cadvisor"   8 minutes ago       Up 8 minutes                                        k8s--cadvisor.20accae6--cadvisor_-_agent.file--7770d9e7   
+a086fc6e02a2        kubernetes/pause:go     "/pause"              9 minutes ago       Up 9 minutes               0.0.0.0:4194->8080/tcp   k8s--net.14587872--cadvisor_-_agent.file--1ea85538        
+9b4f0ce65509        google/cadvisor:0.5.0   "/usr/bin/cadvisor"   12 minutes ago      Exited (0) 9 minutes ago                            k8s--cadvisor.20accae6--cadvisor_-_agent.file--7fdd0650   
+ce70855ed6c3        kubernetes/pause:go     "/pause"              13 minutes ago      Exited (2) 9 minutes ago                            k8s--net.14587872--cadvisor_-_agent.file--0500d611  
+
+[root@db03b04 kubernetes-0.2]# cluster/kubecfg.sh -p 8080:80 run dockerfile/nginx  2 myNginx
+I1111 03:14:41.689018 14847 request.go:292] Waiting for completion of /operations/1
+id: myNginx
+creationTimestamp: 2014-11-11T08:14:41Z
+resourceVersion: 3
+desiredState:
+  replicas: 2
+  replicaSelector:
+    replicationController: myNginx
+  podTemplate:
+    desiredState:
+      manifest:
+        version: v1beta2
+        id: ""
+        volumes: []
+        containers:
+        - name: mynginx
+          image: dockerfile/nginx
+          ports:
+          - hostPort: 8080
+            containerPort: 80
+            protocol: TCP
+      restartpolicy: {}
+    labels:
+      replicationController: myNginx
+[root@db03b04 kubernetes-0.2]# 
+
+
+ot@db03b04 kubernetes-0.2]# cluster/kubecfg.sh list /pods
+ID                                     Image(s)            Host                             Labels                          Status
+----------                             ----------          ----------                       ----------                      ----------
+c9639628-697a-11e4-8099-0800279696e1   dockerfile/nginx    kubernetes-minion-1/10.245.2.2   replicationController=myNginx   Waiting
+c9659d59-697a-11e4-8099-0800279696e1   dockerfile/nginx    kubernetes-minion-2/10.245.2.3   replicationController=myNginx   Waiting
+
+
