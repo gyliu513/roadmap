@@ -1,0 +1,61 @@
+heat_template_version: 2013-05-23
+
+description: >
+  A document-based template to configure your Software Defined Environment.
+
+parameters:
+  # declaration of input parameters
+  external_network_id:
+    type: string
+    description: Load Balancer Pool Subnet ID
+    default: d2bdc5aa-c204-415a-b840-11a89312eb36
+  private_subnet_id:
+    type: string
+    description: network on which the instances
+    default: ecf36a0f-782d-4b19-a262-eb55234e9b87
+
+
+resources:
+  load_balancer:
+    type: OS::Neutron::LoadBalancer
+    properties:
+      protocol_port: 80
+      pool_id: {get_resource: load_balancer_pool}
+  load_balancer_pool:
+    type: OS::Neutron::Pool
+    properties:
+      protocol: HTTP
+      monitors: [{get_resource: load_balancer_monitor}]
+      lb_method: ROUND_ROBIN
+      subnet_id: {get_param: private_subnet_id}
+      vip:
+        protocol_port: 80
+  load_balancer_monitor:
+    type: OS::Neutron::HealthMonitor
+    properties:
+      type: TCP
+      delay: 3
+      max_retries: 5
+      timeout: 5
+
+  vip_floating_ip:
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network_id: { get_param: external_network_id }
+  vip_floating_assoc:
+    type: OS::Neutron::FloatingIPAssociation
+    properties:
+      floatingip_id: { get_resource: vip_floating_ip }
+      port_id: { get_attr: [ load_balancer_pool, vip, port_id ] }
+      fixed_ip_address: { get_attr: [ load_balancer_pool, vip, address ] }
+
+
+
+outputs:
+  HTTP_Test_URL:
+    description: The URL of the Load Balancer
+    value:
+      str_replace:
+       template:  http://%lb_ip%
+       params:
+         "%lb_ip%": { get_attr: [ vip_floating_ip, floating_ip_address ] }

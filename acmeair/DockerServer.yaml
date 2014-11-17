@@ -1,0 +1,41 @@
+heat_template_version: 2013-05-23
+
+description: >
+  A document-based template to configure your Software Defined Environment.
+
+parameters:
+  # declaration of input parameters
+  availability_zone:
+    type: string
+    description: AZ for the Docker instances
+    default: docker
+  flavor:
+    type: string
+    description: Flavor to be used for compute instance
+    default: "m1.small"
+  pool_id:
+    type: string
+    description: Generated to reference pool
+  image:
+    type: string
+    description: Image used for servers
+    default: lbaas
+  metadata:
+    type: json
+
+
+resources:
+  lbaas:
+      type: OS::Nova::Server
+      properties:
+        flavor: { get_param: flavor }
+        image: { get_param: image }
+        metadata: {get_param: metadata}
+        availability_zone: {get_param: availability_zone}
+
+  lbaas_pool_member:
+    type: OS::Neutron::PoolMember
+    properties:
+      address: { get_attr: [lbaas, first_address] }
+      pool_id: { get_param: pool_id }
+      protocol_port: 80

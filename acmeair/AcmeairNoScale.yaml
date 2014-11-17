@@ -1,0 +1,54 @@
+heat_template_version:  2013-05-23
+
+description: >
+ Create AcmeAir sample application using simple autoscaling
+
+parameters:
+  availability_zone:
+    type: string
+    description:  Availibility zone to be used for nova servers
+    default: docker
+  key_name:
+    type: string
+    description: Name of an existing key pair to use for the template
+    default: jake
+  instance_type:
+    type: string
+    description: Name of the Openstack flavor to deploy with
+    default: m1.medium
+  
+resources:
+
+  websphere_node:
+    type: OS::Nova::Server
+    properties:
+      availability_zone: { get_param: availability_zone }
+      image: acmeair/acmeair_webserver
+      flavor: { get_param: instance_type }
+      metadata: { CATALOG_IP : { get_attr: [extremescale_catalog_node, first_address] }}
+
+  extremescale_catalog_node:
+    type: OS::Nova::Server
+    properties:
+      availability_zone: { get_param: availability_zone }
+      key_name: { get_param: key_name }
+      image: acmeair/acmeair_catalog
+      flavor: { get_param: instance_type }
+
+  extremescale_container_node:
+    type: OS::Nova::Server
+    properties:
+      availability_zone: { get_param: availability_zone }
+      image: acmeair/acmeair_container
+      flavor: { get_param: instance_type }
+      metadata: { CATALOG_IP : { get_attr: [extremescale_catalog_node, first_address] }}
+     
+outputs:
+  websphere_node_ip_output:
+    description: The IP address of the deployed instance of resource Websphere_node
+    value:
+      str_replace:
+        template:  http://%libertyip%:9080/acmeair-webapp-1.0-SNAPSHOT
+        params:
+          "%libertyip%": { get_attr: [ websphere_node , first_address ] }
+

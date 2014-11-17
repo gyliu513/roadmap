@@ -1,0 +1,113 @@
+heat_template_version: 2013-05-23
+
+description: >
+  A document-based template to configure your Software Defined Environment.
+
+parameters:
+  # declaration of input parameters
+  image_id:
+    type: string
+    label: Image ID
+    description: Image to be used for compute instance
+  instance_type:
+    type: string
+    label: Instance Type
+    description: Type of instance (flavor) to be used
+  availability_zone:
+    type: string
+    description: The Availability Zone to launch the instance.
+  min_instances:
+    type: number
+    description: Minimum number of instances
+  max_instances:
+    type: number
+    description: Maximum number of instances
+  desired_instances:
+    type: number
+    description:  Desired initial number of instances
+  cooldown_seconds:
+    type: number
+    description: Number of seconds for autoscaling cooldown
+    default: 30
+  cpu_monitor_seconds:
+    type: number
+    description: Period of time the cpu has to be at threshold
+    default: 10
+  cpu_high_threshold:
+    type: number
+    description: CPU usage to trigger scale up
+    default: 2
+  cpu_low_threshold:
+    type: number
+    description: CPU usage to trigger scale down
+    default: 1
+  load_balancer_pool_id:
+    type: string
+    description:  Pool ID of the load balancer in which the instances should be deployed to
+  instance_protocol_port:
+    type: number
+    description: Port loadbalancer should use to connect to instances
+
+resources:
+  my_asg:
+    type: OS::Heat::AutoScalingGroup
+    properties:
+      min_size: {get_param: min_instances}
+      max_size: {get_param: max_instances}
+      desired_capacity: {get_param: desired_instances}
+      resource:
+        type: lb-member.yaml
+        properties:
+          image: {get_param: image_id}
+          flavor: {get_param: instance_type}
+          availability_zone: {get_param: availability_zone}
+          pool_id: {get_param: load_balancer_pool_id}
+          instance_protocol_port: { get_param: instance_protocol_port }
+          metadata: {"metering.stack": {get_param: "OS::stack_id"}}
+  scaleup_policy:
+    type: OS::Heat::ScalingPolicy
+    properties:
+      adjustment_type: change_in_capacity
+      auto_scaling_group_id: {get_resource: my_asg}
+      cooldown: {get_param: cooldown_seconds}
+      scaling_adjustment: 1
+  scaledown_policy:
+    type: OS::Heat::ScalingPolicy
+    properties:
+      adjustment_type: change_in_capacity
+      auto_scaling_group_id: {get_resource: my_asg}
+      cooldown: {get_param: cooldown_seconds}
+      scaling_adjustment: -1
+  cpu_alarm_high:
+    type: OS::Ceilometer::Alarm
+    properties:
+      meter_name: cpu_util
+      statistic: avg
+      period: {get_param: cpu_monitor_seconds}
+      evaluation_periods: 1
+      threshold: {get_param: cpu_high_threshold}
+      alarm_actions:
+        - {get_attr: [scaleup_policy, alarm_url]}
+      matching_metadata: {'metadata.user_metadata.stack': { get_param: "OS::stack_id"}}
+      comparison_operator: gt
+  cpu_alarm_low:
+    type: OS::Ceilometer::Alarm
+    properties:
+      meter_name: cpu_util
+      statistic: avg
+      period: {get_param: cpu_monitor_seconds}
+      evaluation_periods: 1
+      threshold: {get_param: cpu_low_threshold}
+      alarm_actions:
+        - {get_attr: [scaledown_policy, alarm_url]}
+      matching_metadata: {'metadata.user_metadata.stack': {get_param: "OS::stack_id"}}
+      comparison_operator: lt
+
+outputs:
+  HTTP_Test_URL:
+    description: The URL of the Load Balancer
+    value:
+      str_replace:
+       template:  http://%lb_ip%
+       params:
+         "%lb_ip%": { get_attr: [ vip_floating_ip, floating_ip_address ] }

@@ -1,0 +1,227 @@
+heat_template_version: 2013-05-23
+description:
+parameters:
+  key_name:
+    type: string
+    description: Name of an existing key pair to use for the instance
+  flavor:
+    type: string
+    description: Instance type for the instance to be created
+    default: m1.large
+  image_id:
+    type: string
+    description: ID of the image to use for the instance
+  software_repository:
+    type: string
+    description: ip address of the software repository where to download biginsights installation package
+    default: 10.10.0.1
+  data_node_min:
+    type: string
+    description: the minimum number of the hadoop data nodes
+    default: 1
+  data_node_max:
+    type: string
+    description: the maximum number of the hadoop data nodes
+    default: 100
+resources:
+  master_node:
+    type: OS::Nova::Server
+    properties:
+      key_name: { get_param: key_name}
+      image: { get_param: image_id }
+      flavor: { get_param: flavor}
+      user_data:
+        str_replace:
+          template: |
+            #!/bin/bash -v
+            LOGFILE=/var/tmp/user_data.log
+            echo "Start.." > $LOGFILE
+            master_node_ip=`ifconfig eth0 |grep "inet addr"| cut -f 2 -d ":"|cut -f 1 -d " "`
+            if [ "$master_node_ip" = "" ]
+            then
+              master_node_ip=`ifconfig eth0 |grep "inet " | sed 's/^[ \t]*//g' | cut -d " " -f 2`
+            fi
+            echo "master_node_ip=$master_node_ip" &>>$LOGFILE
+
+            echo "Enable passwordless access for root" >> $LOGFILE
+            mkdir -p ~/.ssh &>/dev/null
+            chmod 700 ~/.ssh
+            cd ~/.ssh
+            rm -rf id_rsa id_rsa.pub &>>$LOGFILE
+            curl http://$software_repository/repos/install_images/biginsights/id_rsa > ~/.ssh/id_rsa
+            curl http://$software_repository/repos/install_images/biginsights/id_rsa.pub >~/.ssh/id_rsa.pub
+            chmod 600 ~/.ssh/id_rsa ~/.ssh/id_rsa.pub
+            cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+            chmod 600 ~/.ssh/authorized_keys
+
+            #add biadmin group and user which are required by Biginsights installer
+            groupadd -g 168 biadmin
+            useradd -g biadmin -u 168 biadmin
+            echo "%biadmin ALL=(ALL) NOPASSWD: ALL" >>/etc/sudoers
+  
+            echo "Enable passwordless access for biadmin" >> $LOGFILE
+            mkdir -p /home/biadmin/.ssh &>/dev/null
+            chmod 700 /home/biadmin/.ssh
+            cd /home/biadmin/.ssh
+            rm -rf id_rsa id_rsa.pub &>>$LOGFILE
+            curl http://$software_repository/repos/install_images/biginsights/id_rsa > /home/biadmin/.ssh/id_rsa
+            curl http://$software_repository/repos/install_images/biginsights/id_rsa.pub > /home/biadmin/.ssh/id_rsa.pub
+            chmod 600 /home/biadmin/.ssh/id_rsa /home/biadmin/.ssh/id_rsa.pub
+            cat /home/biadmin/.ssh/id_rsa.pub >> /home/biadmin/.ssh/authorized_keys
+            chmod 600 /home/biadmin/.ssh/authorized_keys
+            chown -R biadmin:biadmin /home/biadmin/.ssh
+
+            #disable host key (listed in the /root/.ssh/known_hosts file) checking
+            echo "StrictHostKeyChecking no" >>/etc/ssh/ssh_config
+
+            echo "Create disk directories for Hadoop and HDFS" >> $LOGFILE
+            for((i=1;i<=10;i++)) do
+               mkdir -p /disk$i/hadoop/hdfs
+               mkdir -p /disk$i/hadoop/mapred
+               chown -R biadmin:biadmin /disk$i
+            done
+
+            hostname=`hostname`
+            echo "$master_node_ip $hostname" >> /etc/hosts
+
+            yum install -y expect
+            yum install -y httpd
+
+            curl http://$software_repository/repos/install_images/biginsights/BIGINSIGHTS_EE_NP_V2.1_MP_EIMG.tar.gz  > /var/tmp/BIGINSIGHTS_EE_NP_V2.1_MP_EIMG.tar.gz 
+            curl http://$software_repository/repos/install_images/biginsights/fullinstall_single_node.xml >/var/tmp/fullinstall.xml 
+
+            rm -rf /var/tmp/biginsights-enterprise-linux64__b20130531_1113 &>>$LOGFILE
+
+            tar -xvzf /var/tmp/BIGINSIGHTS_EE_NP_V2.1_MP_EIMG.tar.gz -C /var/tmp  
+
+            #Turn off problematic prereq check which doesn't work reliably in VMs
+            /var/tmp/biginsights-enterprise-linux64_b20130531_1113/installer/bin/enableOrDisablePrechecker.sh disable port.connectivity
+            #update the configuration file for BigInsights silent installer
+            cp /var/tmp/fullinstall.xml /var/tmp/fullinstall_updated.xml
+            sed -i "s/controller_ip/$master_node_ip/g" /var/tmp/fullinstall_updated.xml
+            #sed -i "s/computenode_ip//g" /var/tmp/fullinstall_updated.xml
+            #run BigInsights silent installer
+            /var/tmp/biginsights-enterprise-linux64_b20130531_1113/silent-install/silent-install.sh /var/tmp/fullinstall_updated.xml &>>$LOGFILE
+            echo "Biginsights installed successfully!" > /root/Biginsights_completed
+          params:
+            $software_repository: { get_param: software_repository}
+  data_node_group:
+    type: OS::Heat::AutoScalingGroup
+    properties:
+      min_size: { get_param: data_node_min }
+      max_size: { get_param: data_node_max }
+      resource:
+        type: OS::Nova::Server
+        properties:
+          key_name: { get_param: key_name}
+          image: { get_param: image_id }
+          flavor: { get_param: flavor}
+          metadata: {"metering.stack": {get_param: "OS::stack_id"}}
+          user_data:
+            str_replace:
+              template: |
+                #!/bin/bash -v
+                LOGFILE=/var/tmp/user_data.log
+                echo "Start.." > $LOGFILE
+                echo "master_node_ip=$master_node_ip" &>>$LOGFILE
+
+                echo "Enable passwordless access for root" >> $LOGFILE
+                mkdir -p ~/.ssh &>/dev/null
+                chmod 700 ~/.ssh
+                cd ~/.ssh
+                rm -rf id_rsa id_rsa.pub &>>$LOGFILE
+                curl http://$software_repository/repos/install_images/biginsights/id_rsa > ~/.ssh/id_rsa
+                curl http://$software_repository/repos/install_images/biginsights/id_rsa.pub >~/.ssh/id_rsa.pub
+                chmod 600 ~/.ssh/id_rsa ~/.ssh/id_rsa.pub
+                cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+                chmod 600 ~/.ssh/authorized_keys
+
+                #add biadmin group and user which are required by Biginsights installer
+                groupadd -g 168 biadmin
+                useradd -g biadmin -u 168 biadmin
+                echo "%biadmin ALL=(ALL) NOPASSWD: ALL" >>/etc/sudoers
+
+                echo "Enable passwordless access for biadmin" >> $LOGFILE
+                mkdir -p /home/biadmin/.ssh &>/dev/null
+                chmod 700 /home/biadmin/.ssh
+                cd /home/biadmin/.ssh
+                rm -rf id_rsa id_rsa.pub &>>$LOGFILE
+                curl http://$software_repository/repos/install_images/biginsights/id_rsa > /home/biadmin/.ssh/id_rsa
+                curl http://$software_repository/repos/install_images/biginsights/id_rsa.pub > /home/biadmin/.ssh/id_rsa.pub
+                chmod 600 /home/biadmin/.ssh/id_rsa /home/biadmin/.ssh/id_rsa.pub
+                cat /home/biadmin/.ssh/id_rsa.pub >> /home/biadmin/.ssh/authorized_keys
+                chmod 600 /home/biadmin/.ssh/authorized_keys
+                chown -R biadmin:biadmin /home/biadmin/.ssh
+
+                #disable host key (listed in the /root/.ssh/known_hosts file) checking
+                echo "StrictHostKeyChecking no" >>/etc/ssh/ssh_config
+
+                echo "Create disk directories for Hadoop and HDFS" >> $LOGFILE
+                for((i=1;i<=10;i++)) do
+                  mkdir -p /disk$i/hadoop/hdfs
+                  mkdir -p /disk$i/hadoop/mapred
+                  chown -R biadmin:biadmin /disk$i
+                done
+
+                ip=`ifconfig eth0 |grep "inet addr"| cut -f 2 -d ":"|cut -f 1 -d " "`
+                if [ "$ip" = "" ]
+                then
+                  ip=`ifconfig eth0 |grep "inet " | sed 's/^[ \t]*//g' | cut -d " " -f 2`
+                fi
+                hostname=`hostname`
+                echo "$ip $hostname" >> /etc/hosts
+                echo "$hostname $ip" >> $LOGFILE
+                
+                echo "Start to add compute node $ip to the hadoop cluster.." >> $LOGFILE
+                sleep 300
+                scp $master_node_ip:/root/Biginsights_completed . 
+                while [[ $? -ne 0 ]]; do
+                  echo "waiting for the master node to become available..." >>$LOGFILE
+                  sleep 60
+                  scp $master_node_ip:/root/Biginsights_completed . 
+                done
+                ssh biadmin@$master_node_ip "/opt/ibm/biginsights/bin/addnode.sh hadoop $ip,,/dummy_rack/dummy_chassis,/disk1/hadoop" &>>"$LOGFILE"
+              params:
+                $software_repository: { get_param: software_repository}
+                $master_node_ip: { get_attr: [master_node, networks, ext-net, 0] }
+  datanode_scaleup_policy:
+    type: OS::Heat::ScalingPolicy
+    properties:
+      adjustment_type: change_in_capacity
+      auto_scaling_group_id: {get_resource: data_node_group}
+      cooldown: 60
+      scaling_adjustment: 1
+  datanode_scaledown_policy:
+    type: OS::Heat::ScalingPolicy
+    properties:
+      adjustment_type: change_in_capacity
+      auto_scaling_group_id: {get_resource: data_node_group}
+      cooldown: 60
+      scaling_adjustment: -1
+  datanode_cpu_alarm_high:
+    type: OS::Ceilometer::Alarm
+    properties:
+      description: Scale-up if the average CPU > 50% for 1 minute
+      meter_name: cpu_util
+      statistic: avg
+      period: 60
+      evaluation_periods: 1
+      threshold: 70
+      alarm_actions:
+        - {get_attr: [datanode_scaleup_policy, alarm_url]}
+      matching_metadata: {'metadata.user_metadata.stack': {get_param: "OS::stack_id"}}
+      comparison_operator: gt
+  datanode_cpu_alarm_low:
+    type: OS::Ceilometer::Alarm
+    properties:
+      description: Scale-down if the average CPU < 15% for 1 minute
+      meter_name: cpu_util
+      statistic: avg
+      period: 60
+      evaluation_periods: 1
+      threshold: 5
+      alarm_actions:
+        - {get_attr: [datanode_scaledown_policy, alarm_url]}
+      matching_metadata: {'metadata.user_metadata.stack': {get_param: "OS::stack_id"}}
+      comparison_operator: lt
+        

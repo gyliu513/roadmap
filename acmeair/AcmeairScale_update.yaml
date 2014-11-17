@@ -1,0 +1,136 @@
+heat_template_version:  2013-05-23
+
+description: >
+ Create AcmeAir sample application using simple autoscaling
+
+parameters:
+  external_network_id:
+    type: string
+    description: Load Balancer Pool Subnet ID
+    default: d2bdc5aa-c204-415a-b840-11a89312eb36
+  availability_zone:
+    type: string
+    description:  Availibility zone to be used for nova servers
+    default: docker
+  instance_type:
+    type: string
+    description: Name of the Openstack flavor to deploy with
+    default: m1.medium
+  private_subnet_id:
+    type: string
+    description: network on which the instances
+    default: 937d0e39-2a9c-48a2-bb1e-ad2f21e33030
+
+resources:
+
+  # declaration of template resources
+  web_autoscaling_group:
+    type: OS::Heat::AutoScalingGroup
+    properties:
+      min_size: 3
+      max_size: 6
+      resource:
+        type: AcmeAirWebServer.yaml
+        properties:
+          pool_id: { get_resource: load_balancer_pool }
+          image: acmeair/acmeair_webserver
+          flavor: { get_param: instance_type }
+          metadata: {"metering.stack": {get_param: "OS::stack_id"},
+                     CATALOG_IP : { get_attr: [extremescale_catalog_node, first_address] }}
+
+  extremescale_catalog_node:
+    type: OS::Nova::Server
+    properties:
+      availability_zone: { get_param: availability_zone }
+      image: acmeair/acmeair_catalog
+      flavor: { get_param: instance_type }
+
+  extremescale_container_node:
+    type: OS::Nova::Server
+    properties:
+      availability_zone: { get_param: availability_zone }
+      image: acmeair/acmeair_container
+      flavor: { get_param: instance_type }
+      metadata: { CATALOG_IP : { get_attr: [extremescale_catalog_node, first_address] }}
+
+  web_autoscaling_group_scaleup_policy:
+    type: OS::Heat::ScalingPolicy
+    properties:
+      adjustment_type: change_in_capacity
+      auto_scaling_group_id: {get_resource: web_autoscaling_group}
+      cooldown: 60
+      scaling_adjustment: 1
+  web_autoscaling_group_scaledown_policy:
+    type: OS::Heat::ScalingPolicy
+    properties:
+      adjustment_type: change_in_capacity
+      auto_scaling_group_id: {get_resource: web_autoscaling_group}
+      cooldown: 60
+      scaling_adjustment: -1
+
+  web_autoscaling_group_scaleup_policy_cpu_alarm_high:
+    type: OS::Ceilometer::Alarm
+    properties:
+      meter_name: cpu_util
+      statistic: avg
+      period: 60
+      evaluation_periods: 1
+      threshold: 50
+      alarm_actions:
+        - {get_attr: [web_autoscaling_group_scaleup_policy, alarm_url]}
+      matching_metadata: {'metadata.user_metadata.stack': {get_param: "OS::stack_id"}}
+      comparison_operator: gt
+  web_autoscaling_group_scaledown_policy_cpu_alarm_low:
+    type: OS::Ceilometer::Alarm
+    properties:
+      meter_name: cpu_util
+      statistic: avg
+      period: 60
+      evaluation_periods: 1
+      threshold: 15
+      alarm_actions:
+        - {get_attr: [web_autoscaling_group_scaledown_policy, alarm_url]}
+      matching_metadata: {'metadata.user_metadata.stack': {get_param: "OS::stack_id"}}
+      comparison_operator: lt
+     
+  load_balancer:
+    type: OS::Neutron::LoadBalancer
+    properties:
+      protocol_port: 9080
+      pool_id: {get_resource: load_balancer_pool}
+  load_balancer_pool:
+    type: OS::Neutron::Pool
+    properties:
+      protocol: HTTP
+      monitors: [{get_resource: load_balancer_monitor}]
+      lb_method: ROUND_ROBIN
+      subnet_id: {get_param: private_subnet_id}
+      vip:
+        protocol_port: 9080
+  load_balancer_monitor:
+    type: OS::Neutron::HealthMonitor
+    properties:
+      type: TCP
+      delay: 3
+      max_retries: 5
+      timeout: 5
+
+  vip_floating_ip:
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network_id: { get_param: external_network_id }
+  vip_floating_assoc:
+    type: OS::Neutron::FloatingIPAssociation
+    properties:
+      floatingip_id: { get_resource: vip_floating_ip }
+      port_id: { get_attr: [ load_balancer_pool, vip, port_id ] }
+      fixed_ip_address: { get_attr: [ load_balancer_pool, vip, address ] }
+
+outputs:
+  HTTP_Test_URL:
+    description: The URL of the Load Balancer
+    value:
+      str_replace:
+       template:  http://%lb_ip%:9080/acmeair-webapp-1.0-SNAPSHOT/index.html
+       params:
+         "%lb_ip%": { get_attr: [ vip_floating_ip, floating_ip_address ] }

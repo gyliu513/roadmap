@@ -1,0 +1,8 @@
+
+# COMMON OPENSTACK ENVS
+export OS_USERNAME=nguyen1d
+export OS_PASSWORD=sn1206PY
+export OS_TENANT_NAME=sllbaas
+export OS_AUTH_URL=http://10.90.99.205:5000/v2.0
+export OS_REGION_NAME=RegionOne
+
