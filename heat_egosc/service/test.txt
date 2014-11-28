@@ -27,3 +27,5 @@ gyliu@devstack007:~/src/jay-work$ heat stack-list
 +----+------------+--------------+---------------+
 root@devstack007:/opt/sym71/eservice/esc/conf/services# egosh service list | grep  nginx-01
 root@devstack007:/opt/sym71/eservice/esc/conf/services# 
+
+
