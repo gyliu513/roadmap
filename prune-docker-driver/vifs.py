@@ -161,9 +161,19 @@ class DockerGenericVIFDriver(object):
                           run_as_root=True)
             utils.execute('ip', 'netns', 'exec', container_id, 'ifconfig',
                           if_remote_name, ip, run_as_root=True)
+            # change vif name in container to eth0
+            utils.execute('ip', 'netns', 'exec', container_id, 'ip', 'link',
+                          'set', 'dev', if_remote_name, 'down', run_as_root=True)
+            utils.execute('ip', 'netns', 'exec', container_id, 'ip', 'link',
+                          'set', 'dev', if_remote_name, 'name', 'eth0',
+                          run_as_root=True)
+            utils.execute('ip', 'netns', 'exec', container_id, 'ip', 'link',
+                          'set', 'dev', 'eth0', 'up', run_as_root=True)
             if gateway is not None:
                 utils.execute('ip', 'netns', 'exec', container_id,
                               'ip', 'route', 'replace', 'default', 'via',
-                              gateway, 'dev', if_remote_name, run_as_root=True)
+                              gateway, 'dev', 'eth0', run_as_root=True)
         except Exception:
             LOG.exception("Failed to attach vif")
+
+        return network.find_fixed_ip_nomask(instance_id, vif['network'])

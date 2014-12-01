@@ -28,6 +28,14 @@ def find_fixed_ip(instance_id, network_info):
     raise exception.InstanceDeployFailure(_('Cannot find fixed ip'),
                                           instance_id=instance_id)
 
+def find_fixed_ip_nomask(instance_id, network_info):
+    for subnet in network_info['subnets']:
+        for ip in subnet['ips']:
+            if ip['type'] == 'fixed' and ip['address']:
+                return ip['address']
+    raise exception.InstanceDeployFailure(_('Cannot find fixed ip'),
+                                          instance_id=instance_id)
+
 def find_gateway(instance_id, network_info):
     for subnet in network_info['subnets']:
         return subnet['gateway']['address']

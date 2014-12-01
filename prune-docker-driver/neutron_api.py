@@ -9,7 +9,7 @@ from nova.i18n import _, _LE, _LW
 
 neutron_opts = [
     cfg.StrOpt('url',
-               default='http://9.111.250.210:9696',
+               default='http://9.21.58.22:9696',
                help='URL for connecting to neutron',
                deprecated_group='DEFAULT',
                deprecated_name='neutron_url'),
@@ -49,7 +49,7 @@ neutron_opts = [
                deprecated_group='DEFAULT',
                deprecated_name='neutron_region_name'),
     cfg.StrOpt('admin_auth_url',
-               default='http://9.111.250.210:5000/v2.0',
+               default='http://9.21.58.22:5000/v2.0',
                help='Authorization URL for connecting to neutron in admin '
                'context',
                deprecated_group='DEFAULT',
@@ -204,7 +204,7 @@ class API():
             raise exception.SecurityGroupCannotBeApplied()
         port_req_body = {'port': {'device_id': instance_id,
                                   'device_owner': zone,
-                                  'binding:host_id': 'qjnode2.test.ibm.com'}}
+                                  'binding:host_id': 'prsdemo3'}}
         created_port = self._create_port(
                 neutron, tenant_id, network['id'],
                 port_req_body, None, security_group_ids, dhcp_opts)

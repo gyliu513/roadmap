@@ -101,9 +101,15 @@ class DockerDriver():
             'ln', '-sf', '/proc/{0}/ns/net'.format(nspid),
             '/var/run/netns/{0}'.format(container_id),
             run_as_root=True)
-
+        # input hostname to /etc/hosts
+        info = self.docker.inspect_container(container_id)
+        hostname = info['Config'].get('Hostname')
+        hosts_path = info['HostsPath']
+        ip = ''
         for vif in network_info:
-            self.vif_driver.attach(instance_id, vif, container_id)
+            ip = self.vif_driver.attach(instance_id, vif, container_id)
+            with open(hosts_path, 'a') as file:
+                file.write(ip+' '+hostname+'\n')
 
     def unplug_vifs(self, instance_id, network_info):
         """Unplug VIFs from networks."""
@@ -146,7 +152,8 @@ class DockerDriver():
 
     def _start_container(self, container_id, instance_id, network_info=None):
         restart_policy = {"MaximumRetryCount": 20, "Name": "on-failure"}
-        self.docker.start(container=container_id, restart_policy=restart_policy)
+        self.docker.start(container=container_id, privileged=True,
+                          restart_policy=restart_policy)
         if not network_info:
             return
         try:
