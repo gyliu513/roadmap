@@ -1,0 +1,25 @@
+apiVersion: v1beta1
+id: www
+desiredState:
+  manifest:
+    version: v1beta1
+    id: www
+    containers:
+      - name: nginx
+        image: dockerfile/nginx
+        volumeMounts:
+          - name: www-data
+            mountPath: /srv/www
+            readOnly: true
+      - name: git-monitor
+        image: kubernetes/git-monitor
+        env:
+          - name: GIT_REPO
+            value: http://github.com/some/repo.git
+        volumeMounts:
+          - name: www-data
+            mountPath: /data
+    volumes:
+      - name: www-data
+        source:
+          emptyDir: {}
