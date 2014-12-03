@@ -33,7 +33,7 @@ resources:
                 image: sshd1
                 memory: 200m
                 cmd: cmd1
-            - c1:
+            - c2:
                 description: 'sshd server'
                 image: sshd2
                 memory: 200m
