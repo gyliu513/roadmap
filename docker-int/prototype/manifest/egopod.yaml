@@ -27,10 +27,18 @@ resources:
       resource:
         type: IBMInc::EGO::Activity
         properties:
-          description: 'sshd server'
+          pod:
+            - c1:
+                description: 'sshd server'
+                image: sshd1
+                memory: 200m
+                cmd: cmd1
+            - c1:
+                description: 'sshd server'
+                image: sshd2
+                memory: 200m
+                cmd: cmd2
           svc_name: 'ssh'
-          image: sshd
-          memory: 200m
           control_policy: {
             start_type: 'AUTOMATIC',
             max_restarts: 10
