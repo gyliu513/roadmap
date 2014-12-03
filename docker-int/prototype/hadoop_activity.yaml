@@ -1,0 +1,74 @@
+heat_template_version: 2013-05-23
+
+description: >
+  A document-based template to configure your Software Defined Environment.
+
+parameters:
+  # declaration of input parameters
+  external_network_id:
+    type: string
+    description: Load Balancer Pool Subnet ID
+    default: ac3dd16d9-c201-46f1-b231-03b1f6cc3238
+  flavor:
+    type: string
+    description: Flavor to be used for compute instance
+    default: "m1.small"
+  image:
+    type: string
+    description: Image used for servers
+    default: lbaas
+
+resources:
+  hadoop_master:
+    type: IBMInc::EGO::Activity
+    properties:
+      description: 'hadoop master server'
+      svc_name: 'hadoop-master'
+      image: 'sequenceiq/hadoop-cluster-docker:2.4.1'
+      memory: '200m'
+      control_policy: {
+        start_type: 'AUTOMATIC',
+        max_restarts: 10
+      }
+      allocation_specification: {
+        consumer_id: '/ClusterServices/EGOClusterServices',
+        resource_specification: {
+          resource_group: 'InternalResourceGroup',
+          resource_requirement: 'select(prsdemo3)',
+        }
+      }
+      activity_description: {
+        htype: 'all',
+        activity_specification: {
+          command: ['N 1 -d'],
+          job_controller: 'sleep 10000'
+        }
+      }
+
+  hadoop_compute:
+    type: IBMInc::EGO::Activity
+    depends_on: hadoop_master
+    properties:
+      description: 'hadooop compute node'
+      svc_name: 'hadoop-compute'
+      image: 'sequenceiq/hadoop-cluster-docker:2.4.1'
+      memory: '200m'
+      control_policy: {
+        start_type: 'AUTOMATIC',
+        max_restarts: 10
+      }
+      allocation_specification: {
+        consumer_id: '/ClusterServices/EGOClusterServices',
+        resource_specification: {
+          resource_group: 'InternalResourceGroup',
+          resource_requirement: 'select(prsdemo3)',
+        }
+      }
+      activity_description: {
+        htype: 'all',
+        activity_specification: {
+          command: ['D 1 -d', {get_attr: [hadoop_master, ipv4]}, 'hadoop-master'],
+          job_controller: 'sleep 10000'
+        }
+      }
+
