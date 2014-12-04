@@ -33,6 +33,11 @@ resources:
               image: dockerfile/nginx
               memory: 200m
               cmd: cmd1
+              ports:
+                - containerPort: 8083
+                  hostPort: 8083
+                - containerPort: 8086
+                  hostPort: 8086
               volumeMounts:
                 - name: www-data
                   mountPath: /srv/www
