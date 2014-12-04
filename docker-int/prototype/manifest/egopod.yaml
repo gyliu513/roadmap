@@ -27,18 +27,30 @@ resources:
       resource:
         type: IBMInc::EGO::Activity
         properties:
-          pod:
-            - c1:
-                description: 'sshd server'
-                image: sshd1
-                memory: 200m
-                cmd: cmd1
-            - c2:
-                description: 'sshd server'
-                image: sshd2
-                memory: 200m
-                cmd: cmd2
-          svc_name: 'ssh'
+          containers:
+            - description: 'web server'
+              name: nginx
+              image: dockerfile/nginx
+              memory: 200m
+              cmd: cmd1
+              volumeMounts:
+                - name: www-data
+                  mountPath: /srv/www
+                  readOnly: True
+            - description: 'git monitor'
+              name: git-monitor
+              image: kubernetes/git-monitor
+              memory: 200m
+              cmd: cmd2
+              env:
+                - name: xx
+                  value: xx
+                - name: xx
+                  value: xx
+              volumeMounts:
+                - name: www-data
+                  mountPath: /data
+          svc_name: 'www'
           control_policy: {
             start_type: 'AUTOMATIC',
             max_restarts: 10
