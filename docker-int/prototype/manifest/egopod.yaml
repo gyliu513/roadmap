@@ -56,6 +56,7 @@ resources:
                 - name: www-data
                   mountPath: /data
           svc_name: 'www'
+          network_id: xxxx
           control_policy: {
             start_type: 'AUTOMATIC',
             max_restarts: 10
