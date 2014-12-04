@@ -1,0 +1,55 @@
+apiVersion: v1beta1
+id: storage5
+desiredState:
+  manifest:
+    version: v1beta1
+    id: storage5
+    containers:
+      - name: heapsterinfluxdb
+        image: kubernetes/heapster_influxdb
+        ports:
+          - containerPort: 8083
+            hostPort: 8083
+          - containerPort: 8086
+            hostPort: 8086
+          - containerPort: 8090
+            hostPort: 8090
+          - containerPort: 8099
+            hostPort: 8099
+        volumeMounts:
+            # name must match the volume name below
+          - name: redis-persistent-storage
+            # mount path within the container
+            mountPath: /data/redis/1
+            readOnly: true
+      - name: grafana
+        image: kubernetes/heapster_grafana
+        ports:
+          - containerPort: 80
+            hostPort: 80
+        env:
+          - name: HTTP_USER
+            value: "admin"
+          - name: HTTP_PASS
+            value: "admin"
+        volumeMounts:
+            # name must match the volume name below
+          - name: redis-persistent-storage
+            # mount path within the container
+            mountPath: /data/redis/2
+      - name: elasticsearch
+        image: dockerfile/elasticsearch
+        ports:
+          - containerPort: 9200
+            hostPort: 9200
+          - containerPort: 9300
+        volumeMounts:
+            # name must match the volume name below
+          - name: redis-persistent-storage
+            # mount path within the container
+            mountPath: /data/redis/3
+    volumes:
+      - name: redis-persistent-storage
+        source:
+            hostDir:
+                path: /tmp
