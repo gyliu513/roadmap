@@ -32,6 +32,7 @@ resources:
               name: nginx
               image: dockerfile/nginx
               memory: 200m
+              cpu: 1
               cmd: cmd1
               ports:
                 - containerPort: 8083
@@ -46,6 +47,7 @@ resources:
               name: git-monitor
               image: kubernetes/git-monitor
               memory: 200m
+              cpu: 2
               cmd: cmd2
               env:
                 - name: xx
@@ -56,23 +58,50 @@ resources:
                 - name: www-data
                   mountPath: /data
           svc_name: 'www'
+          description: 'desc'
           network_id: xxxx
-          control_policy: {
-            start_type: 'AUTOMATIC',
-            max_restarts: 10
-          }
-          allocation_specification: {
-            consumer_id: '/ClusterServices/EGOClusterServices',
-            resource_specification: {
-              resource_group: 'InternalResourceGroup',
-              resource_requirement: 'select(prsdemo3)',
-            }
-          }
-          activity_description: {
-            htype: 'all',
-            activity_specification: {
-              command: ['/usr/sbin/sshd -D'],
-              job_controller: 'sleep 10000'
-            }
-          }
-
+          control_policy:
+            host_failover_intervel: 60
+            service_failover_fencing: 'LINUXResourceSpeci86'
+            service_failover_fencing_wait_period: 120
+            dependencies:
+              - type: 'OnStart'
+                satisfy: 'STARTED'
+                keep: 'STARTED'
+                autoStart: false
+                service: 'service1'
+            block_host_exit_values:
+              - exit_value: 'a'
+              - exit_value: 'b'
+          allocation_specification:
+            keep_block_host_list: 'host1;host2;'
+            resource_requirement: '[">=","$free_ram_mb",1024, "==","$name", "host1"]'
+          activity_description:
+            log_path: '/tmp/svr.log'
+            activity_specification:
+              inactivity_period: 60
+              cleanup_command: '/opt/biginsights/spark/uninstall.sh'
+              cleanup_finish_wait_period: 120
+              control_wait_period: 360
+              environment_variables:
+                - key: 'PATH'
+                  value: '/usr/bin;/bin'
+                - key: 'HOSTNAME'
+                  value: 'host1'
+              pre_commands:
+                - timeout: 10
+                  stdout_file: '/tmp/a'
+                  stderr_file: '/tmp/b'
+                  cmd: 'sleep 20'
+              command: ['/usr/sbin/sshd -D']
+              post_commands:
+                - timeout: 20
+                  stdout_file: '/tmp/c'
+                  stderr_file: '/tmp/d'
+                  cmd: 'sleep 20'
+              job_controller: '/usr/local/jboss/bin/shutdown all'
+              job_monitor: '/opt/bin/JobMonitor.sh'
+              job_monitor_max_update_interval: 60
+              default_url: 'http://${HOSTNAME}:8080/mypath'
+              working_dir: '/opt/ibm/ego'
+              umask: 0755
