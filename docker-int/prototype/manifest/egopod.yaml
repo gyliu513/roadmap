@@ -77,7 +77,6 @@ resources:
             keep_block_host_list: 'host1;host2;'
             resource_requirement: '[">=","$free_ram_mb",1024, "==","$name", "host1"]'
           activity_description:
-            htype: 'all'
             log_path: '/tmp/svr.log'
             activity_specification:
               inactivity_period: 60
