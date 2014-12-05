@@ -75,8 +75,7 @@ resources:
               - exit_value: 'b'
           allocation_specification:
             keep_block_host_list: 'host1;host2;'
-            resource_specification:
-              resource_requirement: 'select(prsdemo3)' ==> need refine
+            resource_requirement: '[">=","$free_ram_mb",1024, "==","$name", "host1"]'
           activity_description:
             htype: 'all'
             log_path: '/tmp/svr.log'
