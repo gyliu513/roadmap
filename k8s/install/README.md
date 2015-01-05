@@ -5,7 +5,7 @@
 ### Environments
 
 * CentOS 7.0 x86_64
-* Kubernetes 0.5.6
+* Kubernetes 0.7.2
 * Etcd 0.4.6
 * Docker 1.2.0
 * Open vSwitch 2.1.2
