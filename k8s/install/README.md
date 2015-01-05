@@ -513,7 +513,6 @@ On Kubernetes master node:
 
 ```
 # cd /root/kubernetes/examples/guestbook
-# kubecfg -h http://192.168.122.20:8080 list minions
 # kubecfg list minions
 Minion identifier
 ----------
