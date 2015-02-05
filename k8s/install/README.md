@@ -125,6 +125,7 @@ On Kubernetes master node, do following steps:
 
 ```
 # cd /root
+# wget https://github.com/GoogleCloudPlatform/kubernetes/releases/download/v0.10.0/kubernetes.tar.gz
 # wget https://github.com/GoogleCloudPlatform/kubernetes/releases/download/v0.7.2/kubernetes.tar.gz
 # tar xf kubernetes.tar.gz
 # tar xf kubernetes/server/kubernetes-server-linux-amd64.tar.gz
