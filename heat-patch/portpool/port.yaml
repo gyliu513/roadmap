@@ -1,0 +1,31 @@
+heat_template_version: 2014-10-16
+parameters:
+  network:
+    type: string
+resources:
+  portpool:
+    type: OS::Neutron::PortPool
+    properties:
+      pool:
+        - port: {get_resource: port1}
+        - port: {get_resource: port2}
+  port1:
+    type: OS::Neutron::Port
+    properties:
+      network: {get_param: network} 
+  port2:
+    type: OS::Neutron::Port
+    properties:
+      network: {get_param: network} 
+#  server:
+#    type: OS::Nova::Server
+#    properties:
+#      image: cirros-0.3.2-x86_64-uec
+#      flavor: m1.nano
+#      networks:
+#        - port: {get_attr: [portpool, avail_port]}
+outputs:
+  avail_pool:
+    value: {get_attr: [portpool, avail_port_list]}
+  avail_port:
+    value: {get_attr: [portpool, avail_port]}
