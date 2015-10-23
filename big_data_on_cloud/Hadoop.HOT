@@ -1,0 +1,244 @@
+heat_template_version: 2013-05-23
+description: AWS CloudFormation Hadoop with auto-scale Template
+parameters: 
+  KeyName: 
+    description: "Name of an existing EC2 KeyPair to enable SSH access to the instances"
+    type: string
+    default: "vmKey"
+  InstanceType: 
+    description: "Hadoop EC2 instance type"
+    type: string
+    default: "m1.small"
+    constraints:
+      - allowed_values: [m1.tiny, m1.small, m1.medium, m1.large]
+        description: "must be a valid EC2 instance type."
+  Image:
+    description: "Image type of the VMs"
+    type: string
+    default: "rhel64"
+  SubnetId:
+    description: "ID of the subnet which the VMs will be boot to"
+    type: string
+    default: "672fad6f-4597-4085-9977-ea68f888164f"
+
+  NFSPath:
+    description: "The nfs share path for hadoop installation files"
+    type: string
+    default: "9.111.250.183:/home/prs/hadoop_package"
+
+resources: 
+  CfnUser: 
+    type: "AWS::IAM::User"
+  HadoopSlaveKeys: 
+    type: "AWS::IAM::AccessKey"
+    properties: 
+      UserName: 
+        Ref: "CfnUser"
+  HadoopM: 
+    type: "AWS::EC2::Instance"
+    properties: 
+      ImageId: 
+        Ref: "Image"
+      InstanceType: 
+        Ref: "InstanceType"
+      KeyName: 
+        Ref: "KeyName"
+      SubnetId:
+        Ref: "SubnetId"
+      UserData:
+        Fn::Base64:
+          str_replace:
+            template: |
+              #!/bin/bash -x
+              export TERM=xterm
+              service iptables stop
+              echo "dsfdsfdsf" >> /tmp/master.log
+              mkdir -p /hadoop_package
+              mount $NFS /hadoop_package
+              cp /hadoop_package/bvt.pem  /root/.ssh/id_rsa
+              chmod 400 ~/.ssh/id_rsa
+              mkdir -p /root/hadoopSample
+              cp /hadoop_package/wordcount.jar  /root/hadoopSample/
+              echo "StrictHostKeyChecking  no" >> /etc/ssh/ssh_config
+              /etc/init.d/sshd restart
+              echo "` ifconfig eth0  | awk '{print $2}'  | head -n2 | tail -n1 | awk -F':' '{print $2}'`  `hostname`" > /etc/hosts
+              sh /hadoop_package/script.master.sh
+              sed -i -e "/<\/configuration>/ i\<property>\n\t<name>mapred.child.java.opts</name>\n\t<value>-Xmx4096m</value>\n</property>" /opt/hadoop-1.2.1/conf/mapred-site.xml
+              sh /opt/hadoop-1.2.1/bin/start-all.sh
+              # All is well so signal success
+              /opt/aws/bin/cfn-signal -e 0 -r "Hadoop server setup complete" '$HadoopMasterWaitHandle'
+            params:
+              $HadoopMasterWaitHandle: { Ref : HadoopMasterWaitHandle }
+              $NFS: {Ref : NFSPath}
+  HadoopMasterWaitHandle: 
+    type: "AWS::CloudFormation::WaitConditionHandle"
+  HadoopMasterWaitCondition: 
+    type: "AWS::CloudFormation::WaitCondition"
+    depends_on: HadoopM   
+    properties: 
+      Handle: 
+        Ref: "HadoopMasterWaitHandle"
+      Timeout: "6000"
+  HadoopSGroup: 
+    type: "AWS::AutoScaling::AutoScalingGroup"
+    depends_on: HadoopMasterWaitCondition
+    properties: 
+      AvailabilityZones: 
+        - "nova"
+      LaunchConfigurationName: 
+        Ref: "LaunchConfig"
+      MinSize: "1"
+      MaxSize: "5"
+      VPCZoneIdentifier:
+        [Ref: "SubnetId"]
+  HadoopSlaveScaleUpPolicy: 
+    type: "AWS::AutoScaling::ScalingPolicy"
+    properties: 
+      AdjustmentType: "ChangeInCapacity"
+      AutoScalingGroupName: 
+        Ref: "HadoopSGroup"
+      Cooldown: "30"
+      ScalingAdjustment: "1"
+  HadoopSlaveScaleDownPolicy: 
+    type: "AWS::AutoScaling::ScalingPolicy"
+    properties: 
+      AdjustmentType: "ChangeInCapacity"
+      AutoScalingGroupName: 
+        Ref: "HadoopSGroup"
+      Cooldown: "300"
+      ScalingAdjustment: "-1"
+  MEMAlarmHigh: 
+    type: "AWS::CloudWatch::Alarm"
+    properties: 
+      AlarmDescription: "Scale-up if MEM > 50% for 1 minute"
+      MetricName: "MemoryUtilization"
+      Namespace: "system/linux"
+      Statistic: "Average"
+      Period: "60"
+      EvaluationPeriods: "1"
+      Threshold: "50"
+      AlarmActions: 
+        - 
+          Ref: "HadoopSlaveScaleUpPolicy"
+      Dimensions: 
+        - 
+          Name: "AutoScalingGroupName"
+          Value: 
+            Ref: "HadoopSGroup"
+      ComparisonOperator: "GreaterThanThreshold"
+  MEMAlarmLow: 
+    type: "AWS::CloudWatch::Alarm"
+    properties: 
+      AlarmDescription: "Scale-down if MEM < 15% for 1 minute"
+      MetricName: "MemoryUtilization"
+      Namespace: "system/linux"
+      Statistic: "Average"
+      Period: "60"
+      EvaluationPeriods: "1"
+      Threshold: "15"
+      AlarmActions: 
+        - 
+          Ref: "HadoopSlaveScaleDownPolicy"
+      Dimensions: 
+        - 
+          Name: "AutoScalingGroupName"
+          Value: 
+            Ref: "HadoopSGroup"
+      ComparisonOperator: "LessThanThreshold"
+  LaunchConfig: 
+    type: "AWS::AutoScaling::LaunchConfiguration"
+    metadata: 
+      AWS::CloudFormation::Init: 
+        config: 
+          files: 
+            /etc/cfn/cfn-credentials: 
+              content: 
+                Fn::Join: 
+                  - ''
+                  - 
+                    - AWSAccessKeyId=
+                    - {Ref: HadoopSlaveKeys}
+                    - '
+
+                      '
+                    - AWSSecretKey=
+                    - { get_attr: [HadoopSlaveKeys, SecretAccessKey] }
+                    - '
+
+                      '
+              mode: "000400"
+              owner: "root"
+              group: "root"
+            /tmp/stats-crontab.txt: 
+              content: 
+                Fn::Join: 
+                  - ''
+                  - 
+                    - 'MAIL=""'
+                    - '
+
+                      '
+                    - '* * * * * /opt/aws/bin/cfn-push-stats --watch '
+                    - { Ref: MEMAlarmHigh }
+                    - ' --mem-util'
+                    - '
+
+                      '
+                    - '* * * * * /opt/aws/bin/cfn-push-stats --watch '
+                    - { Ref: MEMAlarmLow }
+                    - ' --mem-util '
+                    - '
+
+                      '
+              mode: "000600"
+              owner: "root"
+              group: "root"
+    properties: 
+      ImageId:
+        Ref: "Image"
+      InstanceType: 
+        Ref: "InstanceType"
+      KeyName:
+        Ref: "KeyName"
+      UserData:
+        Fn::Base64:
+          str_replace:
+            template: |
+              #!/bin/bash -v
+              /opt/aws/bin/cfn-init -s $StackName -r LaunchConfig --access-key $HadoopSlaveKeys --secret-key $SecretAccessKey
+              # install crontab
+              crontab /tmp/stats-crontab.txt
+              export TERM=xterm
+              service iptables stop
+              mkdir -p /hadoop_package
+              mount $NFS /hadoop_package
+              cp /hadoop_package/bvt.pem  /root/.ssh/id_rsa
+              chmod 400 ~/.ssh/id_rsa
+              echo "StrictHostKeyChecking  no" >> /etc/ssh/ssh_config
+              /etc/init.d/sshd restart
+              echo "` ifconfig eth0  | awk '{print $2}'  | head -n2 | tail -n1 | awk -F':' '{print $2}'`  `hostname`" > /etc/hosts
+              yes | /hadoop_package/jdk-6u30-linux-x64-rpm.bin
+              scp  -o StrictHostKeyChecking=no -r $PublicIp:/opt/hadoop-1.2.1 /opt/
+              ssh -Tt $PublicIp "echo `hostname` >> /opt/hadoop-1.2.1/conf/slaves"
+              ssh -Tt $PublicIp "echo `ifconfig eth0  | awk '{print $2}'  | head -n2 | tail -n1 | awk -F':' '{print $2}'` `hostname` >> /etc/hosts"
+              echo "$PublicIp  `cat /opt/hadoop-1.2.1/conf/masters`" >> /etc/hosts
+              sh /hadoop_package/script.slave.cfg.sh
+              sh /opt/hadoop-1.2.1/bin/hadoop-daemon.sh start datanode
+              sh /opt/hadoop-1.2.1/bin/hadoop-daemon.sh start tasktracker
+              echo "OK>>>>>>>>>" >> /tmp/autoscale.txt
+            params:
+              $StackName: { get_param: "OS::stack_name" }
+              $HadoopSlaveKeys: { Ref: HadoopSlaveKeys }
+              $SecretAccessKey: { get_attr: [HadoopSlaveKeys, SecretAccessKey] }
+              $PublicIp: { get_attr: [HadoopM, PublicIp] }
+              $NFS: {Ref : NFSPath}
+outputs: 
+  Result: 
+    value: 
+      Fn::Join: 
+        - ''
+        - 
+          - 'Hadoop Master: '
+          - { get_attr: [HadoopM, PublicIp] }
+
+    description: "bin/hadoop fs -ls /"
