@@ -1,0 +1,19 @@
+{
+  "container": {
+    "type": "DOCKER",
+    "docker": {
+      "image": "mesostest/swarm",
+      "privileged": true,
+      "forcePullImage": true,
+      "network": "HOST"
+    }
+  },
+  "id": "swarm",
+  "instances": 1,
+  "cpus": 2,
+  "mem": 1024,
+  "args": ["--debug", "manage", "-c", "mesos-experimental", "--cluster-opt", "mesos.address=0.0.0.0",
+           "--cluster-opt", "mesos.tasktimeout=10m",
+           "--cluster-opt", "mesos.offertimeout=1m", "--cluster-opt", "mesos.port=3375",
+           "--host", "0.0.0.0:4375", "ma1demo1:5050"]
+}

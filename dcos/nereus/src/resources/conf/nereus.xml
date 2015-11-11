@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+    <!-- Internal classes dependency -->
+    <bean id="conf" class="net.cguru.nereus.conf.Configuration" scope="singleton">
+        <constructor-arg type="String" value="nereus.conf"/>
+    </bean>
+
+    <bean id="influxDB" class="net.cguru.nereus.db.InfluxDBAdapter" scope="singleton"  init-method="connect"  destroy-method="close">
+        <property name="conf" ref="conf"/>
+    </bean>
+
+    <!-- Add more db adapter as need -->
+
+    <!-- adapter end -->
+
+    <bean id="dbMap" class="java.util.HashMap" scope="singleton">
+        <constructor-arg>
+            <map>
+                <entry key="influxdb" value-ref="influxDB"/>
+            </map>
+        </constructor-arg>
+    </bean>
+
+    <bean id="workflow" class="net.cguru.nereus.streaming.Workflow" scope="singleton">
+        <property name="conf" ref="conf"/>
+    </bean>
+
+    <bean id="dbFactorInjector" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="staticMethod">
+            <value>net.cguru.nereus.db.DataBasePool.setDataBaseAdapterMap</value>
+        </property>
+        <property name="arguments">
+            <ref bean="dbMap"/>
+        </property>
+    </bean>
+
+</beans>
