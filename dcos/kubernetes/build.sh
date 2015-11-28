@@ -22,9 +22,9 @@ export PATH=$GOROOT/bin:$PATH
 mkdir -p $GOPATH
 
 git clone https://github.com/GoogleCloudPlatform/kubernetes
-git checkout -b release-1.1 -t remotes/origin/release-1.1
 
 cd kubernetes
+git checkout -b release-1.1 -t remotes/origin/release-1.1
 
 export KUBERNETES_CONTRIB=mesos
 
