@@ -1,5 +1,6 @@
-# dcos-images
-The Docker Image for DCOS
+# Docker as a Service
+
+The Docker images to build a DaaS environment.
 
 	nohup sudo docker daemon -H unix:///var/run/docker.sock -H tcp://0.0.0.0:2375 &
 
