@@ -5,7 +5,7 @@ CLOUD_CONF=$K8S_HOME/mesos-cloud.conf
 SUPERVISORD_CONF=/etc/supervisor/conf.d/supervisord.conf
 LOG_LEVEL=info
 
-TEMP=`getopt -o l:e:m: --long log-level:,etcd-servers:,mesos-master:,scheduler-config:\
+TEMP=`getopt -o l:e:m:s: --long log-level:,etcd-servers:,mesos-master:,scheduler-config:\
   -n 'bootstrap.sh' -- "$@"`
 
 if [ $? != 0 ] ; then
