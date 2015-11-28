@@ -2,9 +2,9 @@ FROM ubuntu
 
 MAINTAINER Klaus Ma <klaus1982.cn@gmail.com>
 
-ENV K8S_HOME /opt
+RUN mkdir -p /opt/kubernetes
 
-WORKDIR $K8S_HOME
+ENV K8S_HOME /opt/kubernetes
 
 COPY kubernetes/_output/local/go/bin $K8S_HOME
 
