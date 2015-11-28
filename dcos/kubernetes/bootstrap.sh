@@ -5,7 +5,7 @@ CLOUD_CONF=$K8S_HOME/mesos-cloud.conf
 SUPERVISORD_CONF=/etc/supervisor/conf.d/supervisord.conf
 LOG_LEVEL=info
 
-TEMP=`getopt -o l:e:m: --long log-level:,etcd-servers:,mesos-master: \
+TEMP=`getopt -o l:e:m: --long log-level:,etcd-servers:,mesos-master:,scheduler-config:\
   -n 'bootstrap.sh' -- "$@"`
 
 if [ $? != 0 ] ; then
@@ -21,6 +21,7 @@ while true; do
     --log-level | -l ) LOG_LEVEL="$2"; shift 2 ;;
     --etcd-servers | -e ) ETCD_SERV="$2"; shift 2 ;;
     --mesos-master | -m ) MESOS_MASTER="$2"; shift 2 ;;
+    --scheduler-config | -s ) SCHED_CONF="$2"; shift 2 ;;
     -- ) shift; break ;;
     * ) break ;;
   esac
@@ -41,6 +42,12 @@ cat > $CLOUD_CONF <<End-Of-CC
         mesos-master        = $MESOS_MASTER
 End-Of-CC
 
+if [ -z $SCHED_CONF ] ; then
+  KM_SCHED_ARG=""
+else
+  KM_SCHED_ARG="--scheduler-config=$SCHED_CONF"
+fi
+
 cat > $SUPERVISORD_CONF <<End-Of-SC
 [supervisord]
 nodaemon=true
@@ -49,17 +56,17 @@ logfile=/var/log/supervisor/supervisord.log
 pidfile = /tmp/supervisord.pid
 
 [program:apiserver]
-command=$K8S_HOME/km apiserver --address=`hostname -i` --etcd-servers=$ETCD_SERV --service-cluster-ip-range=10.10.10.0/24 --port=8888 --cloud-provider=mesos --cloud-config=mesos-cloud.conf --secure-port=0 --v=1
+command=$K8S_HOME/km apiserver --address=`hostname -i` --etcd-servers=$ETCD_SERV --service-cluster-ip-range=10.10.10.0/24 --port=8888 --cloud-provider=mesos --cloud-config=mesos-cloud.conf --secure-port=0 --v=4
 stdout_logfile=/var/log/supervisor/%(program_name)s.log
 stderr_logfile=/var/log/supervisor/%(program_name)s.log
 
 [program:controller]
-command=$K8S_HOME/km controller-manager --master=`hostname -i`:8888 --cloud-provider=mesos --cloud-config=$CLOUD_CONF --v=1
+command=$K8S_HOME/km controller-manager --master=`hostname -i`:8888 --cloud-provider=mesos --cloud-config=$CLOUD_CONF --v=4
 stdout_logfile=/var/log/supervisor/%(program_name)s.log
 stderr_logfile=/var/log/supervisor/%(program_name)s.log
 
 [program:scheduler]
-command=$K8S_HOME/km scheduler --address=`hostname -i` --mesos-master=$MESOS_MASTER --etcd-servers=$ETCD_SERV --mesos-user=root --api-servers=`hostname -i`:8888 --cluster-dns=10.10.10.10 --cluster-domain=cluster.local --v=2
+command=$K8S_HOME/km scheduler --address=`hostname -i` $KM_SCHED_ARG --mesos-master=$MESOS_MASTER --etcd-servers=$ETCD_SERV --mesos-user=root --api-servers=`hostname -i`:8888 --cluster-dns=10.10.10.10 --cluster-domain=cluster.local --v=4
 stdout_logfile=/var/log/supervisor/%(program_name)s.log
 stderr_logfile=/var/log/supervisor/%(program_name)s.log
 
