@@ -1,0 +1,7 @@
+
+RUN apt-get update && apt-get install -yq supervisor 
+
+WORKDIR $K8S_HOME
+
+ENTRYPOINT ["./bootstrap.sh"]
+

@@ -1,0 +1,98 @@
+{
+  "id": "/spark",
+  "groups": [
+    {
+      "id": "/spark/shffule",
+      "apps": [
+        {
+          "container": {
+            "type": "DOCKER",
+            "docker": {
+              "image": "ubuntu"
+            },
+            "volumes" : [
+              {
+                "containerPath": "/root/spark",
+                "hostPath": "/home/yfeng/workshop/spark",
+                "mode": "RW"
+              } , {
+                "containerPath": "/root/jdk",
+                "hostPath": "/home/yfeng/workshop/jdk1.8.0_60",
+                "mode": "RO"
+              } , {
+                "containerPath": "/usr/local/lib",
+                "hostPath": "/usr/local/lib",
+                "mode": "RO"
+              } , {
+                "containerPath": "/usr/lib",
+                "hostPath": "/usr/lib",
+                "mode": "RO"
+              } , {
+                "containerPath": "/lib",
+                "hostPath": "/lib",
+                "mode": "RO"
+              } , {
+                "containerPath": "/root/hadoop",
+                "hostPath": "/home/yfeng/workshop/hadoop",
+                "mode": "RO"
+              }
+           ]
+          },
+          "id": "spark-shuffle",
+          "instances": 2,
+          "cpus": 2,
+          "mem": 1024,
+          "cmd": "/root/spark/shuffle/bootstrap.sh",
+          "constraints": [["hostname", "UNIQUE"]]
+        }
+      ]
+    },{
+      "id": "/spark/dispatcher",
+      "dependencies": ["/spark/shffule"],
+      "apps": [
+        {
+          "container": {
+            "type": "DOCKER",
+            "docker": {
+              "image": "ubuntu"
+            },
+            "volumes" : [
+              {
+                "containerPath": "/root/spark",
+                "hostPath": "/home/yfeng/workshop/spark",
+                "mode": "RW"
+              } , {
+                "containerPath": "/root/jdk",
+                "hostPath": "/home/yfeng/workshop/jdk1.8.0_60",
+                "mode": "RO"
+              } , {
+                "containerPath": "/usr/local/lib",
+                "hostPath": "/usr/local/lib",
+                "mode": "RO"
+              } , {
+                "containerPath": "/usr/lib",
+                "hostPath": "/usr/lib",
+                "mode": "RO"
+              } , {
+                "containerPath": "/lib",
+                "hostPath": "/lib",
+                "mode": "RO"
+              } , {
+                "containerPath": "/root/hadoop/",
+                "hostPath": "/home/yfeng/workshop/hadoop",
+                "mode": "RO"
+              }
+           ]
+          },
+          "id": "mesos-dispatcher",
+          "instances": 1,
+          "cpus": 2,
+          "mem": 1024,
+          "cmd": "/root/spark/dispatcher/bootstrap.sh"
+        }
+      ]
+    }
+  ]
+}
+
+

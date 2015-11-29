@@ -1,0 +1,16 @@
+{
+  "container": {
+    "type": "DOCKER",
+    "docker": {
+      "image": "mesostest/km",
+      "privileged": true,
+      "forcePullImage": true
+    }
+  },
+  "id": "kubernetes",
+  "instances": 1,
+  "cpus": 2,
+  "mem": 1024,
+  "args": ["--etcd-servers", "http://$host1_name:4001", "--mesos-master", "$host2_name:5050"]
+}
+
