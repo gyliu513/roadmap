@@ -1,0 +1,34 @@
+diff --git a/pkg/kubelet/kubelet.go b/pkg/kubelet/kubelet.go
+index 913c375..214fab8 100644
+--- a/pkg/kubelet/kubelet.go
++++ b/pkg/kubelet/kubelet.go
+@@ -935,6 +935,8 @@ func makeMounts(pod *api.Pod, podDir string, container *api.Container, podVolume
+                        glog.Warningf("Mount cannot be satisified for container %q, because the volume is missing: %q", container.Name, mount)
+                        continue
+                }
++                glog.Errorf("ignore container %q mount path %q", container.Name, mount)
++                continue
+                mounts = append(mounts, kubecontainer.Mount{
+                        Name:          mount.Name,
+                        ContainerPath: mount.MountPath,
+@@ -1018,13 +1020,14 @@ func (kl *Kubelet) GenerateRunContainerOptions(pod *api.Pod, container *api.Cont
+        var err error
+        opts := &kubecontainer.RunContainerOptions{CgroupParent: kl.cgroupRoot}
+
+-       vol, ok := kl.volumeManager.GetVolumes(pod.UID)
+-       if !ok {
+-               return nil, fmt.Errorf("impossible: cannot find the mounted volumes for pod %q", kubecontainer.GetPodFullName(pod))
+-       }
++       // vol, ok := kl.volumeManager.GetVolumes(pod.UID)
++       // if !ok {
++//             return nil, fmt.Errorf("impossible: cannot find the mounted volumes for pod %q", kubecontainer.GetPodFullName(pod))
++//     }
+
+        opts.PortMappings = makePortMappings(container)
+-       opts.Mounts, err = makeMounts(pod, kl.getPodDir(pod.UID), container, vol)
++       glog.Errorf("ignore mount dir")
++       // opts.Mounts, err = makeMounts(pod, kl.getPodDir(pod.UID), container, vol)
+        if err != nil {
+                return nil, err
+        }
+
