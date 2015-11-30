@@ -28,7 +28,7 @@ wget $BUILD_URL/last -O index.html
 
 BUILD_PACKAGE=`cat index.html|grep mesos_${MESOS_VERSION}| awk '{print $5}' | cut -c7- | cut -f1 -d '"'`
 rm -rf index.html
-wget $BUILD_URL/last/$BUILD_PACKAGE -O $TOP_DIR/files/mesos.deb
+wget $BUILD_URL/last/$BUILD_PACKAGE -O $TOP_DIR/mesos.deb
 
 if [ ! -f mesos.deb ] ; then
   echo "Failed to download Mesos daily build."
