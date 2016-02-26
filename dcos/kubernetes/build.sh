@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#GO_URL=https://storage.googleapis.com/golang/go1.5.1.linux-amd64.tar.gz
-GO_URL=https://storage.googleapis.com/golang/go1.4.linux-amd64.tar.gz
+GO_URL=https://storage.googleapis.com/golang/go1.5.1.linux-amd64.tar.gz
+#GO_URL=https://storage.googleapis.com/golang/go1.4.linux-amd64.tar.gz
 
 TOP_DIR=`pwd`
 
@@ -21,10 +21,10 @@ export PATH=$GOROOT/bin:$PATH
 
 mkdir -p $GOPATH
 
-git clone https://github.com/GoogleCloudPlatform/kubernetes
+git clone https://github.com/kubernetes/kubernetes.git
 
 cd kubernetes
-git checkout -b release-1.1 -t remotes/origin/release-1.1
+#git checkout -b release-1.1 -t remotes/origin/release-1.1
 
 export KUBERNETES_CONTRIB=mesos
 
@@ -46,5 +46,5 @@ cat Dockerfile.kubelet.template >> Dockerfile.kubelet
 
 
 #sudo docker build -t $HUB_USER/kubernetes -f Dockerfile.kubernetes --no-cache .
-sudo docker build -t $HUB_USER/km -f Dockerfile.km --no-cache .
-sudo docker build -t $HUB_USER/kubelet -f Dockerfile.kubelet --no-cache .
+sudo docker build -t gyliu/km:1.6 -f Dockerfile.km --no-cache .
+#sudo docker build -t $HUB_USER/kubelet -f Dockerfile.kubelet --no-cache .

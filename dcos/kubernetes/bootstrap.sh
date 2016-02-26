@@ -5,7 +5,7 @@ CLOUD_CONF=$K8S_HOME/mesos-cloud.conf
 SUPERVISORD_CONF=/etc/supervisor/conf.d/supervisord.conf
 LOG_LEVEL=info
 
-TEMP=`getopt -o l:e:m:s:r: --long log-level:,etcd-servers:,mesos-master:,scheduler-config:,mesos-role:\
+TEMP=`getopt -o l:e:m:s:r: --long log-level:,etcd-servers:,mesos-master:,scheduler-config:,mesos-framework-roles:,enable-revocable:\
   -n 'bootstrap.sh' -- "$@"`
 
 if [ $? != 0 ] ; then
@@ -22,7 +22,8 @@ while true; do
     --etcd-servers | -e ) ETCD_SERV="$2"; shift 2 ;;
     --mesos-master | -m ) MESOS_MASTER="$2"; shift 2 ;;
     --scheduler-config | -s ) SCHED_CONF="$2"; shift 2 ;;
-    --mesos-role | -r ) MESOS_ROLE="$2"; shift 2 ;;
+    --mesos-framework-roles | -r ) MESOS_ROLE="$2"; shift 2 ;;
+    --enable-revocable | -r ) MESOS_REVOCABLE="$2"; shift 2 ;;
     -- ) shift; break ;;
     * ) break ;;
   esac
@@ -52,7 +53,13 @@ fi
 if [ -z $MESOS_ROLE ] ; then
   MESOS_ROLE_ARG=""
 else
-  MESOS_ROLE_ARG="--mesos-role=$MESOS_ROLE"
+  MESOS_ROLE_ARG="--mesos-framework-roles=$MESOS_ROLE"
+fi
+
+if [ -z $MESOS_REVOCABLE ] ; then
+  MESOS_REVOCABLE_ARG=""
+else
+  MESOS_REVOCABLE_ARG="--enable-revocable=$MESOS_REVOCABLE"
 fi
 
 cat > $SUPERVISORD_CONF <<End-Of-SC
@@ -73,7 +80,7 @@ stdout_logfile=/var/log/supervisor/%(program_name)s.log
 stderr_logfile=/var/log/supervisor/%(program_name)s.log
 
 [program:scheduler]
-command=$K8S_HOME/km scheduler --address=`hostname -i` $KM_SCHED_ARG $MESOS_ROLE_ARG --mesos-master=$MESOS_MASTER --etcd-servers=$ETCD_SERV --mesos-user=root --api-servers=`hostname -i`:8888 --cluster-dns=10.10.10.10 --cluster-domain=cluster.local --v=4
+command=$K8S_HOME/km scheduler --address=`hostname -i` $MESOS_REVOCABLE_ARG $KM_SCHED_ARG $MESOS_ROLE_ARG --mesos-master=$MESOS_MASTER --etcd-servers=$ETCD_SERV --mesos-user=root --api-servers=`hostname -i`:8888 --cluster-dns=10.10.10.10 --cluster-domain=cluster.local --v=4
 stdout_logfile=/var/log/supervisor/%(program_name)s.log
 stderr_logfile=/var/log/supervisor/%(program_name)s.log
 

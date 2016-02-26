@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rnginx1
+  labels:
+    app: rnginx
+  annotations:
+    k8s.mesosphere.io/revocable: ok
+spec:
+  containers:
+  - name: rnginx
+    image: nginx
+    ports:
+    - containerPort: 80

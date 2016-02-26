@@ -1,0 +1,107 @@
+diff --git a/dcos/kubernetes/bootstrap.sh b/dcos/kubernetes/bootstrap.sh
+index 604daa8..a680b99 100644
+--- a/dcos/kubernetes/bootstrap.sh
++++ b/dcos/kubernetes/bootstrap.sh
+@@ -5,7 +5,7 @@ CLOUD_CONF=$K8S_HOME/mesos-cloud.conf
+ SUPERVISORD_CONF=/etc/supervisor/conf.d/supervisord.conf
+ LOG_LEVEL=info
+ 
+-TEMP=`getopt -o l:e:m:s:r: --long log-level:,etcd-servers:,mesos-master:,scheduler-config:,mesos-role:\
++TEMP=`getopt -o l:e:m:s:r: --long log-level:,etcd-servers:,mesos-master:,scheduler-config:,mesos-framework-roles:,enable-revocable:\
+   -n 'bootstrap.sh' -- "$@"`
+ 
+ if [ $? != 0 ] ; then
+@@ -22,7 +22,8 @@ while true; do
+     --etcd-servers | -e ) ETCD_SERV="$2"; shift 2 ;;
+     --mesos-master | -m ) MESOS_MASTER="$2"; shift 2 ;;
+     --scheduler-config | -s ) SCHED_CONF="$2"; shift 2 ;;
+-    --mesos-role | -r ) MESOS_ROLE="$2"; shift 2 ;;
++    --mesos-framework-roles | -r ) MESOS_ROLE="$2"; shift 2 ;;
++    --enable-revocable | -r ) MESOS_REVOCABLE="$2"; shift 2 ;;
+     -- ) shift; break ;;
+     * ) break ;;
+   esac
+@@ -52,7 +53,13 @@ fi
+ if [ -z $MESOS_ROLE ] ; then
+   MESOS_ROLE_ARG=""
+ else
+-  MESOS_ROLE_ARG="--mesos-role=$MESOS_ROLE"
++  MESOS_ROLE_ARG="--mesos-framework-roles=$MESOS_ROLE"
++fi
++
++if [ -z $MESOS_REVOCABLE ] ; then
++  MESOS_REVOCABLE_ARG=""
++else
++  MESOS_REVOCABLE_ARG="--enable-revocable=$MESOS_REVOCABLE"
+ fi
+ 
+ cat > $SUPERVISORD_CONF <<End-Of-SC
+@@ -73,7 +80,7 @@ stdout_logfile=/var/log/supervisor/%(program_name)s.log
+ stderr_logfile=/var/log/supervisor/%(program_name)s.log
+ 
+ [program:scheduler]
+-command=$K8S_HOME/km scheduler --address=`hostname -i` $KM_SCHED_ARG $MESOS_ROLE_ARG --mesos-master=$MESOS_MASTER --etcd-servers=$ETCD_SERV --mesos-user=root --api-servers=`hostname -i`:8888 --cluster-dns=10.10.10.10 --cluster-domain=cluster.local --v=4
++command=$K8S_HOME/km scheduler --address=`hostname -i` $MESOS_REVOCABLE_ARG $KM_SCHED_ARG $MESOS_ROLE_ARG --mesos-master=$MESOS_MASTER --etcd-servers=$ETCD_SERV --mesos-user=root --api-servers=`hostname -i`:8888 --cluster-dns=10.10.10.10 --cluster-domain=cluster.local --v=4
+ stdout_logfile=/var/log/supervisor/%(program_name)s.log
+ stderr_logfile=/var/log/supervisor/%(program_name)s.log
+ 
+diff --git a/dcos/kubernetes/build.sh b/dcos/kubernetes/build.sh
+index d91c983..552cb82 100755
+--- a/dcos/kubernetes/build.sh
++++ b/dcos/kubernetes/build.sh
+@@ -1,7 +1,7 @@
+ #!/bin/bash
+ 
+-#GO_URL=https://storage.googleapis.com/golang/go1.5.1.linux-amd64.tar.gz
+-GO_URL=https://storage.googleapis.com/golang/go1.4.linux-amd64.tar.gz
++GO_URL=https://storage.googleapis.com/golang/go1.5.1.linux-amd64.tar.gz
++#GO_URL=https://storage.googleapis.com/golang/go1.4.linux-amd64.tar.gz
+ 
+ TOP_DIR=`pwd`
+ 
+@@ -21,10 +21,10 @@ export PATH=$GOROOT/bin:$PATH
+ 
+ mkdir -p $GOPATH
+ 
+-git clone https://github.com/GoogleCloudPlatform/kubernetes
++git clone https://github.com/kubernetes/kubernetes.git
+ 
+ cd kubernetes
+-git checkout -b release-1.1 -t remotes/origin/release-1.1
++#git checkout -b release-1.1 -t remotes/origin/release-1.1
+ 
+ export KUBERNETES_CONTRIB=mesos
+ 
+@@ -46,5 +46,5 @@ cat Dockerfile.kubelet.template >> Dockerfile.kubelet
+ 
+ 
+ #sudo docker build -t $HUB_USER/kubernetes -f Dockerfile.kubernetes --no-cache .
+-sudo docker build -t $HUB_USER/km -f Dockerfile.km --no-cache .
+-sudo docker build -t $HUB_USER/kubelet -f Dockerfile.kubelet --no-cache .
++sudo docker build -t gyliu/km:1.6 -f Dockerfile.km --no-cache .
++#sudo docker build -t $HUB_USER/kubelet -f Dockerfile.kubelet --no-cache .
+diff --git a/dcos/kubernetes/k8sm-scheduler-configure b/dcos/kubernetes/k8sm-scheduler-configure
+index 37f6b6d..0bc869a 100644
+--- a/dcos/kubernetes/k8sm-scheduler-configure
++++ b/dcos/kubernetes/k8sm-scheduler-configure
+@@ -1,6 +1,6 @@
+ [scheduler]
+ ; duration an offer is viable, prior to being expired
+-offer-ttl = 10000s
++offer-ttl = 100000s
+  
+ ; duration an expired offer lingers in history
+ offer-linger-ttl = 2m
+@@ -19,10 +19,10 @@ framework-id-refresh-interval = 30s
+ initial-implicit-reconciliation-delay = 15s
+  
+ ; interval in between internal task status checks/updates
+-explicit-reconciliantion-max-backoff = 2m
++explicit-reconciliation-max-backoff = 2m
+  
+ ; waiting period after attempting to cancel an ongoing reconciliation
+-explicit-reconciliantion-abort-timeout = 30s
++explicit-reconciliation-abort-timeout = 30s
+  
+ initial-pod-backoff = 1s
+ max-pod-backoff = 60s
