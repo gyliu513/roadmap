@@ -1,0 +1,113 @@
+Create Zookeeper
+docker run --privileged --net=host -v=/root/gyliu/zookeeper:/var/log/supervisor:rw -d mesostest/zookeeper --servers "ma1demo3,1" --id 1
+docker run  --privileged --net=host -d mesostest/etcd --listen-client-urls http://0.0.0.0:4001 -advertise-client-urls http://ma1demo3:4001
+Create Mesos Master
+docker run --privileged --net=host -v=/root/gyliu/mesos-master:/opt/ibm/mesos/log:rw -d gyliu/mesos-master:0.27.0  --zk=zk://ma1demo3:2181/mesos --quorum=1
+./bin/mesos-master.sh --ip=9.21.58.23 --work_dir=/var/lib/mesos --zk=zk://ma1demo3:2181/mesos --quorum=1
+Create Mesos Slave
+docker run --privileged --net=host -v=/root/gyliu/mesos-slave:/opt/ibm/mesos/log:rw -v=/opt/ibm/mesos/work:/opt/ibm/mesos/work -v=/var/run/docker.sock:/var/run/docker.sock:rw -d gyliu/mesos-slave:0.27.0  --master=zk://ma1demo3:2181/mesos --isolation=cgroups --resources="cpus:16;mem:24576;disk:409600;ports:[10000-90000]"
+Create ETCD
+docker run --privileged --net=host -d mesostest/etcd --listen-client-urls http://0.0.0.0:4001 -advertise-client-urls http://ma1demo3:4001
+./etcdctl -C http://9.21.58.23:4001 ls --recursive=true
+
+GLOG_v=2 ./bin/mesos-slave.sh --master=9.21.58.23:5050 --resource_estimator="org_apache_mesos_FixedResourceEstimator" --modules=/root/gyliu/mesos/estimator_module 
+
+root@devstack007:/home/gyliu# cat /root/src/mesos/m2/mesos/build/estimator_module 
+{
+      "libraries": {
+        "file":
+"/root/src/mesos/m2/mesos/build/src/.libs/libfixed_resource_estimator.so",
+        "modules": {
+        "name": "org_apache_mesos_FixedResourceEstimator",
+          "parameters": {
+          "key": "resources",
+          "value": "cpus:8;mem:5000"
+          }
+        }
+      }
+    }
+
+docker run --privileged --net=host -v=/root/gyliu/kubernetes:/var/log/supervisor:rw -v=/root/gyliu/conf/k8s/:/root -d gyliu/km:1.6  --etcd-servers http://ma1demo3:4001 --mesos-framework-roles "*,k8s1" --mesos-master ma1demo3:5050 --scheduler-config /root/sconf --enable-revocable=true
+
+
+
+Create POD
+root@ma1demo3:~/gyliu/conf/k8s# cat nginx.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx1
+  labels:
+    app: nginx
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+    ports:
+    - containerPort: 80
+ kubectl --server=9.21.58.23:8888 get nodes,pods
+kubectl --server=9.21.58.23:8888 create -f /root/gyliu/conf/k8s/nginx.yaml
+kubectl --server=9.21.58.23:8888 create -f /root/gyliu/conf/k8s/rnginx.yaml
+
+kubectl --server=9.21.58.23:8888 delete -f /root/gyliu/conf/k8s/rnginx.yaml
+kubectl --server=9.21.58.23:8888 delete -f /root/gyliu/conf/k8s/nginx.yaml
+Check POD
+root@ma1demo3:~/gyliu/conf/k8s# kubectl --server=9.21.58.23:8888 get nodes,pods
+NAME                               LABELS                                                    STATUS    AGE
+ma1demo2.eng.platformlab.ibm.com   kubernetes.io/hostname=ma1demo2.eng.platformlab.ibm.com   Ready     16m
+NAME      READY     STATUS    RESTARTS   AGE
+nginx1    1/1       Running   0          17m
+Create Marathon
+docker  run --rm --privileged --net=host -d hchenxa1986/marathon:0.27.0 --master zk://ma1demo1:2181/mesos --zk zk://ma1demo1:2181/marathon --mesos_role marathon1
+Check Frameworks in Mesos
+root@ma1demo1:~# curl "http://9.21.58.23:5050/master/frameworks" 2>/dev/null| jq .
+{
+
+
+root@ma1demo3:~/gyliu/conf/k8s# cat sconf 
+[scheduler]
+; duration an offer is viable, prior to being expired
+offer-ttl = 100000s
+ 
+; duration an expired offer lingers in history
+offer-linger-ttl = 2m
+ 
+; duration between offer listener notifications
+listener-delay = 1s
+ 
+; size of the pod updates channel
+updates-backlog = 2048
+ 
+; interval we update the frameworkId stored in etcd
+framework-id-refresh-interval = 30s
+ 
+; wait this amount of time after initial registration before attempting
+; implicit reconciliation
+initial-implicit-reconciliation-delay = 15s
+ 
+; interval in between internal task status checks/updates
+explicit-reconciliation-max-backoff = 2m
+ 
+; waiting period after attempting to cancel an ongoing reconciliation
+explicit-reconciliation-abort-timeout = 30s
+ 
+initial-pod-backoff = 1s
+max-pod-backoff = 60s
+http-handler-timeout = 10s
+http-bind-interval = 5s
+
+root@ma1demo3:~/gyliu/conf/k8s# cat rnginx.yaml 
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rnginx1
+  labels:
+    app: rnginx
+  annotations:
+    k8s.mesosphere.io/revocable: ok
+spec:
+  containers:
+  - name: rnginx
+    image: nginx
+    ports:
+    - containerPort: 80
