@@ -1,0 +1,8 @@
+Launching health check process: /usr/local/libexec/mesos/mesos-health-check --executor=(1)@127.0.0.1:39629 --health_check_json={"command":{"shell":true,"value":"false"},"consecutive_failures":1,"delay_seconds":0.0,"grace_period_seconds":1.0,"interval_seconds":1.0,"timeout_seconds":1.0} --task_id=sleepy-2
+
+This was reported by Tyler Neely experimenting with health checks. Many tasks were launched with the following health check, taken from the container stdout/stderr:
+Launching health check process: /usr/local/libexec/mesos/mesos-health-check --executor=(1)@127.0.0.1:39629 --health_check_json={"command":{"shell":true,"value":"false"},"consecutive_failures":1,"delay_seconds":0.0,"grace_period_seconds":1.0,"interval_seconds":1.0,"timeout_seconds":1.0} --task_id=sleepy-2
+This should have led to all tasks getting killed due to --consecutive_failures being set, however, only some tasks get killed, while other remain running.
+It turns out that the health check binary does a send and promptly exits. Unfortunately, this may lead to a message drop since libprocess may not have sent this message over the socket by the time the process exits.
+We work around this in the command executor with a manual sleep, which has been around since the svn days. See here.
+

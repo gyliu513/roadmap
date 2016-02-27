@@ -1,0 +1,27 @@
+Here's a brief(?) run-down:
+https://github.com/apache/mesos/blob/4376803007446b949840d53945547d8a61b91339/src/master/master.cpp#L5739-L5748
+When a new framework is added, the master opens a socket connection with the framework.  
+If this is a scheduler-driver-based framework, this is a plain socket connection.
+If this is a new HTTP API framework, the master uses the streaming HTTP connection instead.
+The HTTP API framework's exit logic is simpler to explain.  When the streaming connection closes, the master considers the framework to have exited.  In the above code, see this chunk of code:
+http.closed()
+  .onAny(defer(self(), &Self::exited, framework->id(), http));
+The scheduler-driver-based framework exit is a bit more involved:
+https://github.com/apache/mesos/blob/4376803007446b949840d53945547d8a61b91339/3rdparty/libprocess/src/process.cpp#L1326
+Libprocess has a SocketManager which, as the name suggests, managed sockets.  Linking the master <-> framework spawns a socket here.
+https://github.com/apache/mesos/blob/4376803007446b949840d53945547d8a61b91339/3rdparty/libprocess/src/process.cpp#L1394-L1400
+Linking will install a dispatch loop, which continually reads the data from the socket until the socket closes.
+https://github.com/apache/mesos/blob/4376803007446b949840d53945547d8a61b91339/3rdparty/libprocess/src/process.cpp#L1300-L1312
+The dispatch loop calls "ignore_recv_data".  This detects when the socket closes and calls "SocketManager->close(s)".
+https://github.com/apache/mesos/blob/4376803007446b949840d53945547d8a61b91339/3rdparty/libprocess/src/process.cpp#L1928
+"SocketManager->close" will generate a libprocess "ExitedEvent".
+https://github.com/apache/mesos/blob/4376803007446b949840d53945547d8a61b91339/src/master/master.cpp#L1352
+Master has a listener for "ExitedEvent" which rate-limits these events.
+https://github.com/apache/mesos/blob/4376803007446b949840d53945547d8a61b91339/src/master/master.cpp#L1161
+The "ExitedEvent" eventually gets propagated to that ^ method (through a libprocess event visitor).
+https://github.com/apache/mesos/blob/4376803007446b949840d53945547d8a61b91339/src/master/master.cpp#L1165
+Finally, the framework gets removed.
+Hope that helps,
+
+
+How did the mesos master detect the disconnect of a framework (scheduler)
