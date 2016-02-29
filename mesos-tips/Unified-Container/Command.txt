@@ -1,0 +1,65 @@
+sbin/mesos-master --work_dir=/tmp/mesos/master
+
+ GLOG_v=1 sbin/mesos-slave --master=192.168.56.12:5050 --isolation=docker/runtime,filesystem/linux --work_dir=/tmp/mesos/slave --image_providers=docker --launcher=linux --executor_environment_variables="{}"
+
+sudo bin/mesos-execute --master=192.168.56.12:5050 --name=test --docker_image=library/redis --no-shell
+
+----------------------------------------------
+umount -f mesos
+https://mesosphere.com/blog/2015/12/02/ip-per-container-mesos/
+
+ ./bin/mesos-slave.sh --master=192.168.56.12:5050  --resources="cpus:8;mem:8000" --containerizers="mesos,docker" --executor_registration_timeout=5mins --log_dir=/opt/mlog/ --isolation="posix/cpu,posix/mem,filesystem/linux" --image_providers=appc,docker --image_provisioner_backend=copy --docker_registry=/root/reglocal --default_container_info=/root/reglocal/path.json
+
+
+
+GLOG_v=2  ./bin/mesos-slave.sh --master=192.168.56.12:5050  --resources="cpus:8;mem:8000" --containerizers="mesos,docker" --executor_registration_timeout=5mins --log_dir=/opt/mlog/ --isolation="posix/cpu,posix/mem,filesystem/linux" --image_providers=appc,docker --image_provisioner_backend=copy --docker_registry=/root/reglocal --default_container_info=/root/reglocal/path.json
+
+root@mesos002:~/reglocal# cat path.json 
+{
+  "type": "MESOS",
+  "volumes": [
+    {
+      "host_path": "/root/src",
+      "container_path": "/opt",
+      "mode": "RW"
+    }
+  ]
+}
+
+GLOG_v=2 ./bin/mesos-slave.sh --master=192.168.56.12:5050  --resources="cpus:8;mem:8000" --containerizers="mesos,docker" --executor_registration_timeout=5mins --log_dir=/opt/mlog/ --isolation="posix/cpu,posix/mem,filesystem/linux" --image_providers=appc,docker --image_provisioner_backend=copy --docker_registry=/root/reglocal/
+
+./bin/mesos-slave.sh --master=192.168.56.12:5050  --resources="cpus:8;mem:8000" --containerizers="docker" --executor_registration_timeout=5mins --log_dir=/opt/mlog/ 
+
+./src/mesos-execute --master=192.168.56.12:5050 --name="cluster-test" --command="sleep 10000" --resources="cpus(*):1;mem(*):256" 
+./src/mesos-execute --master=192.168.56.12:5050  --command="sleep 1000"  --name=test_mesos --docker_image=busybox:latest --containerizer=mesos
+
+./src/mesos-execute --master=192.168.56.12:5050  --command="sleep 1000"  --name=test_mesos --docker_image=busybox:latest 
+
+./src/mesos-execute --master=192.168.56.12:5050  --command="sleep 1000"  --name=test_mesos --docker_image=busybox:latest --containerizer=docker
+
+https://gist.github.com/lins05/14455e92f37e91fd46ff
+
+./bin/mesos-master.sh  --work_dir=/var/lib/mesos --zk=zk://192.168.56.12:2181/mesos --quorum=1 --log_dir=/opt/mlog/
+
+ ./bin/mesos-slave.sh --master=192.168.56.12:5050  --resources="cpus:8;mem:8000" --containerizers="mesos,docker"  --log_dir=/opt/mlog/
+
+ ./bin/mesos-slave.sh --master=192.168.56.12:5050  --resources="cpus:8;mem:8000" --containerizers="mesos,docker" --executor_registration_timeout=5mins --log_dir=/opt/mlog/
+
+ ./bin/mesos-master.sh  --work_dir=/var/lib/mesos --zk=zk://192.168.56.12:2181/mesos --quorum=1
+
+
+./bin/mesos-slave.sh --master=192.168.56.12:5050  --resources="cpus:8;mem:8000" --containerizers="mesos,docker"
+
+
+./bin/mesos-slave.sh --master=192.168.56.12:5050  --resources="cpus(r2):8;mem(r1):8000"
+
+export MESOS_NATIVE_LIBRARY=/opt/libmesos.so
+
+export MESOS_NATIVE_JAVA_LIBRARY=/opt/libmesos.so 
+
+./bin/start --master zk://192.168.56.12:2181/mesos --zk zk://192.168.56.12:2181/marathon
+
+ curl -XPOST http://192.168.56.12:8080/v2/apps  -H Content-Type:application/json -d @p5.json
+
+export http_proxy=http://9.21.62.146:3128
+export https_proxy=http://9.21.62.146:3128
