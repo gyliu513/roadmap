@@ -1,0 +1,20 @@
+
+    Set https_proxy=http://localhost:3128 (a local squid server) in /etc/default/mesos-slave, restart mesos-slave, launch a new marathon task with a https:// uri, and through the following sysdig command I can see there is data exchanging between mesos-fetcher process and port 3128.
+
+
+
+sudo sysdig -A -c echo_fds proc.name=mesos-fetcher and fd.port=3128
+
+
+
+    Stop the local squid server, try to restart the marathon task, the task would fail repeatly, from slave logs there are error messages that fetcher failed to fetch the uri.
+
+
+Dec 16 15:16:35 lin-E400 mesos-slave[24247]: E1216 15:16:35.678032 24283 slave.cpp:3342] Container '45c14132-c56a-4cff-a6b5-f57ba2670643' for executor 'testapp_web.f0ef72d2-a3c4-11e5-af60-56847afe9799' of framework 'b52179fd-8968-4
+bf8-baf0-dddc8a38c903-0000' failed to start: Failed to fetch all URIs for container '45c14132-c56a-4cff-a6b5-f57ba2670643' with exit status: 2
+
+
+
+    Restart the squid server, the task would start without a problem.
+
+https://reviews.apache.org/r/41438/
