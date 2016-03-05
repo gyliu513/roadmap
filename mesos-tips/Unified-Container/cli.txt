@@ -14,15 +14,17 @@ sudo src/mesos-execute --master=9.21.58.23:5050 --name=test --docker_image=libra
 
 ----------------------------
 
-
 umount -f mesos
 https://mesosphere.com/blog/2015/12/02/ip-per-container-mesos/
 
- ./bin/mesos-slave.sh --master=192.168.56.12:5050  --resources="cpus:8;mem:8000" --containerizers="mesos,docker" --executor_registration_timeout=5mins --log_dir=/opt/mlog/ --isolation="posix/cpu,posix/mem,filesystem/linux" --image_providers=appc,docker --image_provisioner_backend=copy --docker_registry=/root/reglocal --default_container_info=/root/reglocal/path.json
+./bin/mesos-master.sh --work_dir=/tmp/mesos/master
 
+GLOG_v=2  ./bin/mesos-slave.sh --master=192.168.56.12:5050  --resources="cpus:8;mem:8000" --containerizers="mesos,docker" --executor_registration_timeout=5mins --log_dir=/opt/mlog/ --isolation="docker/runtime,posix/cpu,posix/mem,filesystem/linux" --image_providers=appc,docker --image_provisioner_backend=copy --docker_registry=/root/reglocal
 
+./src/mesos-execute --master=192.168.56.12:5050  --command="sleep 1000"  --name=test_mesos --docker_image=busybox:latest
+./src/mesos-execute --master=192.168.56.12:5050  --command="sleep 1000"  --name=test_mesos --docker_image=busybox:latest --containerizer=docker
 
-GLOG_v=2  ./bin/mesos-slave.sh --master=192.168.56.12:5050  --resources="cpus:8;mem:8000" --containerizers="mesos,docker" --executor_registration_timeout=5mins --log_dir=/opt/mlog/ --isolation="posix/cpu,posix/mem,filesystem/linux" --image_providers=appc,docker --image_provisioner_backend=copy --docker_registry=/root/reglocal --default_container_info=/root/reglocal/path.json
+GLOG_v=2  ./bin/mesos-slave.sh --master=192.168.56.12:5050  --resources="cpus:8;mem:8000" --containerizers="mesos,docker" --executor_registration_timeout=5mins --log_dir=/opt/mlog/ --isolation="docker/runtime,posix/cpu,posix/mem,filesystem/linux" --image_providers=appc,docker --image_provisioner_backend=copy --docker_registry=/root/reglocal --default_container_info=/root/reglocal/path.json
 
 root@mesos002:~/reglocal# cat path.json 
 {
