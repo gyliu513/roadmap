@@ -2,6 +2,8 @@
 
  GLOG_v=1 ./bin/mesos-slave.sh --master=192.168.56.12:5050 --isolation=docker/runtime,filesystem/linux --work_dir=/tmp/mesos/slave --image_providers=docker --launcher=linux --executor_environment_variables="{}"
 
+GLOG_v=1  ./bin/mesos-slave.sh --master=192.168.56.12:5050  --resources="cpus:8;mem:8000" --containerizers="mesos,docker" --executor_registration_timeout=5mins --log_dir=/opt/mlog/ --isolation="docker/runtime,posix/cpu,posix/mem,filesystem/linux" --image_providers=appc,docker
+
  GLOG_v=1 ./bin/mesos-slave.sh --master=192.168.56.12:5050 --isolation=docker/dvd,docker/runtime,filesystem/linux --work_dir=/tmp/mesos --image_providers=docker --launcher=linux --executor_environment_variables="{}" --docker_registry=/root/reglocal
 
 sudo src/mesos-execute --master=192.168.56.12:5050 --name=test --docker_image=library/redis --no-shell
