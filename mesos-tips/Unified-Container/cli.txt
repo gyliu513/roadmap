@@ -6,8 +6,11 @@ GLOG_v=1  ./bin/mesos-slave.sh --master=192.168.56.12:5050  --resources="cpus:8;
 
  GLOG_v=1 ./bin/mesos-slave.sh --master=192.168.56.12:5050 --isolation=docker/dvd,docker/runtime,filesystem/linux --work_dir=/tmp/mesos --image_providers=docker --launcher=linux --executor_environment_variables="{}" --docker_registry=/root/reglocal
 
+ GLOG_v=1 ./bin/mesos-slave.sh --master=192.168.56.12:5050 --isolation=docker/runtime,filesystem/linux --work_dir=/tmp/mesos --image_providers=docker --launcher=linux --executor_environment_variables="{}" --docker_registry=/root/reglocal
+
 sudo src/mesos-execute --master=192.168.56.12:5050 --name=test --docker_image=library/redis --no-shell
 src/mesos-execute --master=192.168.56.12:5050 --name=test --docker_image=ubuntu:14.04 --no-shell
+src/mesos-execute --master=192.168.56.12:5050 --name=test --docker_image=ubuntu:14.04 --command="sleep 10000"
 ----------------------------------------------
 
 ./bin/mesos-master.sh --work_dir=/tmp/mesos/master
@@ -17,7 +20,17 @@ src/mesos-execute --master=192.168.56.12:5050 --name=test --docker_image=ubuntu:
 sudo src/mesos-execute --master=9.21.58.23:5050 --name=test --docker_image=library/redis --no-shell
 
 ----------------------------
+appc
 
+GLOG_v=1 ./bin/mesos-slave.sh --master=192.168.56.12:5050  --executor_registration_timeout=5mins  --containerizers=mesos  --isolation=filesystem/linux --image_providers=APPC  --appc_simple_discovery_uri_prefix=/root/appclocal/
+
+./src/mesos-execute --master=192.168.56.12:5050 --command="/bin/echo ello ubuntu;"  --name=test --appc_image=ubuntu
+---------------------
+mix
+
+GLOG_v=1 ./bin/mesos-slave.sh --master=192.168.56.12:5050  --executor_registration_timeout=5mins  --containerizers=mesos  --image_providers=APPC,DOCKER  --appc_simple_discovery_uri_prefix=/root/appclocal/  --isolation=docker/runtime,filesystem/linux --work_dir=/tmp/mesos --executor_environment_variables="{}" --docker_registry=/root/reglocal
+
+-----------------------
 umount -f mesos
 https://mesosphere.com/blog/2015/12/02/ip-per-container-mesos/
 
