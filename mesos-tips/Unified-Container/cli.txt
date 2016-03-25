@@ -11,6 +11,11 @@ GLOG_v=1  ./bin/mesos-slave.sh --master=192.168.56.12:5050  --resources="cpus:8;
 sudo src/mesos-execute --master=192.168.56.12:5050 --name=test --docker_image=library/redis --no-shell
 src/mesos-execute --master=192.168.56.12:5050 --name=test --docker_image=ubuntu:14.04 --no-shell
 src/mesos-execute --master=192.168.56.12:5050 --name=test --docker_image=ubuntu:14.04 --command="sleep 10000"
+
+mkdir nfs-vol1
+mount -t nfs mesos002:/root/nfs-vol /root/nfs-vol1
+convoy daemon --drivers vfs --driver-opts vfs.path=/root/nfs-vol1
+
 ----------------------------------------------
 
 ./bin/mesos-master.sh --work_dir=/tmp/mesos/master
