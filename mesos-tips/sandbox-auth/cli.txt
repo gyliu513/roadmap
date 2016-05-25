@@ -1,0 +1,69 @@
+on OSX the script:
+
+
+#! /usr/bin/env bash
+
+rm -rf /tmp/mesos/*
+
+cat <<EOF > /tmp/credentials.txt
+foo bar
+baz bar
+EOF
+
+cat <<EOF > /tmp/acls.json
+{
+  "permissive": false,
+  "access_sandboxes" : [
+    {
+      "principals" : { "values" : ["foo"] },
+      "roles" : { "values" : ["test"] }
+    }
+  ]
+}
+EOF
+
+./mesos-master.sh --work_dir=/tmp/mesos/master &
+./mesos-slave.sh --work_dir=/tmp/mesos/slave \
+                 --master=127.0.0.1:5050 \
+                 --authenticate_http \
+                 --http_credentials=file:///tmp/credentials.txt \
+                 --acls=file:///tmp/acls.json &
+
+./mesos-execute --command='while true; do echo "Hello world"; sleep 3; done' \
+                --role=test \
+                --master=127.0.0.1:5050 \
+                --name=echoer &
+
+SANDBOX_VPATH=`http GET http://127.0.0.1:5051/files/debug -a foo:bar -b  --pretty=none \
+     | python -c 'import json,sys;obj=json.load(sys.stdin);print obj.keys()[0]'`
+
+# This should yield a 200 OK response
+http GET http://127.0.0.1:5051/files/download?path=${SANDBOX_VPATH}/stdout -a foo:bar
+
+# HTTP/1.1 200 OK
+# Content-Disposition: attachment; filename=stdout
+# Content-Length: 3267
+# Content-Type: application/octet-stream
+# Date: Fri, 20 May 2016 13:52:31 GMT
+#
+# Received SUBSCRIBED event
+# Subscribed executor on localhost
+# Received LAUNCH event
+# Starting task echoer
+# sh -c 'while true; do echo "Hello world"; sleep 3; done'
+# Forked command at 26162
+# Hello world
+# Hello world
+# Hello world
+# Hello world
+# Hello world
+
+# This shold yield a 403 Forbidden response
+http GET http://127.0.0.1:5051/files/download?path=${SANDBOX_VPATH}/stdout -a baz:bar
+
+# HTTP/1.1 403 Forbidden
+# Content-Length: 0
+# Date: Fri, 20 May 2016 13:52:37 GMT
+#
+#
+#

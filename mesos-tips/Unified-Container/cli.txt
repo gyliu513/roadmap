@@ -6,7 +6,7 @@ GLOG_v=1  ./bin/mesos-slave.sh --master=192.168.56.12:5050  --resources="cpus:8;
 
  GLOG_v=1 ./bin/mesos-slave.sh --master=192.168.56.12:5050 --isolation=docker/dvd,docker/runtime,filesystem/linux --work_dir=/tmp/mesos --image_providers=docker --launcher=linux --executor_environment_variables="{}" --docker_registry=/root/reglocal
 
- GLOG_v=1 ./bin/mesos-slave.sh --master=192.168.56.12:5050 --isolation=docker/runtime,filesystem/linux --work_dir=/tmp/mesos --image_providers=docker --launcher=linux --executor_environment_variables="{}" --docker_registry=/root/reglocal
+ GLOG_v=1 ./bin/mesos-slave.sh --master=192.168.56.12:5050 --isolation=docker/volume,docker/runtime,filesystem/linux --work_dir=/tmp/mesos --image_providers=docker --launcher=linux --executor_environment_variables="{}" --docker_registry=/root/reglocal
 
 sudo src/mesos-execute --master=192.168.56.12:5050 --name=test --docker_image=library/redis --no-shell
 src/mesos-execute --master=192.168.56.12:5050 --name=test --docker_image=ubuntu:14.04 --no-shell
