@@ -1,0 +1,62 @@
+Unit tests.
+
+On ubuntu 16.04:
+sudo GTEST_FILTER="*SlaveEndpointTest*.*" make -j2 check
+
+Manual testing.
+
+Ran master with:
+
+
+sudo  ./bin/mesos-master.sh --ip=127.0.0.1 --work_dir=/var/lib/mesos
+
+
+
+ACL File:
+
+
+{
+    "get_endpoints": [
+      {
+        "principals": { "type": "NONE" },
+        "paths": { "values": ["/flags", "/monitor/statistics", "/containers"] }
+      }
+    ]
+  } 
+
+
+
+Ran slave with:
+
+
+sudo ./bin/mesos-slave.sh --master=127.0.0.1:5050 --ip=0.0.0.0 --acls=file:///home/abhishek/testAcl
+
+
+
+Ran toy-framework with:
+
+
+sudo ./no-executor-framework --master=master@127.0.0.1:5050 --command="echo hello"
+
+
+
+Output while hitting "http://127.0.0.1:5051/slave(1)/containers" - HTTP error 403: Forbidden
+Changed ACL to:
+
+
+{
+    "get_endpoints": [
+      {
+        "principals": { "type": "ANY" },
+        "paths": { "values": ["/flags", "/monitor/statistics", "/containers"] }
+      }
+    ]
+  }
+
+
+
+Ran slave and framework again.
+Output:
+
+
+[{"container_id":"2059c6a5-d168-4db7-912d-1c70b61fdb5d","executor_id":"699","executor_name":"Command Executor (Task: 699) (Command: sh -c 'echo hello')","framework_id":"48e2fe51-afba-44c5-958e-0ad3cee6454b-0000","source":"699","statistics":{"cpus_limit":0.2,"cpus_system_time_secs":0.01,"cpus_user_time_secs":0.04,"mem_limit_bytes":67108864,"mem_rss_bytes":88477696,"timestamp":1464168040.50791},"status":{}},{"container_id":"a0be0340-ca6b-4fc4-9862-4af143a7961e",.......
