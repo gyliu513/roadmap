@@ -1,0 +1,1 @@
+mesos containerizer fork a subprocess -> MesosContainerizerLaunch subcommand -> execvp mesos-executor binary -> executor fork a subprocess -> containerizer binary to call MesosContainerizerLaunch subcommand.
