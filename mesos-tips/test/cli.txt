@@ -1,0 +1,1 @@
+./bin/mesos-tests.sh --gtest_filter="AgentAPITest.NestedContainer" --gtest_repeat=-1 --gtest_break_on_failure
