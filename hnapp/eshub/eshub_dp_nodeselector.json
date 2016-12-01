@@ -1,0 +1,115 @@
+{
+  "kind": "Deployment",
+  "apiVersion": "extensions/v1beta1",
+  "metadata": {
+    "name": "eshub",
+    "labels": {
+      "app": "eshub"
+    }
+  },
+  "spec": {
+    "replicas": 1,
+    "template": {
+      "metadata": {
+        "labels": {
+          "app": "eshub",
+          "frontend": "eshub-portal",
+          "backend": "eshub-portalapi",
+          "cache": "eshub-redis1"
+        }
+      },
+      "spec": {
+        "volumes": [
+          {
+            "name": "eshub-hosts",
+            "hostPath": { "path": "/root/eshub-hosts"}
+          }
+        ],
+        "hostname": "eshub",
+        "containers": [
+          {
+            "name": "protal",
+            "image": "eshub-portal:1.1",
+            "imagePullPolicy": "IfNotPresent",
+            "ports": [
+              {
+                "protocol": "TCP",
+                "containerPort": 80
+              }
+            ],
+            "resources": {
+              "limits": {}
+            },
+            "env": [
+              {
+                "name": "WEB_PORT",
+                "value": "80"
+              }
+            ],
+            "volumeMounts": [
+              {
+                "mountPath": "/etc/hosts",
+                "name": "eshub-hosts"
+              }
+            ]
+          },
+          {
+            "name": "protalapi",
+            "image": "eshub-portalapi:1.1",
+            "imagePullPolicy": "IfNotPresent",
+            "ports": [
+              {
+                "protocol": "TCP",
+                "containerPort": 8080
+              }
+            ],
+            "resources": {
+              "limits": {}
+            },
+            "env": [
+              {
+                "name": "WEB_PORT",
+                "value": "8080"
+              }
+            ],
+            "volumeMounts": [
+              {
+                "mountPath": "/etc/hosts",
+                "name": "eshub-hosts"
+              }
+            ]
+          },
+          {
+            "name": "redis1",
+            "image": "redis-eshub:2.8.22",
+            "imagePullPolicy": "IfNotPresent",
+            "ports": [
+              {
+                "protocol": "TCP",
+                "containerPort": 6379
+              }
+            ],
+            "resources": {
+              "limits": {}
+            },
+            "env": [
+              {
+                "name": "PORT",
+                "value": "6379"
+              }
+            ],
+            "volumeMounts": [
+              {
+                "mountPath": "/etc/hosts",
+                "name": "eshub-hosts"
+              }
+            ]
+          }
+        ],
+        "nodeSelector": {
+            "kubernetes.io/hostname": "bluedock60.novalocal"
+        }
+      }
+    }
+  }
+}
