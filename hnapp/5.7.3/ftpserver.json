@@ -1,0 +1,75 @@
+{
+  "kind": "Deployment",
+  "apiVersion": "extensions/v1beta1",
+  "metadata": {
+    "name": "ftpserver"
+  },
+  "spec": {
+    "replicas": 1,
+    "template": {
+      "metadata": {
+        "labels": {
+          "app": "ftpserver"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "ftpserver",
+            "image": "gyliu/ftpserver",
+            "imagePullPolicy": "Always",
+            "ports": [
+             {
+                "protocol": "TCP",
+                "containerPort": 21
+              },
+              {
+                "protocol": "TCP",
+                "containerPort": 30000
+              },
+              {
+                "protocol": "TCP",
+                "containerPort": 30001
+              },
+              {
+                "protocol": "TCP",
+                "containerPort": 30002
+              },
+              {
+                "protocol": "TCP",
+                "containerPort": 30003
+              },
+              {
+                "protocol": "TCP",
+                "containerPort": 30004
+              },
+              {
+                "protocol": "TCP",
+                "containerPort": 30005
+              },
+              {
+                "protocol": "TCP",
+                "containerPort": 30006
+              },
+              {
+                "protocol": "TCP",
+                "containerPort": 30007
+              },
+              {
+                "protocol": "TCP",
+                "containerPort": 30008
+              },
+              {
+                "protocol": "TCP",
+                "containerPort": 30009
+              }
+            ],
+            "resources": {
+              "limits": {}
+            }
+          }
+        ]
+      }
+    }
+  }
+}
