@@ -1,0 +1,41 @@
+{
+  "kind": "Deployment",
+  "apiVersion": "extensions/v1beta1",
+  "metadata": {
+    "name": "redis2-eshub"
+  },
+  "spec": {
+    "replicas": 1,
+    "template": {
+      "metadata": {
+        "labels": {
+          "app": "redis2-eshub"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "redis2",
+            "image": "redis-eshub:2.8.22",
+            "imagePullPolicy": "IfNotPresent",
+            "ports": [
+              {
+                "protocol": "TCP",
+                "containerPort": 6379
+              }
+            ],
+            "resources": {
+              "limits": {}
+            },
+            "env": [
+              {
+                "name": "PORT",
+                "value": "6379"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
