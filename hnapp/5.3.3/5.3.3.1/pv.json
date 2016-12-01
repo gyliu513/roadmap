@@ -1,0 +1,20 @@
+{
+    "kind": "PersistentVolume", 
+    "spec": {
+        "accessModes": [
+            "ReadWriteOnce"
+        ], 
+        "capacity": {
+            "storage": "5Gi"
+        }, 
+        "nfs": {
+            "path": "/opt/k8s1", 
+            "server": "9.21.61.67"
+        }, 
+        "persistentVolumeReclaimPolicy": "Recycle"
+    }, 
+    "apiVersion": "v1", 
+    "metadata": {
+        "name": "pv-lhg1"
+    }
+}

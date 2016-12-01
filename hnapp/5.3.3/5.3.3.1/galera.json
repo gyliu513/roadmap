@@ -1,0 +1,100 @@
+{
+    "kind": "PetSet", 
+    "spec": {
+        "replicas": 3, 
+        "serviceName": "galera", 
+        "template": {
+            "spec": {
+                "containers": [
+                    {
+                        "name": "mysql", 
+                        "readinessProbe": {
+                            "initialDelaySeconds": 15, 
+                            "timeoutSeconds": 5, 
+                            "exec": {
+                                "command": [
+                                    "sh", 
+                                    "-c", 
+                                    "mysql -u root -e 'show databases;'"
+                                ]
+                            }
+                        }, 
+                        "image": "erkules/galera:basic", 
+                        "args": [
+                            "--defaults-file=/etc/mysql/my-galera.cnf", 
+                            "--user=root"
+                        ], 
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/lib/", 
+                                "name": "datadir"
+                            }, 
+                            {
+                                "mountPath": "/etc/mysql", 
+                                "name": "config"
+                            }
+                        ], 
+                        "ports": [
+                            {
+                                "containerPort": 3306, 
+                                "name": "mysql"
+                            }, 
+                            {
+                                "containerPort": 4444, 
+                                "name": "sst"
+                            }, 
+                            {
+                                "containerPort": 4567, 
+                                "name": "replication"
+                            }, 
+                            {
+                                "containerPort": 4568, 
+                                "name": "ist"
+                            }
+                        ]
+                    }
+                ], 
+                "volumes": [
+                    {
+                        "emptyDir": {}, 
+                        "name": "config"
+                    }, 
+                    {
+                        "emptyDir": {}, 
+                        "name": "workdir"
+                    }
+                ]
+            }, 
+            "metadata": {
+                "labels": {
+                    "app": "mysql"
+                }, 
+                "annotations": {
+                    "pod.alpha.kubernetes.io/init-containers": "[ { \"name\": \"install\", \"image\": \"gcr.io/google_containers/galera-install:0.1\", \"imagePullPolicy\": \"Always\", \"args\": [\"--work-dir=/work-dir\"], \"volumeMounts\": [ { \"name\": \"workdir\", \"mountPath\": \"/work-dir\" }, { \"name\": \"config\", \"mountPath\": \"/etc/mysql\" } ] }, { \"name\": \"bootstrap\", \"image\": \"debian:jessie\", \"command\": [\"/work-dir/peer-finder\"], \"args\": [\"-on-start=\\\"/work-dir/on-start.sh\\\"\", \"-service=galera\"], \"env\": [ { \"name\": \"POD_NAMESPACE\", \"valueFrom\": { \"fieldRef\": { \"apiVersion\": \"v1\", \"fieldPath\": \"metadata.namespace\" } } } ], \"volumeMounts\": [ { \"name\": \"workdir\", \"mountPath\": \"/work-dir\" }, { \"name\": \"config\", \"mountPath\": \"/etc/mysql\" } ] } ]", 
+                    "pod.alpha.kubernetes.io/initialized": "true"
+                }
+            }
+        }, 
+        "volumeClaimTemplates": [
+            {
+                "spec": {
+                    "accessModes": [
+                        "ReadWriteOnce"
+                    ], 
+                    "resources": {
+                        "requests": {
+                            "storage": "5Gi"
+                        }
+                    }
+                }, 
+                "metadata": {
+                    "name": "datadir"
+                }
+            }
+        ]
+    }, 
+    "apiVersion": "apps/v1alpha1", 
+    "metadata": {
+        "name": "mysql"
+    }
+}

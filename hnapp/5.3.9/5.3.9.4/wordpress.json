@@ -1,0 +1,72 @@
+{
+    "kind": "Deployment", 
+    "spec": {
+        "replicas": 1, 
+        "template": {
+            "spec": {
+                "dnsPolicy": "ClusterFirst", 
+                "containers": [
+                    {
+                        "livenessProbe": {
+                            "initialDelaySeconds": 3, 
+                            "tcpSocket": {
+                                "port": 80
+                            }
+                        }, 
+                        "name": "wordpress", 
+                        "env": [
+                            {
+                                "name": "WORDPRESS_DB_HOST", 
+                                "value": "galera:3306"
+                            }, 
+                            {
+                                "name": "WORDPRESS_DB_PASSWORD", 
+                                "value": "passw0rd"
+                            }, 
+                            {
+                                "name": "WORDPRESS_DB_USER", 
+                                "value": "root"
+                            }, 
+                            {
+                                "name": "WORDPRESS_DB_NAME", 
+                                "value": "wordpress"
+                            }
+                        ], 
+                        "imagePullPolicy": "IfNotPresent", 
+                        "readinessProbe": {
+                            "initialDelaySeconds": 3, 
+                            "tcpSocket": {
+                                "port": 80
+                            }
+                        }, 
+                        "image": "wordpress:4.6", 
+                        "resources": {
+                            "limits": {
+                                "cpu": "500m", 
+                                "memory": "512Mi"
+                            }
+                        }
+                    }
+                ]
+            }, 
+            "metadata": {
+                "labels": {
+                    "app": "wordpress"
+                }, 
+                "name": "wordpress"
+            }
+        }, 
+        "selector": {
+            "matchLabels": {
+                "app": "wordpress"
+            }
+        }
+    }, 
+    "apiVersion": "extensions/v1beta1", 
+    "metadata": {
+        "labels": {
+            "app": "wordpress"
+        }, 
+        "name": "wordpress"
+    }
+}

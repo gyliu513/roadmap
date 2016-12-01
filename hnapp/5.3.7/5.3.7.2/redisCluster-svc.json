@@ -1,0 +1,25 @@
+{
+    "kind": "Service", 
+    "spec": {
+        "clusterIP": "None", 
+        "ports": [
+            {
+                "port": 6379, 
+                "name": "peer"
+            }
+        ], 
+        "selector": {
+            "app": "redis"
+        }
+    }, 
+    "apiVersion": "v1", 
+    "metadata": {
+        "labels": {
+            "app": "redis"
+        }, 
+        "annotations": {
+            "service.alpha.kubernetes.io/tolerate-unready-endpoints": "true"
+        }, 
+        "name": "redis"
+    }
+}

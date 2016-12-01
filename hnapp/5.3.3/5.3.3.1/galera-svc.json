@@ -1,0 +1,25 @@
+{
+    "kind": "Service", 
+    "spec": {
+        "clusterIP": "None", 
+        "ports": [
+            {
+                "port": 3306, 
+                "name": "mysql"
+            }
+        ], 
+        "selector": {
+            "app": "mysql"
+        }
+    }, 
+    "apiVersion": "v1", 
+    "metadata": {
+        "labels": {
+            "app": "mysql"
+        }, 
+        "annotations": {
+            "service.alpha.kubernetes.io/tolerate-unready-endpoints": "true"
+        }, 
+        "name": "galera"
+    }
+}
