@@ -1,0 +1,478 @@
+ {
+  "apiVersion": "extensions/v1beta1",
+  "kind": "Deployment",
+  "metadata": {
+    "name": "busybox",
+    "namespace": "default",
+    "labels": {
+      "app": "busybox"
+    }
+  },
+  "spec": {
+    "replicas": 3,
+    "selector": {
+      "matchLabels": {
+        "app": "busybox"
+      }
+    },
+    "template": {
+      "metadata": {
+        "name": "busybox",
+        "labels": {
+          "app": "busybox"
+        }
+      },
+      "spec": {
+        "hostNetwork": false,
+        "volumes": [
+          {
+            "persistentVolumeClaim": {
+              "claimName": "pvc1"
+            },
+            "name": "v1"
+          },
+          {
+            "persistentVolumeClaim": {
+              "claimName": "pvc2"
+            },
+            "name": "v2"
+          },
+          {
+            "persistentVolumeClaim": {
+              "claimName": "pvc3"
+            },
+            "name": "v3"
+          },
+          {
+            "persistentVolumeClaim": {
+              "claimName": "pvc4"
+            },
+            "name": "v4"
+          },
+          {
+            "persistentVolumeClaim": {
+              "claimName": "pvc5"
+            },
+            "name": "v5"
+          }
+        ],
+        "containers": [
+          {
+            "name": "busybox1",
+            "image": "busybox",
+            "command":[
+            "top"
+            ],
+            "resources": {
+              "limits": {
+                "cpu": "50m",
+                "memory": "100Mi"
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "v1",
+                "mountPath": "/pvc1"
+              },
+              {
+                "name": "v2",
+                "mountPath": "/pvc2"
+              },
+              {
+                "name": "v3",
+                "mountPath": "/pvc3"
+              },
+              {
+                "name": "v4",
+                "mountPath": "/pvc4"
+              },
+              {
+                "name": "v5",
+                "mountPath": "/pvc5"
+              }
+            ],  
+            "terminationMessagePath": "/dev/termination-log",
+            "imagePullPolicy": "IfNotPresent",
+            "securityContext": {
+              "privileged": false
+            }
+          },
+          {
+            "name": "busybox2",
+            "image": "busybox",
+            "command":[
+            "top"
+            ],
+            "resources": {
+              "limits": {
+                "cpu": "50m",
+                "memory": "100Mi"
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "v1",
+                "mountPath": "/pvc1"
+              },
+              {
+                "name": "v2",
+                "mountPath": "/pvc2"
+              },
+              {
+                "name": "v3",
+                "mountPath": "/pvc3"
+              },
+              {
+                "name": "v4",
+                "mountPath": "/pvc4"
+              },
+              {
+                "name": "v5",
+                "mountPath": "/pvc5"
+              }
+            ],  
+            "terminationMessagePath": "/dev/termination-log",
+            "imagePullPolicy": "IfNotPresent",
+            "securityContext": {
+              "privileged": false
+            }
+          },
+          {
+            "name": "busybox3",
+            "image": "busybox",
+            "command":[
+            "top"
+            ],
+            "resources": {
+              "limits": {
+                "cpu": "50m",
+                "memory": "100Mi"
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "v1",
+                "mountPath": "/pvc1"
+              },
+              {
+                "name": "v2",
+                "mountPath": "/pvc2"
+              },
+              {
+                "name": "v3",
+                "mountPath": "/pvc3"
+              },
+              {
+                "name": "v4",
+                "mountPath": "/pvc4"
+              },
+              {
+                "name": "v5",
+                "mountPath": "/pvc5"
+              }
+            ],  
+            "terminationMessagePath": "/dev/termination-log",
+            "imagePullPolicy": "IfNotPresent",
+            "securityContext": {
+              "privileged": false
+            }
+          },
+          {
+            "name": "busybox4",
+            "image": "busybox",
+            "command":[
+            "top"
+            ],
+            "resources": {
+              "limits": {
+                "cpu": "50m",
+                "memory": "100Mi"
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "v1",
+                "mountPath": "/pvc1"
+              },
+              {
+                "name": "v2",
+                "mountPath": "/pvc2"
+              },
+              {
+                "name": "v3",
+                "mountPath": "/pvc3"
+              },
+              {
+                "name": "v4",
+                "mountPath": "/pvc4"
+              },
+              {
+                "name": "v5",
+                "mountPath": "/pvc5"
+              }
+            ],  
+            "terminationMessagePath": "/dev/termination-log",
+            "imagePullPolicy": "IfNotPresent",
+            "securityContext": {
+              "privileged": false
+            }
+          },
+          {
+            "name": "busybox5",
+            "image": "busybox",
+            "command":[
+            "top"
+            ],
+            "resources": {
+              "limits": {
+                "cpu": "50m",
+                "memory": "100Mi"
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "v1",
+                "mountPath": "/pvc1"
+              },
+              {
+                "name": "v2",
+                "mountPath": "/pvc2"
+              },
+              {
+                "name": "v3",
+                "mountPath": "/pvc3"
+              },
+              {
+                "name": "v4",
+                "mountPath": "/pvc4"
+              },
+              {
+                "name": "v5",
+                "mountPath": "/pvc5"
+              }
+            ],  
+            "terminationMessagePath": "/dev/termination-log",
+            "imagePullPolicy": "IfNotPresent",
+            "securityContext": {
+              "privileged": false
+            }
+          },
+          {
+            "name": "busybox6",
+            "image": "busybox",
+            "command":[
+            "top"
+            ],
+            "resources": {
+              "limits": {
+                "cpu": "50m",
+                "memory": "100Mi"
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "v1",
+                "mountPath": "/pvc1"
+              },
+              {
+                "name": "v2",
+                "mountPath": "/pvc2"
+              },
+              {
+                "name": "v3",
+                "mountPath": "/pvc3"
+              },
+              {
+                "name": "v4",
+                "mountPath": "/pvc4"
+              },
+              {
+                "name": "v5",
+                "mountPath": "/pvc5"
+              }
+            ],  
+            "terminationMessagePath": "/dev/termination-log",
+            "imagePullPolicy": "IfNotPresent",
+            "securityContext": {
+              "privileged": false
+            }
+          },
+          {
+            "name": "busybox7",
+            "image": "busybox",
+            "command":[
+            "top"
+            ],
+            "resources": {
+              "limits": {
+                "cpu": "50m",
+                "memory": "100Mi"
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "v1",
+                "mountPath": "/pvc1"
+              },
+              {
+                "name": "v2",
+                "mountPath": "/pvc2"
+              },
+              {
+                "name": "v3",
+                "mountPath": "/pvc3"
+              },
+              {
+                "name": "v4",
+                "mountPath": "/pvc4"
+              },
+              {
+                "name": "v5",
+                "mountPath": "/pvc5"
+              }
+            ],  
+            "terminationMessagePath": "/dev/termination-log",
+            "imagePullPolicy": "IfNotPresent",
+            "securityContext": {
+              "privileged": false
+            }
+          },
+          {
+            "name": "busybox8",
+            "image": "busybox",
+            "command":[
+            "top"
+            ],
+            "resources": {
+              "limits": {
+                "cpu": "50m",
+                "memory": "100Mi"
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "v1",
+                "mountPath": "/pvc1"
+              },
+              {
+                "name": "v2",
+                "mountPath": "/pvc2"
+              },
+              {
+                "name": "v3",
+                "mountPath": "/pvc3"
+              },
+              {
+                "name": "v4",
+                "mountPath": "/pvc4"
+              },
+              {
+                "name": "v5",
+                "mountPath": "/pvc5"
+              }
+            ],  
+            "terminationMessagePath": "/dev/termination-log",
+            "imagePullPolicy": "IfNotPresent",
+            "securityContext": {
+              "privileged": false
+            }
+          },
+          {
+            "name": "busybox9",
+            "image": "busybox",
+            "command":[
+            "top"
+            ],
+            "resources": {
+              "limits": {
+                "cpu": "50m",
+                "memory": "100Mi"
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "v1",
+                "mountPath": "/pvc1"
+              },
+              {
+                "name": "v2",
+                "mountPath": "/pvc2"
+              },
+              {
+                "name": "v3",
+                "mountPath": "/pvc3"
+              },
+              {
+                "name": "v4",
+                "mountPath": "/pvc4"
+              },
+              {
+                "name": "v5",
+                "mountPath": "/pvc5"
+              }
+            ],  
+            "terminationMessagePath": "/dev/termination-log",
+            "imagePullPolicy": "IfNotPresent",
+            "securityContext": {
+              "privileged": false
+            }
+          },
+          {
+            "name": "busybox10",
+            "image": "busybox",
+            "command":[
+            "top"
+            ],
+            "resources": {
+              "limits": {
+                "cpu": "50m",
+                "memory": "100Mi"
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "v1",
+                "mountPath": "/pvc1"
+              },
+              {
+                "name": "v2",
+                "mountPath": "/pvc2"
+              },
+              {
+                "name": "v3",
+                "mountPath": "/pvc3"
+              },
+              {
+                "name": "v4",
+                "mountPath": "/pvc4"
+              },
+              {
+                "name": "v5",
+                "mountPath": "/pvc5"
+              }
+            ],  
+            "terminationMessagePath": "/dev/termination-log",
+            "imagePullPolicy": "IfNotPresent",
+            "securityContext": {
+              "privileged": false
+            }
+          }
+        ],
+        "restartPolicy": "Always",
+        "terminationGracePeriodSeconds": 30,
+        "dnsPolicy": "ClusterFirst",
+        "nodeSelector": {
+          "k8s.mesosphere.io/attribute-arch": "amd64"
+        },
+        "securityContext": {}
+      }
+    },
+    "strategy": {
+      "type": "RollingUpdate",
+      "rollingUpdate": {
+        "maxUnavailable": 1,
+        "maxSurge": 1
+      }
+    }
+  }
+}
