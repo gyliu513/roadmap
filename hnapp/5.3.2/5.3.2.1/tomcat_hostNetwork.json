@@ -1,0 +1,61 @@
+{
+  "apiVersion": "extensions/v1beta1",
+  "kind": "Deployment",
+  "metadata": {
+    "name": "tomcat",
+    "namespace": "default",
+    "labels": {
+      "app": "tomcat"
+    }
+  },
+  "spec": {
+    "replicas": 1,
+    "selector": {
+      "matchLabels": {
+        "app": "tomcat"
+      }
+    },
+    "template": {
+      "metadata": {
+        "name": "tomcat",
+        "labels": {
+          "app": "tomcat"
+        }
+      },
+      "spec": {
+        "hostNetwork": true,
+        "containers": [
+          {
+            "name": "tomcat",
+            "image": "tomcat:9.0.0",
+            "resources": {
+              "limits": {
+                "cpu": "100m",
+                "memory": "100Mi"
+              }
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "imagePullPolicy": "IfNotPresent",
+            "securityContext": {
+              "privileged": false
+            }
+          }
+        ],
+        "restartPolicy": "Always",
+        "terminationGracePeriodSeconds": 30,
+        "dnsPolicy": "ClusterFirst",
+        "nodeSelector": {
+          "k8s.mesosphere.io/attribute-arch": "amd64"
+        },
+        "securityContext": {}
+      }
+    },
+    "strategy": {
+      "type": "RollingUpdate",
+      "rollingUpdate": {
+        "maxUnavailable": 1,
+        "maxSurge": 1
+      }
+    }
+  }
+}

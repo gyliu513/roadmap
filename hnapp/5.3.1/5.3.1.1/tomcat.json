@@ -1,0 +1,55 @@
+{
+  "apiVersion": "extensions\/v1beta1",
+  "kind": "Deployment",
+  "metadata": {
+    "labels": {
+      "app": "tomcat"
+    },
+    "name": "tomcat"
+  },
+  "spec": {
+    "replicas": 5,
+    "selector": {
+      "matchLabels": {
+        "app": "tomcat"
+      }
+    },
+    "template": {
+      "metadata": {
+        "labels": {
+          "app": "tomcat"
+        },
+        "annotations": {
+            "scheduler.alpha.kubernetes.io\/affinity": "{\n  \"nodeAffinity\": {\n    \"requiredDuringSchedulingIgnoredDuringExecution\": {\n      \"nodeSelectorTerms\": [\n        {\n          \"matchExpressions\": [\n            {\n              \"key\": \"group\",\n              \"operator\": \"In\",\n              \"values\": [\"group2\", \"group3\"]\n            }\n          ]\n        }\n      ]\n    }\n  }\n}\n"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "image": "tomcat:9.0.0",
+            "imagePullPolicy": "IfNotPresent",
+            "name": "tomcat",
+            "ports": [
+              {
+                "containerPort": 8080,
+                "protocol": "TCP"
+              }
+            ],
+            "resources": {
+              "limits": {
+                  "cpu": "200m",
+                  "memory": "200Mi"
+              }
+            },
+            "terminationMessagePath": "/dev/termination-log"
+          }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "restartPolicy": "Always",
+        "securityContext":{},
+        "terminationGracePeriodSeconds": 30
+      }
+    }
+  }
+}
+

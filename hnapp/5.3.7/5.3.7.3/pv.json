@@ -1,0 +1,21 @@
+{
+  "kind": "PersistentVolume",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "nfs",
+    "labels": {}
+  },
+  "spec": {
+    "capacity": {
+      "storage": "1Gi"
+    },
+    "accessModes": [
+      "ReadWriteMany"
+    ],
+    "persistentVolumeReclaimPolicy": "Retain",
+    "nfs": {
+      "server": "10.218.36.51",
+      "path": "/data/brick1/nfs"
+    }
+  }
+}
