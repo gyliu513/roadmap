@@ -1,0 +1,75 @@
+{
+  "apiVersion": "extensions/v1beta1",
+  "kind": "Deployment",
+  "metadata": {
+    "name": "tomcat1t",
+    "namespace": "default",
+    "labels": {
+      "app": "tomcat1t"
+    }
+  },
+  "spec": {
+    "replicas": 1,
+    "selector": {
+      "matchLabels": {
+        "app": "tomcat1t"
+      }
+    },
+    "template": {
+      "metadata": {
+        "name": "tomcat1t",
+        "labels": {
+          "app": "tomcat1t"
+        }
+      },
+      "spec": {
+        "hostNetwork": false,
+        "volumes": [
+          {
+            "persistentVolumeClaim": {
+              "claimName": "pvc1tb"
+            },
+            "name": "ddd"
+          }
+        ],
+        "containers": [
+          {
+            "name": "tomcat1t",
+            "image": "tomcat:9.0.0",
+            "resources": {
+              "limits": {
+                "cpu": "100m",
+                "memory": "100Mi"
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "ddd",
+                "mountPath": "/pvc"
+              }
+            ],  
+            "terminationMessagePath": "/dev/termination-log",
+            "imagePullPolicy": "IfNotPresent",
+            "securityContext": {
+              "privileged": false
+            }
+          }
+        ],
+        "restartPolicy": "Always",
+        "terminationGracePeriodSeconds": 30,
+        "dnsPolicy": "ClusterFirst",
+        "nodeSelector": {
+          "k8s.mesosphere.io/attribute-arch": "amd64"
+        },
+        "securityContext": {}
+      }
+    },
+    "strategy": {
+      "type": "RollingUpdate",
+      "rollingUpdate": {
+        "maxUnavailable": 1,
+        "maxSurge": 1
+      }
+    }
+  }
+}
