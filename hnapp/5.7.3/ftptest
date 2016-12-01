@@ -1,0 +1,37 @@
+ docker run -d --name ftpd_server -p 21:21 -p 30000-30009:30000-30009 -e "PUBLICHOST=localhost" bluedock65.novalocal/ftpserver:1.0
+
+docker run -d bluedock65.novalocal/ftpclient:1.0
+
+root@nginx-3121059884-95wds:/# ftp -p 10.1.1.2 21
+Connected to 10.1.1.2.
+220---------- Welcome to Pure-FTPd [privsep] [TLS] ----------
+220-You are user number 1 of 5 allowed.
+220-Local time is now 09:56. Server port: 21.
+220-This is a private system - No anonymous login
+220-IPv6 connections are also welcome on this server.
+220 You will be disconnected after 15 minutes of inactivity.
+Name (10.1.1.2:root): bob
+331 User bob OK. Password required
+Password:
+230 OK. Current directory is /
+Remote system type is UNIX.
+Using binary mode to transfer files.
+ftp> passive
+Passive mode off.
+ftp> put /a.tar.gz /a.tar.gz
+local: /a.tar.gz remote: /a.tar.gz
+200 PORT command successful
+150 Connecting to port 52884
+226-File successfully transferred
+226 12.275 seconds (measured here), 33.62 Mbytes per second
+432736256 bytes sent in 12.24 secs (34537.4 kB/s)
+ftp> get /a.tar.gz /root/a.tar.gz
+local: /root/a.tar.gz remote: /a.tar.gz
+200 PORT command successful
+150-Connecting to port 49345
+150 422594.0 kbytes to download
+226-File successfully transferred
+226 11.303 seconds (measured here), 36.51 Mbytes per second
+432736256 bytes received in 11.29 secs (37442.3 kB/s)
+ftp>
+
