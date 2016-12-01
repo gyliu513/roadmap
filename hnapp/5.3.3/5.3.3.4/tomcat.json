@@ -1,0 +1,70 @@
+{
+    "kind": "Deployment",
+    "apiVersion": "extensions/v1beta1",
+    "metadata": {
+        "name": "tomcat",
+        "namespace": "default",
+        "labels": {
+            "app": "tomcat"
+        }
+    },
+    "spec": {
+        "replicas": 1,
+        "selector": {
+            "matchLabels": {
+                "app": "tomcat"
+            }
+        },
+        "template": {
+            "metadata": {
+                "creationTimestamp": null,
+                "labels": {
+                    "app": "tomcat"
+                }
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "name": "tomcat",
+                        "image": "ma1dock1.platformlab.ibm.com/henan/tomcat:8.0",
+                        "ports": [
+                            {
+                                "containerPort": 8080,
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "resources": {
+                            "limits": {
+                                "cpu": "100m",
+                                "memory": "128Mi"
+                            }
+                        },
+                        "env": [
+                          {
+                            "name": "TOMCAT_PASS",
+                            "valueFrom": {
+                              "configMapKeyRef": {
+                                "name": "tomcat-conf",
+                                "key": "admin-password"
+                              }
+                            }
+                          }
+                        ],
+                        "terminationMessagePath": "/dev/termination-log",
+                        "imagePullPolicy": "IfNotPresent"
+                    }
+                ],
+                "restartPolicy": "Always",
+                "terminationGracePeriodSeconds": 30,
+                "dnsPolicy": "ClusterFirst",
+            }
+        },
+        "strategy": {
+            "type": "RollingUpdate",
+            "rollingUpdate": {
+                "maxUnavailable": 1,
+                "maxSurge": 1
+            }
+        }
+    }
+}

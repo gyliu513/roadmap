@@ -1,0 +1,31 @@
+{
+    "apiVersion": "batch/v2alpha1",
+    "kind": "ScheduledJob",
+    "metadata": {
+        "name": "hello"
+    },
+    "spec": {
+        "schedule": "0/2 * * * ?",
+        "jobTemplate": {
+            "spec": {
+                "template": {
+                    "spec": {
+                        "containers": [
+                            {
+                                "name": "hello",
+                                "image": "ma1dock1.platformlab.ibm.com/henan/busybox:latest",
+                                "imagePullPolicy": "IfNotPresent",
+                                "args": [
+                                    "/bin/sh",
+                                    "-c",
+                                    "date; echo Hello from the Kubernetes cluster; sleep 3000;"
+                                ]
+                            }
+                        ],
+                        "restartPolicy": "OnFailure"
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,30 @@
+{
+    "apiVersion": "batch/v1",
+    "kind": "Job",
+    "metadata": {
+        "name": "pi"
+    },
+    "spec": {
+        "template": {
+            "metadata": {
+                "name": "pi"
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "name": "pi",
+                        "image": "ma1dock1.platformlab.ibm.com/henan/perl:latest",
+                        "command": [
+                            "perl",
+                            "-Mbignum=bpi",
+                            "-wle",
+                            "print bpi(2000)"
+                        ],
+                        "imagePullPolicy": "IfNotPresent"
+                    }
+                ],
+                "restartPolicy": "Never"
+            }
+        }
+    }
+}
