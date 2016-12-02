@@ -14,7 +14,43 @@ gluster peer status
 
 for a in `seq 0 5`; do mkdir -p /data/brick1/vg$a; gluster volume create vg$a replica 2 10.218.36.62:/data/brick1/vg$a 10.218.36.63:/data/brick1/vg$a; gluster volume start vg$a;done
 
-gluster volume info
+[root@bluedock51 vg0]# gluster volume info
+
+Volume Name: vg0
+Type: Replicate
+Volume ID: 3086ded1-adb6-4dc6-86c8-b28b5ff66c6c
+Status: Started
+Number of Bricks: 1 x 2 = 2
+Transport-type: tcp
+Bricks:
+Brick1: 10.218.36.51:/data/brick1/vg0
+Brick2: 10.218.36.62:/data/brick1/vg0
+Options Reconfigured:
+performance.readdir-ahead: on
+
+Volume Name: vg1
+Type: Replicate
+Volume ID: 652342fd-6cda-4070-92d8-b1e1433eddb3
+Status: Started
+Number of Bricks: 1 x 2 = 2
+Transport-type: tcp
+Bricks:
+Brick1: 10.218.36.51:/data/brick1/vg1
+Brick2: 10.218.36.62:/data/brick1/vg1
+Options Reconfigured:
+performance.readdir-ahead: on
+
+Volume Name: vg2
+Type: Replicate
+Volume ID: be6b319c-9962-48e7-ba18-ad2b8ba10036
+Status: Started
+Number of Bricks: 1 x 2 = 2
+Transport-type: tcp
+Bricks:
+Brick1: 10.218.36.51:/data/brick1/vg2
+Brick2: 10.218.36.62:/data/brick1/vg2
+Options Reconfigured:
+performance.readdir-ahead: on
 
 
 
