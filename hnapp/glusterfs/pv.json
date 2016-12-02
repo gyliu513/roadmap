@@ -1,0 +1,21 @@
+{
+  "kind": "PersistentVolume",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "zk1",
+    "labels": {}
+  },
+  "spec": {
+    "capacity": {
+      "storage": "1Gi"
+    },
+    "accessModes": [
+      "ReadWriteMany"
+    ],
+    "persistentVolumeReclaimPolicy": "Retain",
+    "glusterfs": {
+      "endpoints": "glusterfs-cluster",
+      "path": "vg0"
+    }
+  }
+}

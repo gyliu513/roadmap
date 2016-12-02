@@ -16,3 +16,10 @@ for a in `seq 0 5`; do mkdir -p /data/brick1/vg$a; gluster volume create vg$a re
 
 gluster volume info
 
+
+
+#If Create failed, execute below commands:
+setfattr -x trusted.glusterfs.volume-id /data/brick1/vg0/
+setfattr -x trusted.gfid /data/brick1/vg0/
+rm -rf /data/brick1/vg0/.glusterfs
+rm -rf /data/brock1/vg0/.trashcan
