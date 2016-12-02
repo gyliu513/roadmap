@@ -18,6 +18,12 @@
             "name": "ftpserver",
             "image": "gyliu/ftpserver",
             "imagePullPolicy": "Always",
+			"env": [
+			  {
+				"name": "PUBLICHOST",
+				"value": "ftpserver"
+			 }
+			],
             "ports": [
              {
                 "protocol": "TCP",
