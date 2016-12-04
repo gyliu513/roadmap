@@ -16,14 +16,14 @@
         "containers": [
           {
             "name": "ftpserver",
-            "image": "gyliu/ftpserver",
+            "image": "bluedock65.novalocal/ftpserver:1.0",
             "imagePullPolicy": "Always",
-			"env": [
-			  {
-				"name": "PUBLICHOST",
-				"value": "ftpserver"
-			 }
-			],
+            "env": [
+                     {
+                       "name": "PUBLICHOST",
+                       "value": "ftpserver"
+                     }
+                   ],
             "ports": [
              {
                 "protocol": "TCP",
