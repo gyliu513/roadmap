@@ -1,0 +1,64 @@
+{
+    "kind": "DaemonSet",
+    "apiVersion": "extensions/v1beta1",
+    "metadata": {
+        "name": "shuffleservice",
+        "labels": {
+            "app": "shuffleservice"
+        }
+    },
+    "spec": {
+        "selector": {
+            "matchLabels": {
+                "name": "shuffleservice"
+            }
+        },
+        "template": {
+            "metadata": {
+                "labels": {
+                    "name": "shuffleservice"
+                }
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "name": "shuffleservice",
+                        "image": "bluedock65.novalocal/sparkss:1.6.2",
+                        "args": ["sparkss"],
+                        "resources": {
+                            "requests": {
+                                "cpu": "500m",
+                                "memory": "500Mi"
+                            }
+                        },
+                        "volumeMounts": [
+                          {
+                            "mountPath": "/var/lib/mesos",
+                            "name": "workdir",
+                            "readOnly": false
+                          }
+                        ],
+                        "terminationMessagePath": "/dev/termination-log",
+                        "imagePullPolicy": "IfNotPresent"
+                    }
+                ],
+                "restartPolicy": "Always",
+                "terminationGracePeriodSeconds": 30,
+                "dnsPolicy": "ClusterFirst",
+                "nodeSelector": {
+                    "k8s.mesosphere.io/attribute-arch": "amd64"
+                },
+                "volumes": [
+                  {
+                    "hostPath": {
+                      "path": "/var/lib/mesos"
+                    },
+                    "name": "workdir"
+                  }
+                ],
+                "hostNetwork": true,
+                "securityContext": {}
+            }
+        }
+    }
+}
