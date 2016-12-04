@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+    name: pv-lhg4
+spec:
+    capacity:
+      storage: 5Gi
+    accessModes:
+      - ReadWriteOnce
+    persistentVolumeReclaimPolicy: Recycle
+    nfs:
+      path: /data/nfs3
+      server: 10.218.36.105
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+    name: pv-lhg5
+spec:
+    capacity:
+      storage: 5Gi
+    accessModes:
+      - ReadWriteOnce
+    persistentVolumeReclaimPolicy: Recycle
+    nfs:
+      path: /data/nfs2
+      server: 10.218.36.105
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+    name: pv-lhg6
+spec:
+    capacity:
+      storage: 5Gi
+    accessModes:
+      - ReadWriteOnce
+    persistentVolumeReclaimPolicy: Recycle
+    nfs:
+      path: /data/nfs1
+      server: 10.218.36.105
