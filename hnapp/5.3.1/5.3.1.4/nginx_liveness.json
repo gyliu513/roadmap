@@ -2,30 +2,30 @@
   "apiVersion": "extensions/v1beta1",
   "kind": "Deployment",
   "metadata": {
-    "name": "nginx",
+    "name": "nginxliveness",
     "namespace": "default",
     "labels": {
-      "app": "nginx"
+      "app": "nginxliveness"
     }
   },
   "spec": {
     "replicas": 1,
     "selector": {
       "matchLabels": {
-        "app": "nginx"
+        "app": "nginxliveness"
       }
     },
     "template": {
       "metadata": {
         "labels": {
-          "app": "nginx"
+          "app": "nginxliveness"
         }
       },
       "spec": {
         "containers": [
           {
             "name": "nginx",
-            "image": "nginx:1.8.1",
+            "image": "bluedock65.novalocal/nginx:1.8.1",
             "ports": [
               {
                 "containerPort": 80,
@@ -42,8 +42,8 @@
             },
             "resources": {
               "limits": {
-                "cpu": "200m",
-                "memory": "256Mi"
+                "cpu": "500m",
+                "memory": "512Mi"
               }
             },
             "terminationMessagePath": "/dev/termination-log",
@@ -54,13 +54,6 @@
         "terminationGracePeriodSeconds": 30,
         "dnsPolicy": "ClusterFirst",
         "securityContext": {}
-      }
-    },
-    "strategy": {
-      "type": "RollingUpdate",
-      "rollingUpdate": {
-        "maxUnavailable": 1,
-        "maxSurge": 1
       }
     }
   }

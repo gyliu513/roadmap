@@ -26,7 +26,7 @@
       "spec": {
         "containers": [
           {
-            "image": "tomcat:9.0.0",
+            "image": "bluedock65.novalocal/tomcat:9.0.0",
             "imagePullPolicy": "IfNotPresent",
             "name": "tomcat",
             "ports": [
