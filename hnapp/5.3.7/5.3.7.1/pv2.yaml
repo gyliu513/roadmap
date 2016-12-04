@@ -6,7 +6,7 @@ spec:
     capacity:
       storage: 5Gi
     accessModes:
-      - ReadWriteMany
+      - ReadWriteOnce
     persistentVolumeReclaimPolicy: Recycle
     nfs:
       path: /data/nfs3
@@ -20,7 +20,7 @@ spec:
     capacity:
       storage: 5Gi
     accessModes:
-      - ReadWriteMany
+      - ReadWriteOnce
     persistentVolumeReclaimPolicy: Recycle
     nfs:
       path: /data/nfs2
@@ -34,7 +34,7 @@ spec:
     capacity:
       storage: 5Gi
     accessModes:
-      - ReadWriteMany
+      - ReadWriteOnce
     persistentVolumeReclaimPolicy: Recycle
     nfs:
       path: /data/nfs1
