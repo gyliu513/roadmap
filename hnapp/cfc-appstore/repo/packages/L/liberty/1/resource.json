@@ -1,0 +1,14 @@
+{
+  "images": {
+    "icon-small": "https://developer.ibm.com/wasdev/wp-content/uploads/sites/9/2015/10/liberty-logo-01.png",
+    "icon-medium": "https://developer.ibm.com/wasdev/wp-content/uploads/sites/9/2015/10/liberty-logo-01.png",
+    "icon-large": "https://developer.ibm.com/wasdev/wp-content/uploads/sites/9/2015/10/liberty-logo-01.png"
+  },
+  "assets": {
+    "container": {
+      "docker": {
+        "liberty-docker": "bluedock65.novalocal/websphere-liberty:latest"
+      }
+    }
+  }
+}

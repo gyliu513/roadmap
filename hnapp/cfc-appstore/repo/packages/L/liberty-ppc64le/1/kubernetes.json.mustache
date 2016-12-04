@@ -1,0 +1,79 @@
+{
+  "id": "/liberty",
+  "apps": [
+    {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+            "name": "{{liberty.name}}",
+            "labels": {
+                "app": "{{liberty.name}}"
+            }
+        },
+        "spec": {
+            "ports": [
+                {
+                    "name": "{{liberty.name}}",
+                    "protocol": "TCP",
+                    "port": 9080,
+                    "targetPort": 9080
+                }
+            ],
+            "selector": {
+                "app": "{{liberty.name}}"
+            }
+        }
+    },
+    {
+        "apiVersion": "extensions/v1beta1",
+        "kind": "Deployment",
+        "metadata": {
+            "name": "{{liberty.name}}",
+            "labels": {
+                "app": "{{liberty.name}}"
+            }
+        },
+        "spec": {
+            "replicas": {{liberty.replicas}},
+            "selector": {
+               "matchLabels": {
+                  "app": "{{liberty.name}}"
+               }
+            },
+            "template": {
+                "metadata": {
+                    "name": "{{liberty.name}}",
+                    "labels": {
+                        "app": "{{liberty.name}}"
+                    }
+                },
+                "spec": {
+                    "containers": [
+                        {
+                            "name": "{{liberty.name}}",
+                            "image": "{{resource.assets.container.docker.liberty-docker}}",
+                            "resources": {
+                              "limits": {
+                                "cpu": "{{liberty.cpus}}",
+                                "memory": "{{liberty.memory}}"
+                              }
+                            },
+                            "imagePullPolicy": "IfNotPresent",
+                            "securityContext": {
+                                "privileged": false
+                            }
+                        }
+                    ],
+                    "restartPolicy": "Always",
+                    "terminationGracePeriodSeconds": 30,
+                    "dnsPolicy": "ClusterFirst",
+                    "nodeSelector": {
+			"k8s.mesosphere.io/attribute-arch": "ppc64le"
+			},
+                    "securityContext": {}
+                }
+            }
+        }
+    }
+   ]
+}

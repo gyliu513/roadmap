@@ -1,0 +1,18 @@
+{
+  "packagingVersion": "2.0",
+  "name": "wordpress",
+  "version": "",
+  "scm": "https://github.com/wordpress",
+  "description": "wordpress package",
+  "maintainer": "hchenxa@cn.ibm.com",
+  "tags": ["wordpress", "LAMP"],
+  "preInstallNotes": "Preparing to install wordpress.",
+  "postInstallNotes": "wordpress has been installed",
+  "postUninstallNotes": "wordpress was uninstalled successfully.",
+  "licenses": [
+    {
+      "name": "GPLv2",
+      "url": "https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html"
+    }
+  ]
+}

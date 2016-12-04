@@ -1,0 +1,18 @@
+{
+  "packagingVersion": "2.0",
+  "name": "wordpress-ppc64le",
+  "version": "",
+  "scm": "https://github.com/wordpress",
+  "description": "wordpress package",
+  "maintainer": "hchenxa@cn.ibm.com",
+  "tags": ["wordpress", "LAMP", "ppc64le"],
+  "preInstallNotes": "Preparing to install wordpress on power platform",
+  "postInstallNotes": "wordpress has been installed",
+  "postUninstallNotes": "wordpress was uninstalled successfully.",
+  "licenses": [
+    {
+      "name": "GPLv2",
+      "url": "https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html"
+    }
+  ]
+}

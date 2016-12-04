@@ -1,0 +1,79 @@
+{
+  "id": "/tomcat",
+  "apps": [
+    {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+            "name": "{{tomcat.name}}",
+            "labels": {
+                "app": "{{tomcat.name}}"
+            }
+        },
+        "spec": {
+            "ports": [
+                {
+                    "name": "{{tomcat.name}}",
+                    "protocol": "TCP",
+                    "port": 8080,
+                    "targetPort": 8080
+                }
+            ],
+            "selector": {
+                "app": "{{tomcat.name}}"
+            }
+        }
+    },
+    {
+        "apiVersion": "extensions/v1beta1",
+        "kind": "Deployment",
+        "metadata": {
+            "name": "{{tomcat.name}}",
+            "labels": {
+                "app": "{{tomcat.name}}"
+            }
+        },
+        "spec": {
+            "replicas": {{tomcat.replicas}},
+            "selector": {
+               "matchLabels": {
+                  "app": "{{tomcat.name}}"
+               }
+            },
+            "template": {
+                "metadata": {
+                    "name": "{{tomcat.name}}",
+                    "labels": {
+                        "app": "{{tomcat.name}}"
+                    }
+                },
+                "spec": {
+                    "containers": [
+                        {
+                            "name": "{{tomcat.name}}",
+                            "image": "{{resource.assets.container.docker.tomcat-docker}}",
+                            "resources": {
+                              "limits": {
+                                "cpu": "{{tomcat.cpus}}",
+                                "memory": "{{tomcat.memory}}"
+                              }
+                            },
+                            "imagePullPolicy": "IfNotPresent",
+                            "securityContext": {
+                                "privileged": false
+                            }
+                        }
+                    ],
+                    "restartPolicy": "Always",
+                    "terminationGracePeriodSeconds": 30,
+                    "dnsPolicy": "ClusterFirst",
+                    "nodeSelector": {
+			"k8s.mesosphere.io/attribute-arch": "amd64"
+			},
+                    "securityContext": {}
+                }
+            }
+        }
+    }
+   ]
+}

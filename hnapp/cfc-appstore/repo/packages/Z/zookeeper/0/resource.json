@@ -1,0 +1,14 @@
+{
+  "images": {
+    "icon-small": "https://svn.apache.org/repos/asf/zookeeper/logo/zookeeper.jpg",
+    "icon-medium": "https://svn.apache.org/repos/asf/zookeeper/logo/zookeeper.jpg",
+    "icon-large": "https://svn.apache.org/repos/asf/zookeeper/logo/zookeeper.jpg"
+  },
+  "assets": {
+    "container": {
+      "docker": {
+        "zookeeper-docker": "bluedock65.novalocal/zookeeper:latest"
+      }
+    }
+  }
+}

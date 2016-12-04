@@ -1,0 +1,18 @@
+{
+  "packagingVersion": "2.0",
+  "name": "mysql",
+  "version": "5.7.14",
+  "scm": "https://github.com/mysql",
+  "description": "MySQL package",
+  "maintainer": "liguangcheng",
+  "tags": ["database", "transactional", "relational"],
+  "preInstallNotes": "Preparing to install MySQL.",
+  "postInstallNotes": "MySQL has been installed, the database is run at mysql:3306, the default root password is my-secret-pw.",
+  "postUninstallNotes": "MySQL was uninstalled successfully.",
+  "licenses": [
+    {
+      "name": "GPLv2",
+      "url": "https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html"
+    }
+  ]
+}

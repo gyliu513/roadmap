@@ -1,0 +1,18 @@
+{
+  "packagingVersion": "2.0",
+  "name": "tomcat",
+  "version": "9.0.0",
+  "scm": "http://tomcat.apache.org/svn.html",
+  "description": "Tomcat package",
+  "maintainer": "liguangcheng",
+  "tags": ["Java", "Servlet", "Websocket"],
+  "preInstallNotes": "Preparing to install tomcat.",
+  "postInstallNotes": "Tomcat has been installed.",
+  "postUninstallNotes": "Tomcat was uninstalled successfully.",
+  "licenses": [
+    {
+      "name": "Apache License Version 2",
+      "url": "http://www.apache.org/licenses/"
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "id": "/nginx",
+  "apps": [
+    {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+            "name": "{{nginx.name}}",
+            "labels": {
+                "app": "{{nginx.name}}"
+            }
+        },
+        "spec": {
+            "ports": [
+                {
+                    "name": "{{nginx.name}}",
+                    "protocol": "TCP",
+                    "port": 80,
+                    "targetPort": 80
+                }
+            ],
+            "selector": {
+                "app": "{{nginx.name}}"
+            }
+        }
+    },
+    {
+        "apiVersion": "extensions/v1beta1",
+        "kind": "Deployment",
+        "metadata": {
+            "name": "{{nginx.name}}",
+            "labels": {
+                "app": "{{nginx.name}}"
+            }
+        },
+        "spec": {
+            "replicas": {{nginx.replicas}},
+            "selector": {
+               "matchLabels": {
+                  "app": "{{nginx.name}}"
+               }
+            },
+            "template": {
+                "metadata": {
+                    "name": "{{nginx.name}}",
+                    "labels": {
+                        "app": "{{nginx.name}}"
+                    }
+                },
+                "spec": {
+                    "containers": [
+                        {
+                            "name": "{{nginx.name}}",
+                            "image": "{{resource.assets.container.docker.nginx-docker}}",
+                            "resources": {
+                              "limits": {
+                                "cpu": "{{nginx.cpus}}",
+                                "memory": "{{nginx.memory}}"
+                              }
+                            },
+                            "imagePullPolicy": "IfNotPresent",
+                            "securityContext": {
+                                "privileged": false
+                            }
+                        }
+                    ],
+                    "restartPolicy": "Always",
+                    "terminationGracePeriodSeconds": 30,
+                    "dnsPolicy": "ClusterFirst",
+                    "nodeSelector": {
+			"k8s.mesosphere.io/attribute-arch": "amd64"
+			},
+                    "securityContext": {}
+                }
+            }
+        }
+    }
+   ]
+}

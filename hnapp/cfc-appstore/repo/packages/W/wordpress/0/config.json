@@ -1,0 +1,60 @@
+{
+  "type": "object",
+  "properties": {
+    "wordpress": {
+      "description": "Wordpress specific configuration properties",
+      "type": "object",
+      "properties": {
+        "name": {
+          "default": "wordpress",
+          "description": "Name for this wordpress application",
+          "type": "string"
+        },
+        "cpus": {
+          "description": "CPUs of each container limits",
+          "type": "string",
+          "default": "500m"
+        },
+        "memory": {
+          "description": "Memory of each container limits",
+          "type": "string",
+          "default": "512Mi"
+        },
+        "replicas": {
+          "description": "The number of wordpress replicas",
+          "type": "number",
+          "default": 1
+        }
+      },
+      "required": ["name", "replicas"]
+    },
+    "mysql": {
+      "description": "Mysql specific configuration properties",
+      "type": "object",
+      "properties": {
+        "host": {
+          "default": "cfc.master:3306",
+          "description": "The mysql master URL",
+          "type": "string"
+        },
+        "user": {
+          "default": "root",
+          "description": "the user of mysql",
+          "type": "string"
+        },
+        "password": {
+          "default": "my-secret-pw",
+          "description": "The IP address of mysql",
+          "type": "string"
+        },
+        "databases": {
+          "default": "wordpress",
+          "description": "The database of mysql",
+          "type": "string"
+        }
+      },
+      "required": ["host", "user", "password"]
+    }
+  },
+  "required": ["wordpress", "mysql"]
+}

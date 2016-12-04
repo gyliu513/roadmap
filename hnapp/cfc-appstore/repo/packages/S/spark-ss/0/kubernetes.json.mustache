@@ -1,0 +1,174 @@
+{
+  "id": "/spark-ss",
+  "apps": [
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "{{spark-ss.name}}",
+        "labels": {
+          "app": "{{spark-ss.name}}"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "{{spark-ss.name}}-gui",
+            "protocol": "TCP",
+            "port": {{spark-ss.webport}},
+            "targetPort": {{spark-ss.webport}}
+          },
+          {
+            "name": "{{spark-ss.name}}-master",
+            "protocol": "TCP",
+            "port": {{spark-ss.masterport}},
+            "targetPort": {{spark-ss.masterport}}
+          },
+          {
+            "name": "{{spark-ss.name}}-restapi",
+            "protocol": "TCP",
+            "port": 6066,
+            "targetPort": 6066
+          },
+          {
+            "name": "{{spark-ss.name}}-historyservice",
+            "protocol": "TCP",
+            "port": {{spark-hs.port}},
+            "targetPort": {{spark-hs.port}}
+          },
+          {
+            "name": "{{spark-ss.name}}-application",
+            "protocol": "TCP",
+            "port": 4040,
+            "targetPort": 4040
+          }
+        ],
+        "selector": {
+          "app": "{{spark-ss.name}}"
+        },
+        "type": "NodePort"
+      }
+    },
+    {
+      "apiVersion": "extensions/v1beta1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "{{spark-ss.name}}",
+        "labels": {
+          "app": "{{spark-ss.name}}"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "app": "{{spark-ss.name}}"
+          }
+        },
+       "template": {
+         "metadata": {
+           "name": "{{spark-ss.name}}",
+           "labels": {
+             "app": "{{spark-ss.name}}"
+           }
+         },
+         "spec": {
+           "containers": [
+             {
+               "name": "{{spark-ss.name}}master",
+               "image": "{{resource.assets.container.docker.spark-ss-docker}}",
+               "args" : ["sparkmaster", "{{spark-ss.masterport}}", "{{spark-ss.webport}}"],
+               "resources": {
+                 "limits": {
+                   "cpu": "{{spark-ss.cpus}}",
+                   "memory": "{{spark-ss.memory}}"
+                 }
+               },
+               "volumeMounts": [
+                 {
+                   "mountPath": "/tmp/hosts",
+                   "name": "hostsfile",
+                   "readOnly": true
+                 },
+                 {
+                   "mountPath": "/var/lib/mesos",
+                   "name": "workdir",
+                   "readOnly": false
+                 },
+                 {
+                   "mountPath": "/opt/spark",
+                   "name": "persistdir",
+                   "readOnly": false
+                 }
+               ],
+               "imagePullPolicy": "IfNotPresent",
+               "securityContext": {
+                 "privileged": false
+               }
+             },
+             {
+               "name": "{{spark-ss.name}}hs",
+               "image": "{{resource.assets.container.docker.spark-ss-docker}}",
+               "args" : ["sparkhs", "{{spark-ss.masterport}}", "{{spark-hs.port}}"],
+               "resources": {
+                 "limits": {
+                   "cpu": "{{spark-hs.cpus}}",
+                   "memory": "{{spark-hs.memory}}"
+                 }
+               },
+               "volumeMounts": [
+                 {
+                   "mountPath": "/tmp/hosts",
+                   "name": "hostsfile",
+                   "readOnly": true
+                 },
+                 {
+                   "mountPath": "/var/lib/mesos",
+                   "name": "workdir",
+                   "readOnly": false
+                 },
+                 {
+                   "mountPath": "/opt/spark",
+                   "name": "persistdir",
+                   "readOnly": false
+                 }
+               ],
+               "imagePullPolicy": "IfNotPresent",
+               "securityContext": {
+                 "privileged": false
+               }
+             }
+           ],
+           "restartPolicy": "Always",
+           "terminationGracePeriodSeconds": 30,
+           "dnsPolicy": "ClusterFirst",
+           "nodeSelector": {
+             "k8s.mesosphere.io/attribute-arch": "amd64"
+           },
+           "volumes": [
+             {
+               "hostPath": {
+                 "path": "/etc/hosts"
+               },
+               "name": "hostsfile"
+             },
+             {
+               "hostPath": {
+                 "path": "/var/lib/mesos"
+               },
+               "name": "workdir"
+             },
+             {
+               "name": "persistdir",
+               "persistentVolumeClaim": {
+                   "claimName": "{{spark-ss.pvc}}"
+               }
+             }
+           ],
+           "securityContext": {}
+         }
+       }
+     }
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "images": {
+    "icon-small": "https://avatars1.githubusercontent.com/u/1529926?v=3&s=200",
+    "icon-medium": "https://avatars1.githubusercontent.com/u/1529926?v=3&s=200",
+    "icon-large": "https://avatars1.githubusercontent.com/u/1529926?v=3&s=200"
+  },
+  "assets": {
+    "container": {
+      "docker": {
+        "redis-docker": "bluedock65.novalocal/redis:3.2.3"
+      }
+    }
+  }
+}

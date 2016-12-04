@@ -1,0 +1,18 @@
+{
+  "packagingVersion": "2.0",
+  "name": "nginx-ppc64le",
+  "version": "1.6.2",
+  "scm": "http://hg.nginx.org/nginx/",
+  "description": "Nginx ppc64le package",
+  "maintainer": "liguangcheng",
+  "tags": ["proxy", "web-server", "cache"],
+  "preInstallNotes": "Preparing to install nginx ppc64le.",
+  "postInstallNotes": "Nginx ppc64le has been installed.",
+  "postUninstallNotes": "Nginx ppc64le was uninstalled successfully.",
+  "licenses": [
+    {
+      "name": "BSD like",
+      "url": "http://nginx.org/LICENSE"
+    }
+  ]
+}

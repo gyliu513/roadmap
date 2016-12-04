@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "properties": {
+    "mysql": {
+      "properties": {
+        "name": {
+          "default": "mysql",
+          "description": "Name for this mysql application",
+          "type": "string"
+        },
+        "replicas": {
+          "description": "The number of replicas in the Deployment",
+          "type": "integer",
+          "minimum": 1,
+          "default": 1
+        },
+        "cpus": {
+          "description": "CPUs of each container limits",
+          "type": "string",
+          "default": "100m"
+        },
+        "memory": {
+          "description": "Memory of each container limits",
+          "type": "string",
+          "default": "256Mi"
+        },
+        "rootpassword": {
+          "description": "MySQL root password",
+          "type": "string",
+          "default": "my-secret-pw"
+        }
+      },
+      "required": ["name", "replicas"],
+      "type": "object"
+    }
+  },
+  "type": "object"
+}

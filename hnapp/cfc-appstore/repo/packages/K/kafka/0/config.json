@@ -1,0 +1,51 @@
+{
+  "type": "object",
+  "properties": {
+    "kafka": {
+      "description": "Zeppelin specific configuration properties",
+      "type": "object",
+      "properties": {
+        "name": {
+          "default": "kafka",
+          "description": "Name for this kafka application",
+          "type": "string"
+        },
+        "cpus": {
+          "description": "CPUs of each container limits",
+          "type": "string",
+          "default": "500m"
+        },
+        "memory": {
+          "description": "Memory of each container limits",
+          "type": "string",
+          "default": "200Mi"
+        },
+        "replicas": {
+          "description": "the replicas for kafka cluster",
+          "type": "integer",
+          "default": 3,
+          "minimum": 1
+        },
+        "port": {
+          "description": "The Zeppelin web port",
+          "type": "string",
+          "default": "9092"
+        }
+      },
+      "required": ["name", "port", "replicas"]
+    },
+    "zookeeper": {
+      "description": "The zookeeper specific configuration properties which kafka used to connect",
+      "type": "object",
+      "properties": {
+        "url": {
+          "default": "localhost:2181",
+          "description": "The zookeeper url",
+          "type": "string"
+        }
+      },
+      "required": ["url"]
+    }
+  },
+  "required": ["kafka", "zookeeper"]
+}

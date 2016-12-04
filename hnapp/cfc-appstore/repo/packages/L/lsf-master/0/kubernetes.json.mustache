@@ -1,0 +1,124 @@
+{
+  "id": "/lsf-master",
+  "apps": [
+    {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+            "name": "{{lsf-master.name}}",
+            "labels": {
+                "app": "{{lsf-master.name}}"
+            }
+        },
+        "spec": {
+            "ports": [
+                {
+                    "name": "{{lsf-master.name}}",
+                    "protocol": "TCP",
+                    "port": 8080,
+                    "targetPort": 8080
+                }
+            ],
+            "type": "NodePort",
+            "selector": {
+                "app": "{{lsf-master.name}}"
+            }
+        }
+    },
+    {
+        "apiVersion": "extensions/v1beta1",
+        "kind": "Deployment",
+        "metadata": {
+            "name": "{{lsf-master.name}}",
+            "labels": {
+                "app": "{{lsf-master.name}}"
+            }
+        },
+        "spec": {
+            "replicas": 1,
+            "selector": {
+               "matchLabels": {
+                  "app": "{{lsf-master.name}}"
+               }
+            },
+            "template": {
+                "metadata": {
+                    "name": "{{lsf-master.name}}",
+                    "labels": {
+                        "app": "{{lsf-master.name}}"
+                    }
+                },
+                "spec": {
+                   "volumes": [
+                     {
+                       "name": "persistdir",
+                       "persistentVolumeClaim": {
+                           "claimName": "{{lsf-master.pvc}}"
+                       }
+                     }
+                   ],
+                    "containers": [
+                        {
+                            "name": "{{lsf-master.name}}",
+                            "image": "{{resource.assets.container.docker.lsf-docker}}",
+                            "resources": {
+                              "limits": {
+                                "cpu": "{{lsf-master.cpus}}",
+                                "memory": "{{lsf-master.memory}}"
+                              }
+                            },
+                            "imagePullPolicy": "IfNotPresent",
+                            "securityContext": {
+                                "privileged": false
+                            },
+                            "args": ["master", "{{database.password}}"],
+                            "volumeMounts": [
+                                {
+                                    "name": "persistdir",
+                                    "mountPath": "/home/lsfadmin"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "mariadb",
+                            "image": "{{resource.assets.container.docker.lsf-database}}",
+                            "resources": {
+                              "limits": {
+                                "cpu": "{{database.cpus}}",
+                                "memory": "{{database.memory}}"
+                              }
+                            },
+                            "imagePullPolicy": "IfNotPresent",
+                            "securityContext": {
+                                "privileged": false
+                            },
+                            "env": [
+                                {
+                                    "name": "MYSQL_ROOT_PASSWORD",
+                                    "value": "{{database.password}}"
+                                }
+                            ],
+                            "args": ["--datadir", "/home/lsfadmin/mariadb"],
+                            "volumeMounts": [
+                                {
+                                    "name": "persistdir",
+                                    "mountPath": "/home/lsfadmin"
+                                }
+                            ]
+                        }
+                    ],
+                    "restartPolicy": "Always",
+                    "hostname": "{{lsf-master.name}}",
+                    "terminationGracePeriodSeconds": 30,
+                    "dnsPolicy": "ClusterFirst",
+                    "nodeSelector": {
+                      "k8s.mesosphere.io/attribute-arch": "amd64",
+                      "deploy_lsf": "true"
+                    },
+                    "securityContext": {}
+                }
+            }
+        }
+    }
+   ]
+}

@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "properties": {
+    "liberty": {
+      "properties": {
+        "name": {
+          "default": "liberty-ppc64le",
+          "description": "Name for this liberty ppc64le application",
+          "type": "string"
+        },
+        "replicas": {
+          "description": "The number of replicas in the Deployment",
+          "type": "integer",
+          "minimum": 1,
+          "default": 1
+        },
+        "cpus": {
+          "description": "CPUs of each container limits",
+          "type": "string",
+          "default": "200m"
+        },
+        "memory": {
+          "description": "Memory of each container limits",
+          "type": "string",
+          "default": "512Mi"
+        }
+      },
+      "required": ["name", "replicas"],
+      "type": "object"
+    }
+  },
+  "type": "object"
+}

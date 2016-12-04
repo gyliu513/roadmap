@@ -1,0 +1,14 @@
+{
+  "images": {
+    "icon-small": "https://www.mysql.com/common/logos/logo-mysql-170x115.png",
+    "icon-medium": "https://www.mysql.com/common/logos/logo-mysql-170x115.png",
+    "icon-large": "https://www.mysql.com/common/logos/logo-mysql-170x115.png"
+  },
+  "assets": {
+    "container": {
+      "docker": {
+        "mysql-docker": "bluedock65.novalocal/mysql:5.7.14"
+      }
+    }
+  }
+}

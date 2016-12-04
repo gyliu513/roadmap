@@ -1,0 +1,55 @@
+{
+  "type": "object",
+  "properties": {
+    "lsf-master": {
+      "description": "LSF master configuration properties",
+      "type": "object",
+      "properties": {
+        "name": {
+          "default": "lsf-master",
+          "description": "Name for this LSF master application",
+          "type": "string"
+        },
+        "cpus": {
+          "description": "CPUs of each container limits",
+          "type": "string",
+          "default": "600m"
+        },
+        "memory": {
+          "description": "Memory of each container limits",
+          "type": "string",
+          "default": "2048Mi"
+        },
+        "pvc": {
+            "description": "Provide the PVC to persist LSF data",
+            "type": "string",
+            "default": "lsf"
+        }
+      },
+      "required": ["name", "pvc"]
+    },
+    "database": {
+        "description": "PAC database configuration properties",
+        "type": "object",
+        "properties": {
+          "cpus": {
+            "description": "CPUs of PAC database container limits",
+            "type": "string",
+            "default": "200m"
+          },
+          "memory": {
+            "description": "Memory of PAC database container limits",
+            "type": "string",
+            "default": "256Mi"
+          },
+          "password": {
+              "description": "Root password of PAC database",
+              "type": "string",
+              "default": "passw0rd"
+            }
+        },
+        "required": ["password"]
+      }
+  },
+  "required": ["lsf-master", "database"]
+}

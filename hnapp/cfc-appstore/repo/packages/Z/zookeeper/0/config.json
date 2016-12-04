@@ -1,0 +1,28 @@
+{
+  "type": "object",
+  "properties": {
+    "zookeeper": {
+      "description": "Zookeeper specific configuration properties",
+      "type": "object",
+      "properties": {
+        "name": {
+          "default": "zookeeper",
+          "description": "Name for this zookeeper application",
+          "type": "string"
+        },
+        "cpus": {
+          "description": "CPUs of each container limits",
+          "type": "string",
+          "default": "500m"
+        },
+        "memory": {
+          "description": "Memory of each container limits",
+          "type": "string",
+          "default": "512Mi"
+        }
+      },
+      "required": ["name"]
+    }
+  },
+  "required": ["zookeeper"]
+}

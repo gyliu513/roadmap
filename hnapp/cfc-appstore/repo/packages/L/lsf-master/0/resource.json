@@ -1,0 +1,15 @@
+{
+  "images": {
+    "icon-small": "http://platform.csdn.net/images/pro_02.gif",
+    "icon-medium": "http://platform.csdn.net/images/pro_02.gif",
+    "icon-large": "http://platform.csdn.net/images/pro_02.gif"
+  },
+  "assets": {
+    "container": {
+      "docker": {
+        "lsf-docker": "bluedock65.novalocal/lsf:10.1",
+        "lsf-database": "bluedock65.novalocal/mariadb:5.5"
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "packagingVersion": "2.0",
+  "name": "redis-cluster",
+  "version": "3.2.0",
+  "scm": "https://github.com/redis",
+  "description": "Redis cluster package",
+  "maintainer": "liuhougang",
+  "tags": ["database", "cache", "broker"],
+  "preInstallNotes": "Preparing to install redis cluster.",
+  "postInstallNotes": "Redis Cluster has been installed.",
+  "postUninstallNotes": "Redis Cluster was uninstalled successfully.",
+  "licenses": [
+    {
+      "name": "BSD like",
+      "url": "http://redis.io/topics/license"
+    }
+  ]
+}

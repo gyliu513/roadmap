@@ -1,0 +1,14 @@
+{
+  "images": {
+    "icon-medium": "https://downloads.mesosphere.io/spark/assets/icon-service-spark-medium.png",
+    "icon-small": "https://downloads.mesosphere.io/spark/assets/icon-service-spark-small.png",
+    "icon-large": "https://downloads.mesosphere.io/spark/assets/icon-service-spark-large.png"  
+},
+  "assets": {
+    "container": {
+      "docker": {
+        "spark-ss-docker": "bluedock65.novalocal/sparkss:1.6.2"
+      }
+    }
+  }
+}

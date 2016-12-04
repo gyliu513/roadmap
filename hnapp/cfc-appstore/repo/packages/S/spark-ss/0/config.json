@@ -1,0 +1,65 @@
+{
+  "type": "object",
+  "properties": {
+    "spark-ss": {
+      "description": "Spark Session Scheduler specific configuration properties",
+      "type": "object",
+      "properties": {
+        "name": {
+          "default": "spark",
+          "description": "Name for this spark session scheduler application",
+          "type": "string"
+        },
+        "cpus": {
+          "description": "CPUs of each container limits",
+          "type": "string",
+          "default": "500m"
+        },
+        "memory": {
+          "description": "Memory of each container limits",
+          "type": "string",
+          "default": "512Mi"
+        },
+        "masterport": {
+          "description": "The Spark Session Scheduler master port",
+          "type": "string",
+          "default": "7077"
+        },
+        "webport": {
+          "description": "The Spark Session Scheduler WEB GUI port",
+          "type": "string",
+          "default": "8080"
+        },
+        "pvc": {
+          "description": "Provide the PVC to persist spark data",
+          "type": "string",
+          "default": "spark"
+        }
+      },
+      "required": ["name", "masterport", "webport", "pvc"]
+    },
+    "spark-hs": {
+      "description": "Spark History Service specific configuration properties",
+      "type": "object",
+      "properties": {
+        "port": {
+          "default": "18084",
+          "description": "The Spark History Service Port",
+          "type": "string"
+        },
+        "cpus": {
+          "description": "CPUs of each container limits",
+          "type": "string",
+          "default": "200m"
+        },
+        "memory": {
+          "description": "Memory of each container limits",
+          "type": "string",
+          "default": "256Mi"
+        }
+      },
+      "required": ["port"]
+    }
+  },
+  "required": ["spark-ss", "spark-hs"]
+}

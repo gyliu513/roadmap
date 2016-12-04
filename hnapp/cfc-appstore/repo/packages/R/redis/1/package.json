@@ -1,0 +1,18 @@
+{
+  "packagingVersion": "2.0",
+  "name": "redis",
+  "version": "3.2.3",
+  "scm": "https://github.com/redis",
+  "description": "Redis package",
+  "maintainer": "liguangcheng",
+  "tags": ["database", "cache", "broker"],
+  "preInstallNotes": "Preparing to install redis.",
+  "postInstallNotes": "Redis has been installed.",
+  "postUninstallNotes": "Redis was uninstalled successfully.",
+  "licenses": [
+    {
+      "name": "BSD like",
+      "url": "http://redis.io/topics/license"
+    }
+  ]
+}

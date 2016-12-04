@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "properties": {
+    "galera": {
+      "properties": {
+        "name": {
+          "default": "galera",
+          "description": "Name for this galera cluster",
+          "type": "string"
+        },
+        "replicas": {
+          "description": "The number of galera cluster node",
+          "type": "integer",
+          "minimum": 1,
+          "default": 3
+        },
+        "cpus": {
+          "description": "CPUs of each container limits",
+          "type": "string",
+          "default": "1000m"
+        },
+        "memory": {
+          "description": "Memory of each container limits",
+          "type": "string",
+          "default": "1Gi"
+        },
+        "rootPassWord": {
+          "description": "MySQL root password",
+          "type": "string",
+          "default": "my-secret-pw"
+        }
+      },
+      "required": ["name", "replicas"],
+      "type": "object"
+    }
+  },
+  "type": "object"
+}

@@ -1,0 +1,79 @@
+{
+  "id": "/redis",
+  "apps": [
+    {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+            "name": "{{redis.name}}",
+            "labels": {
+                "app": "{{redis.name}}"
+            }
+        },
+        "spec": {
+            "ports": [
+                {
+                    "name": "{{redis.name}}",
+                    "protocol": "TCP",
+                    "port": 6379,
+                    "targetPort": 6379 
+                }
+            ],
+            "selector": {
+                "app": "{{redis.name}}"
+            }
+        }
+    },
+    {
+        "apiVersion": "extensions/v1beta1",
+        "kind": "Deployment",
+        "metadata": {
+            "name": "{{redis.name}}",
+            "labels": {
+                "app": "{{redis.name}}"
+            }
+        },
+        "spec": {
+            "replicas": {{redis.replicas}},
+            "selector": {
+               "matchLabels": {
+                  "app": "{{redis.name}}"
+               }
+            },
+            "template": {
+                "metadata": {
+                    "name": "{{redis.name}}",
+                    "labels": {
+                        "app": "{{redis.name}}"
+                    }
+                },
+                "spec": {
+                    "containers": [
+                        {
+                            "name": "{{redis.name}}",
+                            "image": "{{resource.assets.container.docker.redis-docker}}",
+                            "resources": {
+                              "limits": {
+                                "cpu": "{{redis.cpus}}",
+                                "memory": "{{redis.memory}}"
+                              }
+                            },
+                            "imagePullPolicy": "IfNotPresent",
+                            "securityContext": {
+                                "privileged": false
+                            }
+                        }
+                    ],
+                    "restartPolicy": "Always",
+                    "terminationGracePeriodSeconds": 30,
+                    "dnsPolicy": "ClusterFirst",
+                    "nodeSelector": {
+			"k8s.mesosphere.io/attribute-arch": "amd64"
+			},
+                    "securityContext": {}
+                }
+            }
+        }
+    }
+   ]
+}

@@ -1,0 +1,43 @@
+{
+  "type": "object",
+  "properties": {
+    "lsf-slave": {
+      "description": "LSF slave configuration properties",
+      "type": "object",
+      "properties": {
+        "name": {
+          "default": "lsf-slave",
+          "description": "Name for this LSF slave application",
+          "type": "string"
+        },
+        "replicas": {
+            "description": "The number of replicas in the Deployment",
+            "type": "integer",
+            "minimum": 1,
+            "default": 1
+          },
+        "cpus": {
+          "description": "CPUs of each container limits",
+          "type": "string",
+          "default": "400m"
+        },
+        "memory": {
+          "description": "Memory of each container limits",
+          "type": "string",
+          "default": "400Mi"
+        },
+        "master": {
+            "description": "Name of LSF master application",
+            "type": "string",
+            "default": "lsf-master"
+          },
+         "pvc": {
+             "description": "Provide the PVC to persist LSF data",
+             "type": "string",
+             "default": "lsf"
+         }
+      },
+      "required": ["name", "replicas", "master"]
+    }
+  }
+}

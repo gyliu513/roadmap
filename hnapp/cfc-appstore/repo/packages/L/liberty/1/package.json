@@ -1,0 +1,18 @@
+{
+  "packagingVersion": "2.0",
+  "name": "liberty",
+  "version": "16.0.0.3",
+  "scm": "https://developer.ibm.com/wasdev/",
+  "description": "WebSphere Liberty package",
+  "maintainer": "liguangcheng",
+  "tags": ["ApplicationServer", "JavaEE", "OSGi"],
+  "preInstallNotes": "Preparing to install WebSphere Liberty.",
+  "postInstallNotes": "WebSphere Liberty has been installed.",
+  "postUninstallNotes": "WebSphere Liberty was uninstalled successfully.",
+  "licenses": [
+    {
+      "name": "Liberty runtime license",
+      "url": "https://developer.ibm.com/wasdev/docs/websphere-application-server-everyone/"
+    }
+  ]
+}

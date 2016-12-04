@@ -1,0 +1,117 @@
+{
+  "id": "/jenkins",
+  "apps": [
+    {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+            "name": "{{jenkins.name}}",
+            "labels": {
+                "app": "{{jenkins.name}}"
+            }
+        },
+        "spec": {
+            "ports": [
+                {
+                    "name": "http",
+                    "protocol": "TCP",
+                    "port": 80,
+                    "targetPort":8080 
+                },
+                {
+                    "name": "slave",
+                    "port": 50000,
+                    "protocol": "TCP"
+                }
+            ],
+            "selector": {
+                "app": "{{jenkins.name}}"
+            },
+            "type": "NodePort"
+        }
+    },
+    {
+        "apiVersion": "extensions/v1beta1",
+        "kind": "Deployment",
+        "metadata": {
+            "name": "{{jenkins.name}}",
+            "labels": {
+                "app": "{{jenkins.name}}"
+            }
+        },
+        "spec": {
+            "replicas": 1,
+            "selector": {
+               "matchLabels": {
+                  "app": "{{jenkins.name}}"
+               }
+            },
+            "template": {
+                "metadata": {
+                    "name": "{{jenkins.name}}",
+                    "labels": {
+                        "app": "{{jenkins.name}}"
+                    }
+                },
+                "spec": {
+                    "containers": [
+                        {
+                            "name": "{{jenkins.name}}",
+                            "image": "{{resource.assets.container.docker.jenkins-docker}}",
+                            "resources": {
+                              "limits": {
+                                "cpu": "{{jenkins.cpus}}",
+                                "memory": "{{jenkins.memory}}"
+                              }
+                            },
+                            "ports": [
+                              {
+                                "protocol": "TCP",
+                                "containerPort": 8080
+                              },
+                              {
+                                "protocol": "TCP",
+                                "containerPort": 50000
+                              }
+                            ],
+                            "livenessProbe": {
+                              "httpGet": {
+                                "path": "/login",
+                                "port": 8080
+                              },
+                              "initialDelaySeconds": 60,
+                              "timeoutSeconds": 5
+                            },
+                            "imagePullPolicy": "IfNotPresent",
+                            "volumeMounts": [
+                              {
+                                "name": "jenkins",
+                                "mountPath": "/var/jenkins_home"
+                              }
+                            ],
+                            "securityContext": {
+                                "privileged": false
+                            }
+                        }
+                    ],
+                    "restartPolicy": "Always",
+                    "terminationGracePeriodSeconds": 30,
+                    "dnsPolicy": "ClusterFirst",
+                    "nodeSelector": {
+                      "k8s.mesosphere.io/attribute-arch": "amd64"
+                    },
+                    "volumes": [
+                      {
+                        "name": "jenkins",
+                        "persistentVolumeClaim": {
+                          "claimName": "{{jenkins.pvc}}"
+                        }
+                      } 
+                    ],
+                    "securityContext": {}
+                }
+            }
+        }
+    }
+   ]
+}

@@ -1,0 +1,80 @@
+{
+  "id": "/zookeeper",
+  "apps": [
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "{{zookeeper.name}}",
+        "labels": {
+          "app": "{{zookeeper.name}}"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "{{zookeeper.name}}",
+            "protocol": "TCP",
+            "port": 2181,
+            "targetPort": 2181 
+          }
+        ],
+        "selector": {
+          "app": "{{zookeeper.name}}"
+        },
+        "type": "NodePort"
+      }
+    },
+    {
+      "apiVersion": "extensions/v1beta1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "{{zookeeper.name}}",
+        "labels": {
+          "app": "{{zookeeper.name}}"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "app": "{{zookeeper.name}}"
+          }
+        },
+       "template": {
+         "metadata": {
+           "name": "{{zookeeper.name}}",
+           "labels": {
+             "app": "{{zookeeper.name}}"
+           }
+         },
+         "spec": {
+           "containers": [
+             {
+               "name": "{{zookeeper.name}}",
+               "image": "{{resource.assets.container.docker.zookeeper-docker}}",
+               "resources": {
+                 "limits": {
+                   "cpu": "{{zookeeper.cpus}}",
+                   "memory": "{{zookeeper.memory}}"
+                 }
+               },
+               "imagePullPolicy": "IfNotPresent",
+               "securityContext": {
+                 "privileged": false
+               }
+             }
+           ],
+           "restartPolicy": "Always",
+           "terminationGracePeriodSeconds": 30,
+           "dnsPolicy": "ClusterFirst",
+           "nodeSelector": {
+             "k8s.mesosphere.io/attribute-arch": "amd64"
+           },
+           "securityContext": {}
+         }
+       }
+     }
+    }
+  ]
+}

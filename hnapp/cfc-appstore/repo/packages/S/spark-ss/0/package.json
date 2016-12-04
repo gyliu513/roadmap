@@ -1,0 +1,18 @@
+{
+  "packagingVersion": "2.0",
+  "name": "spark-ss",
+  "version": "1.6.1",
+  "description": "Spark Session Scheduler application package",
+  "maintainer": "hchenxa@cn.ibm.com",
+  "tags": ["Spark","bigdata","mapreduce","batch","analytics"],
+  "framework": true,
+  "preInstallNotes": "Preparing to install Spark Session Scheduler.",
+  "postInstallNotes": "Spark Session Scheduler has been installed.",
+  "postUninstallNotes": "Spark was uninstalled successfully.",
+  "licenses": [
+    {
+      "name": "Apache License",
+      "url": "http://www.apache.org/licenses/"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "images": {
+    "icon-small": "http://galeracluster.com/wp-content/uploads/2013/11/Mariadb-Galera.png",
+    "icon-medium": "http://galeracluster.com/wp-content/uploads/2013/11/Mariadb-Galera.png",
+    "icon-large": "http://galeracluster.com/wp-content/uploads/2013/11/Mariadb-Galera.png"
+  },
+  "assets": {
+    "container": {
+      "docker": {
+        "galera-docker": "bluedock65.novalocal/galera:basic",
+        "galera-bootstrap": "bluedock65.novalocal/debian:jessie",
+        "galera-install": "bluedock65.novalocal/galera-install:0.1"
+      }
+    }
+  }
+}

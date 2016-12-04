@@ -1,0 +1,98 @@
+{
+  "id": "/wordpress",
+  "apps": [
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "{{wordpress.name}}",
+        "labels": {
+          "app": "{{wordpress.name}}"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "{{wordpress.name}}",
+            "protocol": "TCP",
+            "port": 80,
+            "targetPort": 80
+          }
+        ],
+        "selector": {
+          "app": "{{wordpress.name}}"
+        },
+        "type": "NodePort"
+      }
+    },
+    {
+      "apiVersion": "extensions/v1beta1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "{{wordpress.name}}",
+        "labels": {
+          "app": "{{wordpress.name}}"
+        }
+      },
+      "spec": {
+        "replicas": {{wordpress.replicas}},
+        "selector": {
+          "matchLabels": {
+            "app": "{{wordpress.name}}"
+          }
+        },
+       "template": {
+         "metadata": {
+           "name": "{{wordpress.name}}",
+           "labels": {
+             "app": "{{wordpress.name}}"
+           }
+         },
+         "spec": {
+           "containers": [
+             {
+               "name": "{{wordpress.name}}",
+               "image": "{{resource.assets.container.docker.wordpress-docker}}",
+               "resources": {
+                 "limits": {
+                   "cpu": "{{wordpress.cpus}}",
+                   "memory": "{{wordpress.memory}}"
+                 }
+               },
+               "env": [
+                 {
+                   "name": "WORDPRESS_DB_HOST",
+                   "value": "{{mysql.host}}" 
+                 },
+                 {
+                   "name": "WORDPRESS_DB_USER",
+                   "value": "{{mysql.user}}"
+                 },
+                 {
+                   "name": "WORDPRESS_DB_PASSWORD",
+                   "value": "{{mysql.password}}"
+                 },
+                 {
+                   "name": "WORDPRESS_DB_NAME",
+                   "value": "{{mysql.databases}}"
+                 }
+               ],
+               "imagePullPolicy": "IfNotPresent",
+               "securityContext": {
+                 "privileged": false
+               }
+             }
+           ],
+           "restartPolicy": "Always",
+           "terminationGracePeriodSeconds": 30,
+           "dnsPolicy": "ClusterFirst",
+           "nodeSelector": {
+             "k8s.mesosphere.io/attribute-arch": "amd64"
+           },
+           "securityContext": {}
+         }
+       }
+     }
+    }
+  ]
+}

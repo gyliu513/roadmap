@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "properties": {
+    "redis-cluster": {
+      "properties": {
+        "name": {
+          "default": "redis-cluster",
+          "description": "Name for this redis cluster",
+          "type": "string"
+        },
+        "replicas": {
+          "description": "The number of redis cluster node",
+          "type": "integer",
+          "minimum": 1,
+          "default": 3
+        },
+        "cpus": {
+          "description": "CPUs of each container limits",
+          "type": "string",
+          "default": "1000m"
+        },
+        "memory": {
+          "description": "Memory of each container limits",
+          "type": "string",
+          "default": "1Gi"
+        }
+      },
+      "required": ["name", "replicas"],
+      "type": "object"
+    }
+  },
+  "type": "object"
+}

@@ -1,0 +1,10 @@
+{
+  "packagingVersion": "2.0",
+  "name": "jenkins",
+  "version": "2.19.3",
+  "maintainer": "hchenxa@cn.ibm.com",
+  "description": "Jenkins is CI/CD framework",
+  "framework": false,
+  "tags": ["jenkins"],
+  "postInstallNotes": "Jenkins has been successfully installed!"
+}

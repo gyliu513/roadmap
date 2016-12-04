@@ -1,0 +1,99 @@
+{
+  "id": "/kafka",
+  "apps": [
+    {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+            "name": "{{kafka.name}}",
+            "labels": {
+                "app": "{{kafka.name}}"
+            }
+        },
+        "spec": {
+            "ports": [
+                {
+                    "name": "{{kafka.name}}",
+                    "protocol": "TCP",
+                    "port": {{kafka.port}},
+                    "targetPort": {{kafka.port}}
+                }
+            ],
+            "selector": {
+                "app": "{{kafka.name}}"
+            },
+            "type": "NodePort"
+        }
+    },
+    {
+        "apiVersion": "apps/v1alpha1",
+        "kind": "PetSet",
+        "metadata": {
+            "name": "{{kafka.name}}"
+        },
+        "spec": {
+            "serviceName": "{{kafka.name}}",
+            "replicas": {{kafka.replicas}},
+            "template": {
+                "metadata": {
+                    "labels": {
+                        "app": "{{kafka.name}}"
+                    },
+                    "annotations": {
+                        "pod.alpha.kubernetes.io/initialized": "true",
+                        "pod.alpha.kubernetes.io/init-containers": "[]"
+                    }
+                },
+                "spec": {
+                    "containers": [
+                        {
+                            "name": "{{kafka.name}}",
+                            "image": "{{resource.assets.container.docker.kafka-docker}}",
+                            "ports": [
+                                {
+                                    "containerPort": {{kafka.port}}
+                                }
+                            ],
+                            "resources": {
+                              "limits": {
+                                "cpu": "{{kafka.cpus}}",
+                                "memory": "{{kafka.memory}}"
+                              }
+                            },
+                            "command": [
+                                "sh",
+                                "-c",
+                                "./bin/kafka-server-start.sh config/server.properties --override broker.id=$(hostname | awk -F'-' '{print $2}') --override zookeeper.connect={{zookeeper.url}}"
+                            ],
+                            "volumeMounts": [
+                              {
+                                "name": "datadir",
+                                "mountPath": "/opt/kafka/data"
+                              }
+                            ]
+                        }
+                    ]
+                }
+            },
+            "volumeClaimTemplates": [
+              {
+                "metadata": {
+                  "name": "datadir",
+                  "annotations": {
+                    "volume.kubernetes.io/storage-class": "anything"
+                  }
+                },
+                "spec": {
+                  "accessModes": ["ReadWriteMany"],
+                  "resources": {
+                    "requests": {
+                      "storage": "100Mi"
+                    }
+                  }
+                }
+              }
+          ]
+        }
+    }
+   ]
+}

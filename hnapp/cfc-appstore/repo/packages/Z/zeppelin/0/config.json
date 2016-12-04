@@ -1,0 +1,50 @@
+{
+  "type": "object",
+  "properties": {
+    "zeppelin": {
+      "description": "Zeppelin specific configuration properties",
+      "type": "object",
+      "properties": {
+        "name": {
+          "default": "zeppelin",
+          "description": "Name for this zeppelin application",
+          "type": "string"
+        },
+        "cpus": {
+          "description": "CPUs of each container limits",
+          "type": "string",
+          "default": "500m"
+        },
+        "memory": {
+          "description": "Memory of each container limits",
+          "type": "string",
+          "default": "200Mi"
+        },
+        "webport": {
+          "description": "The Zeppelin web port",
+          "type": "string",
+          "default": "8080"
+        },
+        "websockport": {
+          "description": "The Zeppelin websock port",
+          "type": "string",
+          "default": "8083"
+        }
+      },
+      "required": ["name", "webport", "websockport"]
+    },
+    "spark": {
+      "description": "Spark properties which Zeppelin connected",
+      "type": "object",
+      "properties": {
+        "master": {
+          "default": "spark://spark.master:7077",
+          "description": "The Spark Master URL",
+          "type": "string"
+        }
+      },
+      "required": ["master"]
+    }
+  },
+  "required": ["zeppelin", "spark"]
+}

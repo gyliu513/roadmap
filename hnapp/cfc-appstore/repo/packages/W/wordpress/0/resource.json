@@ -1,0 +1,14 @@
+{
+  "images": {
+    "icon-small": "http://www.muzedevelopment.com/wp-content/uploads/2013/01/wordpress-banner.png",
+    "icon-medium": "http://www.muzedevelopment.com/wp-content/uploads/2013/01/wordpress-banner.png",
+    "icon-large": "http://www.muzedevelopment.com/wp-content/uploads/2013/01/wordpress-banner.png"
+  },
+  "assets": {
+    "container": {
+      "docker": {
+        "wordpress-docker": "bluedock65.novalocal/wordpress:latest"
+      }
+    }
+  }
+}

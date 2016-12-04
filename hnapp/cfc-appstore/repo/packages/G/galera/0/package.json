@@ -1,0 +1,12 @@
+{
+  "packagingVersion": "2.0",
+  "name": "galera",
+  "version": "basic",
+  "scm": "https://github.com/codership/galera",
+  "description": "Galera cluster package",
+  "maintainer": "liuhougang",
+  "tags": ["database", "cache", "broker"],
+  "preInstallNotes": "Preparing to install galera.",
+  "postInstallNotes": "Galera has been installed.",
+  "postUninstallNotes": "Galera was uninstalled successfully."
+}

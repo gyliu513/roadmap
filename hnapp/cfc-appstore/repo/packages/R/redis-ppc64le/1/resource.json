@@ -1,0 +1,14 @@
+{
+  "images": {
+    "icon-small": "https://avatars1.githubusercontent.com/u/1529926?v=3&s=200",
+    "icon-medium": "https://avatars1.githubusercontent.com/u/1529926?v=3&s=200",
+    "icon-large": "https://avatars1.githubusercontent.com/u/1529926?v=3&s=200"
+  },
+  "assets": {
+    "container": {
+      "docker": {
+        "redis-docker": "ppc64le/redis:3.2"
+      }
+    }
+  }
+}

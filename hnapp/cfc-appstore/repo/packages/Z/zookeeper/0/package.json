@@ -1,0 +1,18 @@
+{
+  "packagingVersion": "2.0",
+  "name": "zookeeper",
+  "version": "3.4",
+  "scm": "https://github.com/apache/zookeeper",
+  "description": "zookeeper package",
+  "maintainer": "hchenxa@cn.ibm.com",
+  "tags": ["zookeeper", "apache", "distributed"],
+  "preInstallNotes": "Preparing to install zookeeper.",
+  "postInstallNotes": "zookeeper has been installed",
+  "postUninstallNotes": "zookeeper was uninstalled successfully.",
+  "licenses": [
+    {
+      "name": "Apache License",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0"
+    }
+  ]
+}

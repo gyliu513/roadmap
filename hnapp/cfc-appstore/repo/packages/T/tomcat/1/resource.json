@@ -1,0 +1,14 @@
+{
+  "images": {
+    "icon-small": "http://tomcat.apache.org/images/tomcat.png",
+    "icon-medium": "http://tomcat.apache.org/images/tomcat.png",
+    "icon-large": "http://tomcat.apache.org/images/tomcat.png"
+  },
+  "assets": {
+    "container": {
+      "docker": {
+        "tomcat-docker": "bluedock65.novalocal/tomcat:9.0.0"
+      }
+    }
+  }
+}

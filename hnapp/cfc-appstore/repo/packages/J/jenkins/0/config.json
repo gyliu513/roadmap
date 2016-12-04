@@ -1,0 +1,32 @@
+{
+  "type": "object",
+  "properties": {
+    "jenkins": {
+      "description": "Jenkins specific configuration properties",
+      "type": "object",
+      "properties": {
+        "name": {
+          "default": "jenkins",
+          "description": "Name for this zeppelin application",
+          "type": "string"
+        },
+        "cpus": {
+          "description": "CPUs of each container limits",
+          "type": "string",
+          "default": "3000m"
+        },
+        "memory": {
+          "description": "Memory of each container limits",
+          "type": "string",
+          "default": "3Gi"
+        },
+        "pvc": {
+          "description": "the Persistent Volume Claim used to store the jenkins data",
+          "type": "string",
+          "default": "jenkins"
+        }
+      },
+      "required": ["name", "pvc"]
+    }
+  }
+}

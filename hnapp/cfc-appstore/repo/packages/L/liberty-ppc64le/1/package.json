@@ -1,0 +1,18 @@
+{
+  "packagingVersion": "2.0",
+  "name": "liberty-ppc64le",
+  "version": "16.0.0.3",
+  "scm": "https://developer.ibm.com/wasdev/",
+  "description": "WebSphere Liberty ppc64le package",
+  "maintainer": "liguangcheng",
+  "tags": ["ApplicationServer", "JavaEE", "OSGi"],
+  "preInstallNotes": "Preparing to install WebSphere Liberty ppc64le.",
+  "postInstallNotes": "WebSphere Liberty ppc64le has been installed.",
+  "postUninstallNotes": "WebSphere Liberty ppc64le was uninstalled successfully.",
+  "licenses": [
+    {
+      "name": "Liberty runtime license",
+      "url": "https://developer.ibm.com/wasdev/docs/websphere-application-server-everyone/"
+    }
+  ]
+}

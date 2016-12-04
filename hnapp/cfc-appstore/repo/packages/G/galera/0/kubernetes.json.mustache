@@ -1,0 +1,142 @@
+{
+  "id": "/galera",
+  "apps": [
+    {
+        "kind": "Service",
+        "spec": {
+            "clusterIP": "None",
+            "ports": [
+                {
+                    "port": 3306,
+                    "name": "{{galera.name}}"
+                }
+            ],
+            "selector": {
+                 "app": "{{galera.name}}"
+            }
+        },
+        "apiVersion": "v1",
+        "metadata": {
+            "labels": {
+                "app": "{{galera.name}}"
+            },
+            "annotations": {
+                "service.alpha.kubernetes.io/tolerate-unready-endpoints": "true"
+            },
+            "name": "{{galera.name}}"
+        }
+    },
+    {
+        "kind": "PetSet",
+        "spec": {
+            "replicas": {{galera.replicas}},
+            "serviceName": "{{galera.name}}",
+            "template": {
+                "spec": {
+                    "containers": [
+                        {
+                            "name": "{{galera.name}}",
+                            "readinessProbe": {
+                                "initialDelaySeconds": 15,
+                                "timeoutSeconds": 5,
+                                "exec": {
+                                    "command": [
+                                        "sh",
+                                        "-c",
+                                        "mysql -u root -e 'show databases;'"
+                                    ]
+                                }
+                            },
+                            "env": [
+                                {
+                                    "name": "MYSQL_ROOT_PASSWORD",
+                                    "value": "{{galera.rootPassWord}}"
+                                }
+                            ],
+                            "image": "{{resource.assets.container.docker.galera-docker}}",
+                            "args": [
+                                "--defaults-file=/etc/mysql/my-galera.cnf",
+                                "--user=root"
+                            ],
+                            "volumeMounts": [
+                                {
+                                    "mountPath": "/var/lib/",
+                                    "name": "datadir"
+                                },
+                                {
+                                    "mountPath": "/etc/mysql",
+                                    "name": "config"
+                                }
+                            ],
+                            "resources": {
+                              "limits": {
+                                "cpu": "{{galera.cpus}}",
+                                "memory": "{{galera.memory}}"
+                              }
+                            },
+                            "ports": [
+                                {
+                                    "containerPort": 3306,
+                                    "name": "{{galera.name}}"
+                                },
+                                {
+                                    "containerPort": 4444,
+                                    "name": "sst"
+                                },
+                                {
+                                    "containerPort": 4567,
+                                    "name": "replication"
+                                },
+                                {
+                                    "containerPort": 4568,
+                                    "name": "ist"
+                                }
+                            ]
+                        }
+                    ],
+                    "volumes": [
+                        {
+                            "emptyDir": {},
+                            "name": "config"
+                        },
+                        {
+                            "emptyDir": {},
+                            "name": "workdir"
+                        }
+                    ]
+                },
+                "metadata": {
+                    "labels": {
+                        "app": "{{galera.name}}"
+                    },
+                    "annotations": {
+                        "pod.alpha.kubernetes.io/init-containers": "[ { \"name\": \"install\", \"image\": \"{{resource.assets.container.docker.galera-install}}\", \"imagePullPolicy\": \"IfNotPresent\", \"args\": [\"--work-dir=/work-dir\"], \"volumeMounts\": [ { \"name\": \"workdir\", \"mountPath\": \"/work-dir\" }, { \"name\": \"config\", \"mountPath\": \"/etc/mysql\" } ] }, { \"name\": \"bootstrap\", \"image\": \"{{resource.assets.container.docker.galera-bootstrap}}\", \"command\": [\"/work-dir/peer-finder\"], \"args\": [\"-on-start=\\\"/work-dir/on-start.sh\\\"\", \"-service={{galera.name}}\"], \"env\": [ { \"name\": \"POD_NAMESPACE\", \"valueFrom\": { \"fieldRef\": { \"apiVersion\": \"v1\", \"fieldPath\": \"metadata.namespace\" } } } ], \"volumeMounts\": [ { \"name\": \"workdir\", \"mountPath\": \"/work-dir\" }, { \"name\": \"config\", \"mountPath\": \"/etc/mysql\" } ] } ]",
+                        "pod.alpha.kubernetes.io/initialized": "true"
+                    }
+                }
+            },
+            "volumeClaimTemplates": [
+                {
+                    "spec": {
+                        "accessModes": [
+                            "ReadWriteOnce"
+                        ],
+                        "resources": {
+                            "requests": {
+                                "storage": "1Gi"
+                            }
+                        }
+                    },
+                    "metadata": {
+                        "name": "datadir"
+                    }
+                }
+            ]
+        },
+        "apiVersion": "apps/v1alpha1",
+        "metadata": {
+            "name": "{{galera.name}}"
+        }
+    }
+   ]
+}

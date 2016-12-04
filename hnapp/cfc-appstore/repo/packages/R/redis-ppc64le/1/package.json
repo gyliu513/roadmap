@@ -1,0 +1,18 @@
+{
+  "packagingVersion": "2.0",
+  "name": "redis-ppc64le",
+  "version": "3.2",
+  "scm": "https://github.com/redis",
+  "description": "Redis ppc64le package",
+  "maintainer": "liguangcheng",
+  "tags": ["database", "cache", "broker"],
+  "preInstallNotes": "Preparing to install redis ppc64le.",
+  "postInstallNotes": "Redis ppc64le has been installed.",
+  "postUninstallNotes": "Redis ppc64le was uninstalled successfully.",
+  "licenses": [
+    {
+      "name": "BSD like",
+      "url": "http://redis.io/topics/license"
+    }
+  ]
+}

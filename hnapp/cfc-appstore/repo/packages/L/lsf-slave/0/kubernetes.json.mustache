@@ -1,0 +1,89 @@
+{
+  "id": "/lsf-slave",
+  "apps": [
+    {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+            "name": "{{lsf-slave.name}}",
+            "labels": {
+                "app": "{{lsf-slave.name}}"
+            }
+        },
+        "spec": {
+            "ports": [ ],
+            "clusterIP": "None",
+            "selector": {
+                "app": "{{lsf-slave.name}}"
+            }
+        }
+    },
+    {
+        "apiVersion": "extensions/v1beta1",
+        "kind": "Deployment",
+        "metadata": {
+            "name": "{{lsf-slave.name}}",
+            "labels": {
+                "app": "{{lsf-slave.name}}"
+            }
+        },
+        "spec": {
+            "replicas": {{lsf-slave.replicas}},
+            "selector": {
+               "matchLabels": {
+                  "app": "{{lsf-slave.name}}"
+               }
+            },
+            "template": {
+                "metadata": {
+                    "name": "{{lsf-slave.name}}",
+                    "labels": {
+                        "app": "{{lsf-slave.name}}"
+                    }
+                },
+                "spec": {
+                   "volumes": [
+                     {
+                       "name": "persistdir",
+                       "persistentVolumeClaim": {
+                           "claimName": "{{lsf-slave.pvc}}"
+                       }
+                     }
+                   ],
+                    "containers": [
+                        {
+                            "name": "{{lsf-slave.name}}",
+                            "image": "{{resource.assets.container.docker.lsf-docker}}",
+                            "resources": {
+                              "limits": {
+                                "cpu": "{{lsf-slave.cpus}}",
+                                "memory": "{{lsf-slave.memory}}"
+                              }
+                            },
+                            "imagePullPolicy": "IfNotPresent",
+                            "securityContext": {
+                                "privileged": false
+                            },
+                            "args": ["slave", "-", "{{lsf-slave.master}}"],
+                            "volumeMounts": [
+                                {
+                                    "name": "persistdir",
+                                    "mountPath": "/home/lsfadmin"
+                                }
+                            ]
+                        }
+                    ],
+                    "restartPolicy": "Always",
+                    "terminationGracePeriodSeconds": 30,
+                    "dnsPolicy": "ClusterFirst",
+                    "nodeSelector": {
+                      "k8s.mesosphere.io/attribute-arch": "amd64",
+                      "deploy_lsf": "true"
+                    },
+                    "securityContext": {}
+                }
+            }
+        }
+    }
+   ]
+}

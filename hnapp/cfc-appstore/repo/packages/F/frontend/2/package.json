@@ -1,0 +1,18 @@
+{
+  "packagingVersion": "2.0",
+  "name": "frontend",
+  "version": "0.1.1",
+  "scm": "https://github.com/microservices-demo/front-end",
+  "description": "front-end for sock shop demo application.",
+  "maintainer": "guo",
+  "tags": ["mocroservices", "sock", "shop", "front-end"],
+  "preInstallNotes": "Preparing to install front-end.",
+  "postInstallNotes": "front-end has been installed.",
+  "postUninstallNotes": "front-end was uninstalled successfully.",
+  "licenses": [
+    {
+      "name": "MIT",
+      "url": "https://github.com/twbs/bootstrap/blob/master/LICENSE"
+    }
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "id": "/zeppelin",
+  "apps": [
+    {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+            "name": "{{zeppelin.name}}",
+            "labels": {
+                "app": "{{zeppelin.name}}"
+            }
+        },
+        "spec": {
+            "ports": [
+                {
+                    "name": "{{zeppelin.name}}",
+                    "protocol": "TCP",
+                    "port": {{zeppelin.webport}},
+                    "targetPort": {{zeppelin.webport}}
+                }
+            ],
+            "selector": {
+                "app": "{{zeppelin.name}}"
+            },
+            "type": "NodePort"
+        }
+    },
+    {
+        "apiVersion": "extensions/v1beta1",
+        "kind": "Deployment",
+        "metadata": {
+            "name": "{{zeppelin.name}}",
+            "labels": {
+                "app": "{{zeppelin.name}}"
+            }
+        },
+        "spec": {
+            "replicas": 1,
+            "selector": {
+               "matchLabels": {
+                  "app": "{{zeppelin.name}}"
+               }
+            },
+            "template": {
+                "metadata": {
+                    "name": "{{zeppelin.name}}",
+                    "labels": {
+                        "app": "{{zeppelin.name}}"
+                    }
+                },
+                "spec": {
+                    "containers": [
+                        {
+                            "name": "{{zeppelin.name}}",
+                            "image": "{{resource.assets.container.docker.zeppelin-docker}}",
+                            "args": ["/opt/ibm/zeppelin_start.sh", "{{zeppelin.webport}}", "{{zeppelin.websockport}}", "{{spark.master}}"],
+                            "resources": {
+                              "limits": {
+                                "cpu": "{{zeppelin.cpus}}",
+                                "memory": "{{zeppelin.memory}}"
+                              }
+                            },
+                            "imagePullPolicy": "IfNotPresent",
+                            "securityContext": {
+                                "privileged": false
+                            }
+                        }
+                    ],
+                    "restartPolicy": "Always",
+                    "terminationGracePeriodSeconds": 30,
+                    "dnsPolicy": "ClusterFirst",
+                    "nodeSelector": {
+            "k8s.mesosphere.io/attribute-arch": "amd64"
+            },
+                    "securityContext": {}
+                }
+            }
+        }
+    }
+   ]
+}

@@ -1,0 +1,14 @@
+{
+  "images": {
+    "icon-small": "https://avatars3.githubusercontent.com/u/20818112?v=3&s=200",
+    "icon-medium": "https://avatars3.githubusercontent.com/u/20818112?v=3&s=200",
+    "icon-large": "https://avatars3.githubusercontent.com/u/20818112?v=3&s=200"
+  },
+  "assets": {
+    "container": {
+      "docker": {
+        "front-end-docker": "bluedock65.novalocal/front-end:v0.1.1"
+      }
+    }
+  }
+}

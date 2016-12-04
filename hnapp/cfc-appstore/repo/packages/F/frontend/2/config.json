@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "properties": {
+    "frontend": {
+      "properties": {
+        "name": {
+          "default": "frontend",
+          "description": "Name for this frontend application",
+          "type": "string"
+        },
+        "replicas": {
+          "description": "The number of replicas in the Deployment",
+          "type": "integer",
+          "minimum": 1,
+          "default": 1
+        },
+        "cpus": {
+          "description": "CPUs of each container limits",
+          "type": "string",
+          "default": "100m"
+        },
+        "memory": {
+          "description": "Memory of each container limits",
+          "type": "string",
+          "default": "100Mi"
+        }
+      },
+      "required": ["name", "replicas"],
+      "type": "object"
+    }
+  },
+  "type": "object"
+}

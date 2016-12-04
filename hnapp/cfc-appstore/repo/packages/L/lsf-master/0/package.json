@@ -1,0 +1,17 @@
+{
+  "packagingVersion": "2.0",
+  "name": "lsf-master",
+  "version": "10.1",
+  "description": "LSF master package",
+  "maintainer": "xlhuxa@cn.ibm.com",
+  "tags": ["cluster", "job", "distributed"],
+  "preInstallNotes": "Preparing to install LSF master node.",
+  "postInstallNotes": "LSF master node has been installed.",
+  "postUninstallNotes": "LSF master node was uninstalled successfully.",
+  "licenses": [
+    {
+      "name": "BSD like",
+      "url": "https://www.ibm.com/support/knowledgecenter/en/SS4RPL_4.2.2/docs_shared/bundled_lsfce.html"
+    }
+  ]
+}
