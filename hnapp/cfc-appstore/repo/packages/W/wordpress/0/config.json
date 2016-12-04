@@ -33,7 +33,7 @@
       "type": "object",
       "properties": {
         "host": {
-          "default": "cfc.master:3306",
+          "default": "localhost:3306",
           "description": "The mysql master URL",
           "type": "string"
         },

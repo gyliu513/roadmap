@@ -18,7 +18,7 @@
         "memory": {
           "description": "Memory of each container limits",
           "type": "string",
-          "default": "200Mi"
+          "default": "512"
         },
         "replicas": {
           "description": "the replicas for kafka cluster",

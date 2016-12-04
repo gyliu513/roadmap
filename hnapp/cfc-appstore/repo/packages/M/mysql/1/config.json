@@ -17,12 +17,12 @@
         "cpus": {
           "description": "CPUs of each container limits",
           "type": "string",
-          "default": "100m"
+          "default": "500m"
         },
         "memory": {
           "description": "Memory of each container limits",
           "type": "string",
-          "default": "256Mi"
+          "default": "1Gi"
         },
         "rootpassword": {
           "description": "MySQL root password",
