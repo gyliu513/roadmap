@@ -1,3 +1,8 @@
+
+```
+Need to create a service named as `ftpserver` and expose 21.
+```
+
  docker run -d --name ftpd_server -p 21:21 -p 30000-30009:30000-30009 -e "PUBLICHOST=localhost" bluedock65.novalocal/ftpserver:1.0
 
 docker run -d bluedock65.novalocal/ftpclient:1.0
