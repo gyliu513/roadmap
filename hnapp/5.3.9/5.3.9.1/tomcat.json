@@ -1,74 +1,58 @@
 {
-  "apiVersion": "extensions/v1beta1",
   "kind": "Deployment",
+  "apiVersion": "extensions/v1beta1",
   "metadata": {
-    "name": "tomcat1t",
-    "namespace": "default",
+    "name": "tomcat20m",
     "labels": {
-      "app": "tomcat1t"
+      "app": "tomcat20m"
     }
   },
   "spec": {
     "replicas": 1,
-    "selector": {
-      "matchLabels": {
-        "app": "tomcat1t"
-      }
-    },
     "template": {
       "metadata": {
-        "name": "tomcat1t",
         "labels": {
-          "app": "tomcat1t"
+          "app": "tomcat20m",
+          "image": "bluedock65_novalocal_tomcat_9_0_0"
         }
       },
       "spec": {
-        "hostNetwork": false,
         "volumes": [
           {
             "persistentVolumeClaim": {
-              "claimName": "pvc1tb"
+              "claimName": "vg20m"
             },
-            "name": "ddd"
+            "name": "20m"
           }
         ],
         "containers": [
           {
-            "name": "tomcat1t",
-            "image": "tomcat:9.0.0",
+            "name": "tomcat20m",
+            "image": "bluedock65.novalocal/tomcat:9.0.0",
+            "imagePullPolicy": "IfNotPresent",
+            "ports": [
+              {
+                "protocol": "TCP",
+                "containerPort": 8080
+              }
+            ],
             "resources": {
               "limits": {
-                "cpu": "100m",
-                "memory": "100Mi"
+                "cpu": "1000m",
+                "memory": "1024Mi"
               }
             },
             "volumeMounts": [
               {
-                "name": "ddd",
+                "name": "20m",
                 "mountPath": "/pvc"
               }
-            ],  
-            "terminationMessagePath": "/dev/termination-log",
-            "imagePullPolicy": "IfNotPresent",
-            "securityContext": {
-              "privileged": false
-            }
+            ]
           }
         ],
-        "restartPolicy": "Always",
-        "terminationGracePeriodSeconds": 30,
-        "dnsPolicy": "ClusterFirst",
         "nodeSelector": {
           "k8s.mesosphere.io/attribute-arch": "amd64"
-        },
-        "securityContext": {}
-      }
-    },
-    "strategy": {
-      "type": "RollingUpdate",
-      "rollingUpdate": {
-        "maxUnavailable": 1,
-        "maxSurge": 1
+        }
       }
     }
   }
