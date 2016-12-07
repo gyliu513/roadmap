@@ -2,19 +2,19 @@
     "kind": "PersistentVolume", 
     "spec": {
         "accessModes": [
-            "ReadWriteOnce"
+            "ReadWriteMany"
         ], 
         "capacity": {
             "storage": "5Gi"
         }, 
         "nfs": {
-            "path": "/opt/k8s1", 
-            "server": "9.21.61.67"
+            "path": "/data/nfs1", 
+            "server": "10.218.36.105"
         }, 
         "persistentVolumeReclaimPolicy": "Recycle"
     }, 
     "apiVersion": "v1", 
     "metadata": {
-        "name": "pv-lhg1"
+        "name": "mysql-pv1"
     }
 }
