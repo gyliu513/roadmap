@@ -1,20 +1,21 @@
 {
-    "kind": "PersistentVolume", 
-    "spec": {
-        "accessModes": [
-            "ReadWriteMany"
-        ], 
-        "capacity": {
-            "storage": "5Gi"
-        }, 
-        "nfs": {
-            "path": "/data/nfs1", 
-            "server": "10.218.36.105"
-        }, 
-        "persistentVolumeReclaimPolicy": "Recycle"
-    }, 
-    "apiVersion": "v1", 
-    "metadata": {
-        "name": "mysql-pv1"
+  "kind": "PersistentVolume",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "mysql-pv1",
+    "labels": {}
+  },
+  "spec": {
+    "capacity": {
+      "storage": "5Gi"
+    },
+    "accessModes": [
+      "ReadWriteMany"
+    ],
+    "persistentVolumeReclaimPolicy": "Recycle",
+    "nfs": {
+      "path": "/data/nfs1",
+      "server": "10.218.36.105"
     }
+  }
 }
