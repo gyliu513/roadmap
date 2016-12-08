@@ -1,30 +1,35 @@
 {
-    "apiVersion": "batch/v1",
-    "kind": "Job",
-    "metadata": {
-        "name": "pi"
-    },
-    "spec": {
-        "template": {
-            "metadata": {
-                "name": "pi"
-            },
-            "spec": {
-                "containers": [
-                    {
-                        "name": "pi",
-                        "image": "ma1dock1.platformlab.ibm.com/henan/perl:latest",
-                        "command": [
-                            "perl",
-                            "-Mbignum=bpi",
-                            "-wle",
-                            "print bpi(2000)"
-                        ],
-                        "imagePullPolicy": "IfNotPresent"
-                    }
-                ],
-                "restartPolicy": "Never"
-            }
+  "kind": "Job",
+  "apiVersion": "batch/v1",
+  "metadata": {
+    "name": "pi"
+  },
+  "spec": {
+    "template": {
+      "metadata": {
+        "labels": {
+          "app": "pi"
         }
+      },
+      "spec": {
+        "restartPolicy": "Never",
+        "containers": [
+          {
+            "name": "pi",
+            "image": "bluedock65.novalocal/perl:latest",
+            "imagePullPolicy": "IfNotPresent",
+            "command": [
+              "perl",
+              "-Mbignum=bpi",
+              "-wle",
+              "print bpi(2000)"
+            ],
+            "resources": {
+              "limits": {}
+            }
+          }
+        ]
+      }
     }
+  }
 }
