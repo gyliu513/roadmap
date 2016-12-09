@@ -16,7 +16,7 @@
         "containers": [
           {
             "name": "redis2",
-            "image": "redis-eshub:2.8.22",
+            "image": "bluedock65.novalocal/redis-eshub:2.8.22",
             "imagePullPolicy": "IfNotPresent",
             "ports": [
               {
