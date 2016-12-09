@@ -12,7 +12,7 @@ gluster peer probe 10.218.36.63
 
 gluster peer status
 
-for a in `seq 0 5`; do mkdir -p /data/brick1/vg$a; gluster volume create vg$a replica 2 10.218.36.62:/data/brick1/vg$a 10.218.36.63:/data/brick1/vg$a; gluster volume start vg$a;done
+for a in `seq 0 5`; do mkdir -p /data/brick1/vg$a; gluster volume create vg$a replica 3 10.218.36.77:/data/brick1/vg$a 10.218.36.78:/data/brick1/vg$a 10.218.36.79:/data/brick1/vg$a; gluster volume start vg$a; done
 
 [root@bluedock51 vg0]# gluster volume info
 
@@ -55,7 +55,13 @@ performance.readdir-ahead: on
 
 
 #If Create failed, execute below commands:
-setfattr -x trusted.glusterfs.volume-id /data/brick1/vg0/
-setfattr -x trusted.gfid /data/brick1/vg0/
-rm -rf /data/brick1/vg0/.glusterfs
-rm -rf /data/brock1/vg0/.trashcan
+for a in `seq 0 5`; do setfattr -x trusted.glusterfs.volume-id /data/brick1/vg$a/; setfattr -x trusted.gfid /data/brick1/vg$a/; rm -rf /data/brick1/vg$a/.glusterfs; rm -rf /data/brock1/vg$a/.trashcan; done
+
+
+
+
+gluster snapshot activate snapshot
+gluster volume stop lv1
+gluster snapshot restore snapshot
+gluster volume start lv1
+

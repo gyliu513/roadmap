@@ -1,0 +1,33 @@
+{
+  "kind": "NetworkPolicy",
+  "apiVersion": "extensions/v1beta1",
+  "metadata": {
+    "name": "networkpolicy"
+  },
+  "spec": {
+    "podSelector": {
+      "matchLabels": {
+        "app": "container-b"
+      }
+    },
+    "ingress": [
+      {
+        "ports": [
+          {
+            "protocol": "TCP",
+            "port": 80
+          }
+        ],
+        "from": [
+          {
+            "podSelector": {
+              "matchLabels": {
+                "app": "container-a"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
