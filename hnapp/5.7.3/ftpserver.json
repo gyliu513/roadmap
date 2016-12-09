@@ -9,7 +9,8 @@
     "template": {
       "metadata": {
         "labels": {
-          "app": "ftpserver"
+          "app": "ftpserver",
+          "image": "bluedock65_novalocal_ftpserver_1_0"
         }
       },
       "spec": {
@@ -17,15 +18,9 @@
           {
             "name": "ftpserver",
             "image": "bluedock65.novalocal/ftpserver:1.0",
-            "imagePullPolicy": "Always",
-            "env": [
-                     {
-                       "name": "PUBLICHOST",
-                       "value": "ftpserver"
-                     }
-                   ],
+            "imagePullPolicy": "IfNotPresent",
             "ports": [
-             {
+              {
                 "protocol": "TCP",
                 "containerPort": 21
               },
@@ -72,7 +67,13 @@
             ],
             "resources": {
               "limits": {}
-            }
+            },
+            "env": [
+              {
+                "name": "PUBLICHOST",
+                "value": "ftpserver"
+              }
+            ]
           }
         ]
       }
