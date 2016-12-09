@@ -1,0 +1,62 @@
+{
+    "kind": "Deployment",
+    "apiVersion": "extensions/v1beta1",
+    "metadata": {
+        "name": "nginx",
+        "namespace": "default",
+        "labels": {
+            "app": "nginx"
+        }
+    },
+    "spec": {
+        "replicas": 2,
+        "selector": {
+            "matchLabels": {
+                "app": "nginx"
+            }
+        },
+        "template": {
+            "metadata": {
+                "labels": {
+                    "app": "nginx"
+                },
+                "annotations": {
+                    "k8s.mesosphere.io/roles": "A,*"
+                }
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "name": "nginx",
+                        "image": "bluedock65.novalocal/nginx:1.8.1",
+                        "ports": [
+                            {
+                                "containerPort": 80,
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "resources": {
+                          "limits": {
+                            "cpu": "1000m",
+                            "memory": "1Gi"
+                          }
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "imagePullPolicy": "IfNotPresent"
+                    }
+                ],
+                "restartPolicy": "Always",
+                "terminationGracePeriodSeconds": 30,
+                "dnsPolicy": "ClusterFirst",
+                "securityContext": {}
+            }
+        },
+        "strategy": {
+            "type": "RollingUpdate",
+            "rollingUpdate": {
+                "maxUnavailable": 1,
+                "maxSurge": 1
+            }
+        }
+    }
+}

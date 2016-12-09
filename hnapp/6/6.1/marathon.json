@@ -1,0 +1,89 @@
+{
+    "kind": "Deployment",
+    "apiVersion": "extensions/v1beta1",
+    "metadata": {
+        "name": "marathon",
+        "namespace": "default",
+        "labels": {
+            "app": "marathon"
+        }
+    },
+    "spec": {
+        "replicas": 1,
+        "selector": {
+            "matchLabels": {
+                "app": "marathon"
+            }
+        },
+        "template": {
+            "metadata": {
+                "labels": {
+                    "app": "marathon"
+                },
+                "annotations": {
+                    "k8s.mesosphere.io/roles": "A,*"
+                }
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "name": "marathon",
+                        "image": "bluedock65.novalocal/marathon:1.2.0",
+                        "args" : [
+                            "--zk",
+                            "zk://localhost:2181/marathon",
+                            "--master",
+                            "10.218.36.70:5050",
+                            "--mesos_role",
+                            "B",
+                            "--mesos_user",
+                            "root"
+                        ],
+                        "ports": [
+                            {
+                                "containerPort": 8080,
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "resources": {
+                          "limits": {
+                            "cpu": "1500m",
+                            "memory": "2Gi"
+                          }
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "imagePullPolicy": "IfNotPresent"
+                    },
+                    {
+                        "name": "zk",
+                        "image": "bluedock65.novalocal/zookeeper:latest",
+                        "ports": [
+                            {
+                                "containerPort": 2181,
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "resources": {
+                          "limits": {
+                            "cpu": "1000m",
+                            "memory": "1Gi"
+                          }
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "imagePullPolicy": "IfNotPresent"
+                    }
+                ],
+                "restartPolicy": "Always",
+                "terminationGracePeriodSeconds": 30,
+                "dnsPolicy": "ClusterFirst"
+            }
+        },
+        "strategy": {
+            "type": "RollingUpdate",
+            "rollingUpdate": {
+                "maxUnavailable": 1,
+                "maxSurge": 1
+            }
+        }
+    }
+}
