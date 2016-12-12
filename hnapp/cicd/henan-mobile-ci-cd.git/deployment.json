@@ -1,0 +1,56 @@
+{
+    "apiVersion": "extensions/v1beta1",
+    "kind": "Deployment",
+    "metadata": {
+        "name": "APP_NAME",
+        "labels": {
+            "app": "APP_NAME"
+        }
+    },
+    "spec": {
+        "replicas": REPLICAS,
+        "selector": {
+           "matchLabels": {
+              "app": "APP_NAME"
+           }
+        },
+        "template": {
+            "metadata": {
+                "name": "APP_NAME",
+                "labels": {
+                    "app": "APP_NAME"
+                }
+            },
+            "spec": {
+                "imagePullSecrets": [
+                    {
+                        "name": "IMAGE_SECRET"
+                    }
+                ],
+                "containers": [
+                    {
+                        "name": "APP_NAME",
+                        "image": "APP_IMAGE",
+                        "resources": {
+                          "limits": {
+                            "cpu": "1",
+                            "memory": "100Mi"
+                          }
+                        },
+                        "imagePullPolicy": "IfNotPresent",
+                        "securityContext": {
+                            "privileged": false
+                        }
+                    }
+                ],
+                "restartPolicy": "Always",
+                "terminationGracePeriodSeconds": 30,
+                "dnsPolicy": "ClusterFirst",
+                "nodeSelector": {
+	                  "k8s.mesosphere.io/attribute-arch": "amd64"
+	              },
+                "securityContext": {}
+            }
+        }
+    }
+}
