@@ -1,0 +1,13 @@
+FROM ubuntu:14.04
+
+RUN apt-get update && apt-get install -y curl make git vim cscope vim-gocomplete gocode vim-syntax-go build-essential gcc g++
+
+RUN cd /usr/local/ && curl -SL https://storage.googleapis.com/golang/go1.7.4.linux-amd64.tar.gz | tar -xz
+ADD https://raw.githubusercontent.com/k82cn/vimconf/master/build_cscope_db /usr/local/bin
+
+ENV GOROOT=/usr/local/go
+ENV GOPATH=/usr/local/gopath
+ENV PATH=$GOROOT/bin:/usr/local/bin:$PATH
+
+RUN mkdir -p $GOPATH && chmod +x /usr/local/bin/build_cscope_db && vim-addon-manager install go-syntax && vim-addon-manager install gocode
+RUN go get github.com/tools/godep
