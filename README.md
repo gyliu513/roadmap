@@ -1,4 +1,4 @@
 jay-work
 ========
 
-Jay's work
+Jay's daily work
