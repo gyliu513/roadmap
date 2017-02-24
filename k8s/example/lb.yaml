@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    run: my-nginx
+  name: my-nginx
+  namespace: default
+spec:
+  ports:
+  - name: nginx
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    run: my-nginx
+  type: ClusterIP
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    run: my-nginx
+  name: my-nginx
+  namespace: default
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      run: my-nginx
+  template:
+    metadata:
+      labels:
+        run: my-nginx
+    spec:
+      containers:
+      - image: gyliu/nginxv1
+        imagePullPolicy: IfNotPresent
+        name: my-nginx
+        ports:
+        - containerPort: 80
+          protocol: TCP
