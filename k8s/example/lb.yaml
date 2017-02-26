@@ -33,7 +33,7 @@ spec:
         run: my-nginx
     spec:
       containers:
-      - image: gyliu/nginxv1
+      - image: gyliu/nginxv1:1.0
         imagePullPolicy: IfNotPresent
         name: my-nginx
         ports:
