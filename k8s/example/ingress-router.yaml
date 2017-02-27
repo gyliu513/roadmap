@@ -68,8 +68,8 @@ spec:
         run: my-nginx
     spec:
       containers:
-      - image: nginx
-        imagePullPolicy: Always
+      - image: gyliu/nginxv1:1.0
+        imagePullPolicy: IfNotPresent
         name: my-nginx
         ports:
         - containerPort: 80
@@ -93,8 +93,8 @@ spec:
         run: my-nginx-1-11
     spec:
       containers:
-      - image: nginx:1.11
-        imagePullPolicy: Always
+      - image: gyliu/nginxv2:1.0
+        imagePullPolicy: IfNotPresent
         name: my-nginx-1-11
         ports:
         - containerPort: 80
