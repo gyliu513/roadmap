@@ -1,0 +1,43 @@
+global
+  log 127.0.0.1   local0
+  log 127.0.0.1   local1 notice
+  #log loghost    local0 info
+  maxconn 8192
+  #debug
+  #quiet
+  user haproxy
+  group haproxy
+  stats socket /var/run/haproxy.sock user root group root
+  pidfile /var/run/haproxy.pid
+
+defaults
+  log     global
+  mode    tcp
+  retries 3
+  timeout check 10s
+  timeout client 1m
+  timeout connect 10s
+  timeout http-request 10s
+  timeout queue 1m
+  timeout server 1m
+  option redispatch
+  option tcplog
+  balance  source
+
+listen ingress
+  bind 0.0.0.0:80
+  mode tcp
+  balance         roundrobin
+  timeout client  3h
+  timeout server  3h
+  option          clitcpka
+  server node02 bd003:80 check inter 5s rise 2 fall 3
+  server node03 bd004:80 check inter 5s rise 2 fall 3
+  server node04 bd005:80 check inter 5s rise 2 fall 3
+
+listen admin
+  bind 127.0.0.1:22002
+  mode http
+  stats uri /stats
+  stats show-node
+  stats show-legends
