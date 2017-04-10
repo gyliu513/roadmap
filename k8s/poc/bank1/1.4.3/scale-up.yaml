@@ -1,0 +1,21 @@
+apiVersion: batch/v2alpha1
+kind: CronJob
+metadata:
+  name: scale-up
+  namespace: default
+spec:
+  schedule: "01 13 * * *" # Run at 8:00 AM every day
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: scale
+            image: siji/kubectl:v1.5.2
+            command:
+            - kubectl.sh
+            - kubectl
+            - scale
+            - --replicas=3
+            - deployment/nginx
+          restartPolicy: OnFailure

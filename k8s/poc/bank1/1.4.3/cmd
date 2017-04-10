@@ -1,0 +1,7 @@
+for a in `seq 1 50`; do ab -rSqd -c 200 -n 20000 http://9.111.253.114:31427/;done
+
+24 22 * * * /opt/bin/kubectl scale --replicas=2 deployment/my-nginx --server=10.0.189.100:8081
+25 22 * * * /opt/bin/kubectl scale --replicas=3 deployment/my-nginx --server=10.0.189.100:8081
+26 22 * * * /opt/bin/kubectl scale --replicas=4 deployment/my-nginx --server=10.0.189.100:8081
+27 22 * * * /opt/bin/kubectl scale --replicas=5 deployment/my-nginx --server=10.0.189.100:8081
+40 22 * * * /opt/bin/kubectl scale --replicas=1 deployment/my-nginx --server=10.0.189.100:8081

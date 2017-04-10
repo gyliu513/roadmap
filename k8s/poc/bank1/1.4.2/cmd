@@ -1,0 +1,1 @@
+kubectl scale --replicas=5 deployment/icbc-nginx

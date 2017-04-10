@@ -1,0 +1,104 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: mynginx
+spec:
+  rules:
+  - host: mynginx.com.v1
+    http:
+      paths:
+      - path: /v1
+        backend:
+          serviceName: my-nginx
+          servicePort: 80
+  - host: mynginx.com.v2
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: my-nginx-1
+          servicePort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    run: my-nginx-1-11
+  name: my-nginx-1
+  namespace: default
+spec:
+  ports:
+  - name: nginx
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    run: my-nginx-1-11
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    run: my-nginx
+  name: my-nginx
+  namespace: default
+spec:
+  ports:
+  - name: nginx
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    run: my-nginx
+  type: ClusterIP
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    run: my-nginx
+  name: my-nginx
+  namespace: default
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      run: my-nginx
+  template:
+    metadata:
+      labels:
+        run: my-nginx
+    spec:
+      containers:
+      - image: gyliu/nginxv1:1.0
+        imagePullPolicy: IfNotPresent
+        name: my-nginx
+        ports:
+        - containerPort: 80
+          protocol: TCP
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    run: my-nginx-1-11
+  name: my-nginx-1-11
+  namespace: default
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      run: my-nginx-1-11
+  template:
+    metadata:
+      labels:
+        run: my-nginx-1-11
+    spec:
+      containers:
+      - image: gyliu/nginxv2:1.0
+        imagePullPolicy: IfNotPresent
+        name: my-nginx-1-11
+        ports:
+        - containerPort: 80
+          protocol: TCP

@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    run: icbc-nginx
+  name: icbc-nginx
+  namespace: default
+spec:
+  ports:
+  - name: nginx
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    run: icbc-nginx
+  type: NodePort
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    run: icbc-nginx
+  name: icbc-nginx
+  namespace: default
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      run: icbc-nginx
+  template:
+    metadata:
+      labels:
+        run: icbc-nginx
+    spec:
+      containers:
+      - image: gyliu/nginxv1:1.0
+        imagePullPolicy: IfNotPresent
+        name: icbc-nginx
+        readinessProbe:
+          httpGet:
+            path: /index.html
+            port: 80
+          initialDelaySeconds: 5 
+          periodSeconds: 5
+        ports:
+        - containerPort: 80
+          protocol: TCP

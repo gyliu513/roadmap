@@ -1,0 +1,5 @@
+kubectl scale --replicas=5 deployment/icbc-nginx
+
+while [ 1 ]; do echo -n "`date +%M:%S`    "; kubectl describe ep icbc-nginx | grep Addresses | grep -v Not| awk '{print $2}' ; sleep 1; done
+
+while [ 1 ]; do echo -n "`date +%M:%S`	"; iptables -L -t nat -n  | grep icbc-nginx | grep "tcp to" | wc -l; sleep 1; done
