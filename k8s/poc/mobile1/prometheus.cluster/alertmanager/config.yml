@@ -1,0 +1,10 @@
+route:
+    receiver: 'slack'
+
+receivers:
+    - name: 'slack'
+      slack_configs:
+          - send_resolved: true
+            username: 'gyliu513'
+            channel: '#monitor'
+            api_url: 'https://hooks.slack.com/services/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'

@@ -1,0 +1,16 @@
+ALERT service_down
+  IF up == 0
+  
+ALERT high_load
+  IF node_load1 > 0.5
+  ANNOTATIONS {
+      summary = "Instance {{ $labels.instance }} under high load",
+      description = "{{ $labels.instance }} of job {{ $labels.job }} is under high load.",
+  }
+
+ALERT low_load
+  IF node_load1 < 0.03
+  ANNOTATIONS {
+      summary = "Instance {{ $labels.instance }} under low load",
+      description = "{{ $labels.instance }} of job {{ $labels.job }} is under low load.",
+  }
