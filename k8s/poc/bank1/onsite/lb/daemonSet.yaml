@@ -1,0 +1,90 @@
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: docker-host-port-config
+  namespace: kube-system
+data:
+  # Configure this with the location of your etcd cluster.
+  etcd_endpoints: "https://192.168.56.11:2379"
+---
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: docker-host-port
+  namespace: kube-system
+  labels:
+    app: docker-host-port
+spec:
+  selector:
+    matchLabels:
+      app: docker-host-port
+  template:
+    metadata:
+      labels:
+        app: docker-host-port
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ''
+    spec:
+      volumes:
+      - name: docker-sock
+        hostPath:
+          path: /var/run/docker.sock
+      - name: dev-vol
+        hostPath:
+          path: /dev
+      - name: proc-vol
+        hostPath:
+          path: /proc
+      - name: boot-vol
+        hostPath:
+          path: /boot
+      - name: modules-vol
+        hostPath:
+          path: /lib/modules
+      - name: usr-vol
+        hostPath:
+          path: /usr
+      hostNetwork: true
+      containers:
+        # Runs calico/node container on each Kubernetes node.  This
+        # container programs network policy and routes on each
+        # host.
+        - name: docker-host-port
+          image: hchentest/collect:test 
+          securityContext:
+            privileged: true
+          env:
+            # The location of the Calico etcd cluster.
+            - name: ETCD_ENDPOINTS
+              valueFrom:
+                configMapKeyRef:
+                  name: docker-host-port-config
+                  key: etcd_endpoints
+          volumeMounts:
+          - mountPath: /host/var/run/docker.sock
+            name: docker-sock
+            readOnly: false
+          - mountPath: /host/dev
+            name: dev-vol
+            readOnly: false
+          - mountPath: /host/proc
+            name: proc-vol
+            readOnly: true
+          - mountPath: /host/boot
+            name: boot-vol
+            readOnly: true
+          - mountPath: /host/lib/modules
+            name: modules-vol
+            readOnly: true
+          - mountPath: /host/usr
+            name: usr-vol
+            readOnly: true
+      nodeSelector:
+        beta.kubernetes.io/arch: "amd64"
+      tolerations:
+      - key: "dedicated"
+        operator: "Exists"
+        effect: "NoSchedule"
+      - key: "CriticalAddonsOnly"
+        operator: "Exists"
