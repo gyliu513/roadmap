@@ -4,14 +4,14 @@ metadata:
   name: scale-down
   namespace: default
 spec:
-  schedule: "02 13 * * *" # Run at 8:00 PM every day
+  schedule: "* 8 * * *" # Run at 8:00 PM every day
   jobTemplate:
     spec:
       template:
         spec:
           containers:
           - name: scale
-            image: siji/kubectl:v1.5.2
+            image: siji/kubectl:v1.6.1
             command:
             - kubectl.sh
             - kubectl

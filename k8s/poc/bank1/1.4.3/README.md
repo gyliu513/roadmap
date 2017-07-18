@@ -1,6 +1,6 @@
 # Scale up/down Nginx application on scheduled time
 
-* kubectl.tar The `siji/kubectl:v1.5.2` image, can be load by `docker load -i kubectl.tar`
+* kubectl.tar The `siji/kubectl:v1.6.1` image, can be load by `docker load -i kubectl.tar`
 * nginx.yaml The template to create Nginx deployment and service, can adjust the replicas and image name
 * scale-up.yaml The template to create CronJob to scale up Nginx application
 * scale-down.yaml The template to create CronJob to scale down Nginx application
