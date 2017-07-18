@@ -1,0 +1,53 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kibana
+  namespace: kube-system
+spec:
+  ports:
+  - name: http
+    port: 5601
+    targetPort: 5601
+  type: NodePort
+  selector:
+    app: kibana
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: kibana
+  namespace: kube-system
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: kibana
+    spec:
+      hostNetwork: true
+      containers:
+      - name: kibana
+        image: "conductor/kibana:4.6.4"
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: ELASTICSEARCH_URL
+          value: "https://REPLACE_WITH_YOUR_MASTER_IP_ADDRESS:8743"
+        - name: ELASTICSEARCH_SSL_VERIFY
+          value: "true"
+        - name: ELASTICSEARCH_SSL_CA
+          value: /es-secrets/es-ca
+        - name: ELASTICSEARCH_SSL_CERT
+          value: /es-secrets/es-cert
+        - name: ELASTICSEARCH_SSL_KEY
+          value: /es-secrets/es-key
+        volumeMounts:
+          - mountPath: /es-secrets
+            name: es-certs
+        ports:
+        - containerPort: 5601
+      volumes:
+       - name: es-certs
+         secret:
+           secretName: es-secrets
