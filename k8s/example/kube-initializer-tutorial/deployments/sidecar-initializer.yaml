@@ -1,0 +1,24 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  initializers:
+    pending: []
+  labels:
+    app: sidecar-initializer
+  name: sidecar-initializer
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: sidecar-initializer
+      name: sidecar-initializer
+    spec:
+      containers:
+      - name: sidecar-initializer
+        image: gcr.io/hightowerlabs/envoy-initializer:0.0.1
+        imagePullPolicy: Always
+        args:
+        - "-initializer-name=sidecar.initializer.kubernetes.io"
+        - "-configmap=sidecar-initializer"
+   

@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sidecar-initializer
+data:
+  config: |
+    containers:
+    - name: sidecar-nginx
+      image: nginx:1.8.1
+      ports:
+      - containerPort: 80
+        protocol: TCP
