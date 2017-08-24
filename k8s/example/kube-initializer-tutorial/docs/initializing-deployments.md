@@ -14,9 +14,10 @@ Notice only one container is running in the `nginx` Pod:
 kubectl get pods
 ```
 ```
-NAME                                 READY     STATUS    RESTARTS   AGE
-envoy-initializer-3840443721-bjfb4   1/1       Running   0          20m
-helloworld-3116035291-3sswk          1/1       Running   0          7s
+root@k8s001:~/go/src/github.com/gyliu513/jay-work/k8s/example/kube-initializer-tutorial# kubectl get pods
+NAME                                  READY     STATUS    RESTARTS   AGE
+nginx-3993514419-k5z4z                1/1       Running   0          5s
+sidecar-initializer-570644194-njmzb   1/1       Running   0          24s
 ```
 
 ### Create the Sidecar Initializer InitializerConfiguration
