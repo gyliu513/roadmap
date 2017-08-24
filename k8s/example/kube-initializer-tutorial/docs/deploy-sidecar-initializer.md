@@ -1,6 +1,6 @@
 # Deploy The Sidecar Initializer
 
-The Envoy Initializer is a [Kubernetes Initializer](https://kubernetes.io/docs/admin/extensible-admission-controllers/#what-are-initializers) that injects an [Envoy](https://lyft.github.io/envoy) proxy into Deployments based on containers and volumes defined in a [ConfigMap](https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap).
+The Sidecar Initializer is a [Kubernetes Initializer](https://kubernetes.io/docs/admin/extensible-admission-controllers/#what-are-initializers) that injects asidecar container into Deployments based on containers defined in a [ConfigMap](https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap).
 
 ## Install
 
@@ -28,7 +28,7 @@ Deploy the `sidecar-initializer` controller:
 kubectl apply -f deployments/sidecar-initializer.yaml
 ```
 
-The `sidecar-initializer` Deployment sets pending initializers to an empty list which bypasses initialization. This prevents the Envoy Initializer from getting stuck waiting for initialization, which can happen if the `sidecar` [Initialization Configuration](initializing-deployments.md#create-the-sidecar-initializer-InitializerConfiguration) is created before the `sidecar-initializer` Deployment.
+The `sidecar-initializer` Deployment sets pending initializers to an empty list which bypasses initialization. This prevents the Sidecar Initializer from getting stuck waiting for initialization, which can happen if the `sidecar` [Initialization Configuration](initializing-deployments.md#create-the-sidecar-initializer-InitializerConfiguration) is created before the `sidecar-initializer` Deployment.
 
 ```
 apiVersion: apps/v1beta1
