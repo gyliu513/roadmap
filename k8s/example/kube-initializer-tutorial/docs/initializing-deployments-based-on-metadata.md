@@ -1,30 +1,30 @@
 # Initializing Deployments Based On Metadata
 
-It's possible to select which objects are initialized using metadata. In this section the Envoy Initializer will be redeployed and configured to only initialize Deployments with an `initializer.kubernetes.io/envoy` annotation set to a non-empty value.
+It's possible to select which objects are initialized using metadata. In this section the Sidecar Initializer will be redeployed and configured to only initialize Deployments with an `initializer.kubernetes.io/sidecar` annotation set to a non-empty value.
 
 ## Prerequisites
 
-Delete the existing `helloworld` and `envoy-initializer` Deployments:
+Delete the existing `nginx` and `sidecar-initializer` Deployments:
 
 ```
-kubectl delete deployments helloworld envoy-initializer
+kubectl delete deployments nginx sidecar-initializer
 ```
 
-## Deploy the Envoy Initializer
+## Deploy the Sidecar Initializer
 
-Deploy the Envoy Initializer with the `-require-annotation` flag set. This will ensure the Envoy proxy container is only injected into Deployments with an `initializer.kubernetes.io/envoy` annotation set to a non-empty value.
-
-```
-kubectl apply -f deployments/envoy-initializer-with-annotation.yaml
-```
-
-Create the `helloworld` Deployment:
+Deploy the Sidecar Initializer with the `-require-annotation` flag set. This will ensure the Sidecar container is only injected into Deployments with an `initializer.kubernetes.io/siecar` annotation set to a non-empty value.
 
 ```
-kubectl apply -f deployments/helloworld.yaml 
+kubectl apply -f deployments/sidecar-initializer-with-annotation.yaml
 ```
 
-Notice the `helloworld` Deployment has been initialized without injecting the Envoy proxy container:
+Create the `nginx` Deployment:
+
+```
+kubectl apply -f deployments/nginx.yaml 
+```
+
+Notice the `nginx` Deployment has been initialized without injecting the Envoy proxy container:
 
 ```
 kubectl get pods
@@ -35,13 +35,13 @@ envoy-initializer-460025406-f56d4   1/1       Running   0          56s
 helloworld-3116035291-6nl6x         1/1       Running   0          10s
 ```
 
-### Create the helloworld-with-annotation Deployment
+### Create the nginx-with-annotation Deployment
 
 ```
-kubectl apply -f deployments/helloworld-with-annotation.yaml
+kubectl apply -f deployments/nginx-with-annotation.yaml
 ```
 
-Notice the `helloworld-with-annotation` Deployment has been initialized with the Envoy proxy container:
+Notice the `nginx-with-annotation` Deployment has been initialized with the sidecar container:
 
 ```
 kubectl get pods
