@@ -6,5 +6,5 @@ data:
   config: |
     containers:
     - name: sidecar-nginx
-      image: busybox
+      image: nginx:1.8.1
       imagePullPolicy: IfNotPresent
