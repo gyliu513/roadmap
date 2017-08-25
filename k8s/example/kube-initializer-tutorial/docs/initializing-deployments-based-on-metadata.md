@@ -12,7 +12,7 @@ kubectl delete deployments nginx sidecar-initializer
 
 ## Deploy the Sidecar Initializer
 
-Deploy the Sidecar Initializer with the `-require-annotation` flag set. This will ensure the Sidecar container is only injected into Deployments with an `initializer.kubernetes.io/siecar` annotation set to a non-empty value.
+Deploy the Sidecar Initializer with the `-require-annotation` flag set. This will ensure the Sidecar container is only injected into Deployments with an `initializer.kubernetes.io/sidecar` annotation set to a non-empty value.
 
 ```
 kubectl apply -f deployments/sidecar-initializer-with-annotation.yaml
