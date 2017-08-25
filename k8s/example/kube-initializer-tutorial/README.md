@@ -26,8 +26,8 @@ cd jay-work/k8s/example/kube-initializer-tutorial
 
 ## Tutorial
 
-* [Deploy The Sidecar Initializer](docs/deploy-sidecar-initializer.md)
-* [Initializing Deployments](docs/initializing-deployments.md)
-* [Initializing Deployments Based On Metadata](docs/initializing-deployments-based-on-metadata.md)
-* [Cleaning Up](docs/cleanup.md)
-* [Best Practices](docs/best-practices.md)
+* [1. Deploy The Sidecar Initializer](docs/deploy-sidecar-initializer.md)
+* [2. Initializing Deployments](docs/initializing-deployments.md)
+* [3. Initializing Deployments Based On Metadata](docs/initializing-deployments-based-on-metadata.md)
+* [4. Cleaning Up](docs/cleanup.md)
+* [5. Best Practices](docs/best-practices.md)

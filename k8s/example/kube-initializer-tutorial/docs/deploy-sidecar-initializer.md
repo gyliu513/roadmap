@@ -39,3 +39,11 @@ metadata:
 ```
 
 At this point the Sidecar Initializer is ready to initialize new Deployments.
+
+## Tutorial
+
+* [1. Deploy The Sidecar Initializer](docs/deploy-sidecar-initializer.md)
+* [2. Initializing Deployments](docs/initializing-deployments.md)
+* [3. Initializing Deployments Based On Metadata](docs/initializing-deployments-based-on-metadata.md)
+* [4. Cleaning Up](docs/cleanup.md)
+* [5. Best Practices](docs/best-practices.md)

@@ -73,6 +73,14 @@ metadata:
   name: nginx-with-annotation
 ...
 ```
-The complete [nginx-with-annotation deployment](https://raw.githubusercontent.com/kelseyhightower/kubernetes-initializer-tutorial/master/deployments/nginx-with-annotation.yaml).
+The complete [nginx-with-annotation deployment](https://raw.githubusercontent.com/gyliu513/jay-work/master/k8s/example/kube-initializer-tutorial/deployments/sidecar-initializer-with-annotation.yaml).
 
-Use a flag on the Initializer to enable or disable an annotation to trigger initialization. See the [Sidecar Initializer](https://github.com/kelseyhightower/kubernetes-initializer-tutorial/tree/master/sidecar-initializer) for a complete example.
+Use a flag on the Initializer to enable or disable an annotation to trigger initialization. See the [Sidecar Initializer](https://github.com/gyliu513/jay-work/tree/master/k8s/example/kube-initializer-tutorial/sidecar-initializer) for a complete example.
+
+## Tutorial
+
+* [1. Deploy The Sidecar Initializer](docs/deploy-sidecar-initializer.md)
+* [2. Initializing Deployments](docs/initializing-deployments.md)
+* [3. Initializing Deployments Based On Metadata](docs/initializing-deployments-based-on-metadata.md)
+* [4. Cleaning Up](docs/cleanup.md)
+* [5. Best Practices](docs/best-practices.md)

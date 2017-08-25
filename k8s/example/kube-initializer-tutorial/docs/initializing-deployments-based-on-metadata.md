@@ -52,3 +52,11 @@ nginx-3993514419-gtwmm                   1/1       Running   0          9s
 nginx-with-annotation-3189669392-89wpj   2/2       Running   0          3s
 sidecar-initializer-1632551338-4hzhg     1/1       Running   0          15s
 ```
+
+## Tutorial
+
+* [1. Deploy The Sidecar Initializer](docs/deploy-sidecar-initializer.md)
+* [2. Initializing Deployments](docs/initializing-deployments.md)
+* [3. Initializing Deployments Based On Metadata](docs/initializing-deployments-based-on-metadata.md)
+* [4. Cleaning Up](docs/cleanup.md)
+* [5. Best Practices](docs/best-practices.md)

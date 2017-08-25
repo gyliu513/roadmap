@@ -1,6 +1,6 @@
 # Envoy Initializer
 
-The Envoy Initializer is a [Kubernetes initializer](https://kubernetes.io/docs/admin/extensible-admission-controllers/#what-are-initializers) that injects the [envoy](https://lyft.github.io/envoy) proxy into a pod based on policy.
+The Envoy Initializer is a [Kubernetes initializer](https://kubernetes.io/docs/admin/extensible-admission-controllers/#what-are-initializers) that injects a sidecar container into a pod based on policy.
 
 ## Usage
 

@@ -51,3 +51,11 @@ sidecar-initializer-3903237336-7whn6   1/1       Running   0          47s
 ```
 
 The second container is the Sidecar container which was injected into the Pod by the Sidecar Initializer.
+
+## Tutorial
+
+* [1. Deploy The Sidecar Initializer](docs/deploy-sidecar-initializer.md)
+* [2. Initializing Deployments](docs/initializing-deployments.md)
+* [3. Initializing Deployments Based On Metadata](docs/initializing-deployments-based-on-metadata.md)
+* [4. Cleaning Up](docs/cleanup.md)
+* [5. Best Practices](docs/best-practices.md)
