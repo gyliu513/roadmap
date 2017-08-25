@@ -47,8 +47,8 @@ Notice the `nginx-with-annotation` Deployment has been initialized with the side
 kubectl get pods
 ```
 ```
-NAME                                          READY     STATUS    RESTARTS   AGE
-envoy-initializer-460025406-f56d4             1/1       Running   0          7m
-helloworld-3116035291-6nl6x                   1/1       Running   0          6m
-helloworld-with-annotation-3482720967-8b2qr   2/2       Running   0          6s
+NAME                                     READY     STATUS    RESTARTS   AGE
+nginx-3993514419-gtwmm                   1/1       Running   0          9s
+nginx-with-annotation-3189669392-89wpj   2/2       Running   0          3s
+sidecar-initializer-1632551338-4hzhg     1/1       Running   0          15s
 ```
