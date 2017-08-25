@@ -30,9 +30,9 @@ Notice the `nginx` Deployment has been initialized without injecting the Envoy p
 kubectl get pods
 ```
 ```
-NAME                                READY     STATUS    RESTARTS   AGE
-envoy-initializer-460025406-f56d4   1/1       Running   0          56s
-helloworld-3116035291-6nl6x         1/1       Running   0          10s
+NAME                                   READY     STATUS    RESTARTS   AGE
+nginx-3993514419-k9wjp                 1/1       Running   0          2s
+sidecar-initializer-1632551338-lg4hf   1/1       Running   0          13s
 ```
 
 ### Create the nginx-with-annotation Deployment
