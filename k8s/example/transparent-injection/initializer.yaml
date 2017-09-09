@@ -1,0 +1,30 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: istio-sidecar-initializer
+  initializers:
+    pending: []
+  labels:
+    istio: istio-sidecar-initializer
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: istio-sidecar-initializer
+      labels:
+        istio: sidecar-initializer
+    spec:
+      containers:
+        - name: sidecar-initializer
+          image: gyliu/sidecar_initializer:0909
+          imagePullPolicy: IfNotPresent
+          args:
+            - --port=8083
+            - -v=2
+          volumeMounts:
+          - name: config-volume
+            mountPath: /etc/istio/config
+      volumes:
+      - name: config-volume
+        configMap:
+          name: istio

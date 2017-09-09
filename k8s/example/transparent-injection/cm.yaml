@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: istio-inject
+data:
+  config: |-
+    policy: opt-out
+    namespaces:
+    - kube-system
+    - default
+    - kube-public
+    params:
+      initImage: "docker.io/istio/proxy_init:0.2.1"
+      proxyImage: "docker.io/istio/proxy_debug:0.2.1"
+      MeshConfigMapName: "istio"
