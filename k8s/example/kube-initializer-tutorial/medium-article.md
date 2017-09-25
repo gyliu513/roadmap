@@ -32,7 +32,7 @@ You should first deploy the initializer and make sure that it is working properl
 You can have multiple initializers in your cluster and each initializer can focus on different tasks in different namespaces.
 
 The following is a diagram which describes the relationship of the above three objects.
-
+![image](initializer.png)
 
 ## Tutorial for initializers
 My tutorial was based on https://github.com/kelseyhightower/kubernetes-initializer-tutorial , I updated it a bit by making it more simple and committed all of the code here https://github.com/gyliu513/jay-work/tree/master/k8s/example/kube-initializer-tutorial
