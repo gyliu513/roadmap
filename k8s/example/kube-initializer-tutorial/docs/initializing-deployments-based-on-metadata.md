@@ -48,7 +48,7 @@ kubectl get pods
 ```
 ```
 NAME                                     READY     STATUS    RESTARTS   AGE
-nginx-3993514419-gtwmm                   1/1       Running   0          9s
+nginx-3993514419-k9wjp                   1/1       Running   0          9s
 nginx-with-annotation-3189669392-89wpj   2/2       Running   0          3s
 sidecar-initializer-1632551338-4hzhg     1/1       Running   0          15s
 ```
