@@ -3,9 +3,11 @@
 It is recommended that you go through the blog https://ahmet.im/blog/initializers/ first before this tutorial, as this article is an extension of the previous one.
 
 ## PodPreset and Initializers
-Someone may think that the PodPreset also support injecting data into Kubernetes resources files, why bother to have customized initializers which require the customer write their own initializer. Some discussion about this topic can be found [here in Kubernetes dev mail list](https://groups.google.com/forum/#!searchin/kubernetes-dev/podpreset|sort:relevance/kubernetes-dev/r-y00XVl5Ug/8shh6QOeCQAJhttps://groups.google.com/forum/#!searchin/kubernetes-dev/podpreset|sort:relevance/kubernetes-dev/r-y00XVl5Ug/8shh6QOeCQAJ)
+Someone may think that the PodPreset also support injecting data into Kubernetes resources files, why bother to have customized initializers which require the customer write their own initializer. 
 
-Here are some takeaways from the above discussion:
+Compared with PodPreset, the initializers can enable user have more customization logic for how to inject data to Kubernetes resources.
+
+Here are some points for the best practice of PodPreset and Initializers:
 1) Initializers themselves are actually just a special case of generic webhook admission - they exist to make it easy to take existing Kubernetes controller client code and handle common actions.  Making it easy to extend Kubernetes is important enough that we want many levels of flexibility.
 2) Cluster admins need to be careful about what initializers they install due to a) A buggy one could block everyone's ability to create things in the cluster. b) The initializers have lots of power, so the code needs to be trusted.
 3) PodPreset is a an initializer that someone wrote for you, which your cluster administrator can trust.
@@ -139,7 +141,7 @@ When an object is POSTed, it is checked against all existing initializerConfigur
 
 An initializer controller should list and watch for uninitialized objects, by using the query parameter `?includeUninitialized=true`. If using client-go, just set `listOptions.includeUninitialized` to true.
 
-Some fake code as following to describe the logic.
+Some pseudo code as following to describe the logic, you can get more detail from https://github.com/gyliu513/jay-work/blob/master/k8s/example/kube-initializer-tutorial/sidecar-initializer/main.go#L58-L129
 ```
 // Watch uninitialized Deployments in all namespaces.
 restClient := clientset.AppsV1beta1().RESTClient()
@@ -341,7 +343,7 @@ NAME                                   READY     STATUS             RESTARTS   A
 sidecar-initializer-5b7699577d-gp654   1/1       Running            0          4s
 ```
 
-Some fake code as following for how to use `annotation` to filter out some applications:
+Some pseudo code as following for how to use `annotation` to filter out some applications, you can get more detail from https://github.com/gyliu513/jay-work/blob/master/k8s/example/kube-initializer-tutorial/sidecar-initializer/main.go#L131-L192
 ```
 if requireAnnotation {
 	a := deployment.ObjectMeta.GetAnnotations()
@@ -553,6 +555,15 @@ root@k8s001:~/cases/jay-work/k8s/example/kube-initializer-tutorial/initializer-c
 NAME                     READY     STATUS    RESTARTS   AGE
 nginx-7ff795885f-gdzss   1/1       Running   0          2s
 ```
+
+## Summary
+With Kubernetes Initializers, we can customize the logic of how to inject data to Kubernetes resources more flexible. The initializers can help a lot for isito service mesh.
+
+With istio 0.1.X, if you want to deploy an application to be managed by istio, you need to call the command of `istioctl kube-inject` first to inject the sidecar container and volumes into the deployment before you call `kubectl apply` to deploy the application. This is not convenient for the end users, as deploying one application for istio would request two API calls.
+
+In istio 0.2.X, we are introducing an istio sidecar initializer which can help inject data dynamically to Kuberntes resources, this makes end user can deploy applications to be managed by istio more easily as this will not need to call `istioctl kube-inject` to inject data manually but all of the data will be injected automatically by istio sidecar initializer.
+
+There will be another article to deep dive for how does istio sidecar initializer works in a follow up article.
 
 ## Reference
 - https://github.com/kubernetes/kubernetes/pull/50497 
