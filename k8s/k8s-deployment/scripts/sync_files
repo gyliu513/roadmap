@@ -1,0 +1,4 @@
+#!/bin/bash
+
+scp 172.16.24.220:/etc/resolv.conf /etc/resolv.conf
+scp 172.16.24.220:/etc/hosts /etc/hosts

@@ -1,0 +1,14 @@
+# An Ingress with 2 hosts and 3 endpoints
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: my-nginx
+spec:
+  rules:
+  - host: kube-worker1.sl.cloud9.ibm.com
+    http:
+      paths:
+      - path: /my-nginx
+        backend:
+          serviceName: my-nginx
+          servicePort: 8800

@@ -1,0 +1,18 @@
+# An Ingress with 2 hosts and 3 endpoints
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: my-nginx
+spec:
+  tls:
+  - hosts:
+    - my-nginx.poc.myvm.info
+    secretName: my-nginx-secret
+  rules:
+  - host: my-nginx.poc.myvm.info
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: my-nginx
+          servicePort: 8800

@@ -1,0 +1,15 @@
+###
+# kubernetes proxy config
+
+# default config should be adequate
+
+# Add your own!
+# For HA configuration, use the virtual ip of the api servers
+# Non-HA configuration:
+#     <master_ip>:8080
+# HA configuration:
+#     <master_virtual_ip>:8080
+KUBE_PROXY_MASTER="--master=http://172.16.29.52:8080"
+
+# If the node has multiple nics in different networks, will need something like --cluster-cidr=192.168.0.0/16 in KUBE_PROXY_ARGS
+KUBE_PROXY_ARGS=""

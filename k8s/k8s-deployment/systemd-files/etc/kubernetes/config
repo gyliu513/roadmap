@@ -1,0 +1,30 @@
+###
+# kubernetes system config
+#
+# The following values are used to configure various aspects of all
+# kubernetes services, including
+#
+#   kube-apiserver.service
+#   kube-controller-manager.service
+#   kube-scheduler.service
+#   kubelet.service
+#   kube-proxy.service
+# logging to stderr means we get it in the systemd journal
+KUBE_LOGTOSTDERR="--logtostderr=false"
+
+KUBE_LOGDIR="--log-dir=/var/log/kubernetes"
+
+# journal message level, 0 is debug
+KUBE_LOG_LEVEL="--v=2"
+
+# Should this cluster be allowed to run privileged docker containers
+KUBE_ALLOW_PRIV="--allow-privileged=true"
+
+# How the controller-manager, scheduler, and proxy find the apiserver
+# Non-HA configuration:
+#     127.0.0.1:8080 on master
+#     <master_ip>:8080 on workers
+# HA configuration:
+#     127.0.0.1:8080 on masters
+#     <master_virtual_ip>:8080 on workers
+KUBE_MASTER="--master=http://127.0.0.1:8080"

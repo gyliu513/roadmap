@@ -1,0 +1,7 @@
+# Calico configuration options
+
+# etcd url location.  Point this to the server where etcd runs
+ETCD_ENDPOINTS="http://172.16.29.52:2379"
+
+# For HA configuration, comment the line above and uncomment the line below
+# ETCD_ENDPOINTS="http://172.16.29.52:2379,http://172.16.29.53:2379,http://172.16.29.54:2379"

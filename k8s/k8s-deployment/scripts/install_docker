@@ -1,0 +1,13 @@
+#!/bin/bash
+
+zypper ar --no-gpgcheck http://172.16.29.51:80/install/sles12.1-docker/x86_64 docker-repo
+zypper refresh
+zypper install -y docker
+
+# Required by BlueDock with docker 1.10.x
+sed -i 's/MountFlags=slave/MountFlags=shared/' /usr/lib/systemd/system/docker.service
+systemctl daemon-reload
+
+systemctl enable docker
+systemctl start docker
+

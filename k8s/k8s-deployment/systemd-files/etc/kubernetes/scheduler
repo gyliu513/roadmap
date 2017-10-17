@@ -1,0 +1,8 @@
+###
+# kubernetes scheduler config
+
+# default config should be adequate
+
+# Add your own!
+# For HA configuration, add --leader-elect=true to KUBE_SCHEDULER_ARGS
+KUBE_SCHEDULER_ARGS=""

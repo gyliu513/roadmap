@@ -1,0 +1,8 @@
+# Flanneld configuration options
+
+# etcd url location.  Point this to the server where etcd runs
+FLANNEL_ETCD_ENDPOINTS="http://127.0.0.1:2379"
+FLANNEL_ETCD_KEY="/coreos.com/network"
+
+# Any additional options that you want to pass
+FLANNEL_OPTIONS="--ip-masq=true -iface eth0"

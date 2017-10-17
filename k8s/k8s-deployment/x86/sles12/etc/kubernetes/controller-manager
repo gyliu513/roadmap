@@ -1,0 +1,8 @@
+###
+# The following values are used to configure the kubernetes controller-manager
+
+# defaults from config and apiserver should be adequate
+
+# Add your own!
+#KUBE_CONTROLLER_MANAGER_ARGS="--service-account-private-key-file=/var/lib/kubernetes/serviceaccount.key --cluster-name=kubernetes"
+KUBE_CONTROLLER_MANAGER_ARGS="--cluster-name=kubernetes"

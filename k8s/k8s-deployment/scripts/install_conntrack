@@ -1,0 +1,5 @@
+#!/bin/bash
+
+zypper ar http://172.16.29.51:80/install/sles12.2-ha/x86_64/1 sles12.2-ha
+zypper refresh
+zypper install -y conntrack-tools

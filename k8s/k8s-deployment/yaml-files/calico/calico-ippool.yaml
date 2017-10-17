@@ -1,0 +1,10 @@
+# calicoctl apply -f calico-ippool.yaml
+- apiVersion: v1
+  kind: ipPool
+  metadata:
+    cidr: 192.168.0.0/16
+  spec:
+    ipip:
+      enabled: false
+    nat-outgoing: true
+

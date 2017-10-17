@@ -1,0 +1,13 @@
+#!/bin/bash
+
+mkdir -p /root/dockerimages
+mount 172.16.29.51:/root/k8s-repo/dockerimages /root/dockerimages
+
+docker load -i /root/dockerimages/exechealthz-amd64-1.2.tar
+docker load -i /root/dockerimages/kube-dnsmasq-amd64-1.4.tar
+docker load -i /root/dockerimages/kubedns-amd64-1.3.tar
+docker load -i /root/dockerimages/pause-amd64-3.0.tar
+docker load -i /root/dockerimages/nginx-1.8.1.tar
+docker load -i /root/dockerimages/calico-kube-policy-controller-v0.5.1.tar
+
+umount /root/dockerimages

@@ -1,0 +1,13 @@
+# Flanneld configuration options
+
+# etcd url location.  Point this to the server where etcd runs
+FLANNEL_ETCD_ENDPOINTS="http://172.16.29.52:2379"
+
+# For HA configuration, comment the line above and uncomment the line below
+#FLANNEL_ETCD_ENDPOINTS="http://172.16.29.52:2379,http://172.16.29.53:2379,http://172.16.29.54:2379"
+
+FLANNEL_ETCD_KEY="/coreos.com/network"
+
+# Any additional options that you want to pass
+# iface - interface to use (IP or name) for inter-host communication. Defaults to the interface for the default route on the machine.
+FLANNEL_OPTIONS="--ip-masq=true -iface eth1"

@@ -1,0 +1,29 @@
+#!/bin/bash
+
+K8S_TEMPLATE_WORKER=10.0.189.5
+K8S_MASTER=http://10.0.189.4:8080
+NETWORK_TYPE=calico
+
+if [ "$NETWORK_TYPE" = "calico" ]; then
+    docker load -i /root/k8s-repo/kubernetes-binaries/x86_64/calico/1.1.3/calico-node-v1.1.3-x86.tar
+fi
+
+scp -p ${K8S_TEMPLATE_WORKER}:/opt/bin/{kubectl,kubelet,kube-proxy} /opt/bin/
+scp -p ${K8S_TEMPLATE_WORKER}:/etc/kubernetes/{config,kubelet,proxy} /etc/kubernetes/
+scp -p ${K8S_TEMPLATE_WORKER}:/lib/systemd/system/{kubelet.service,kube-proxy.service} /lib/systemd/system/
+
+/opt/bin/kubectl --server=$K8S_MASTER  config set-cluster default-cluster --server=$K8S_MASTER --insecure-skip-tls-verify=true
+/opt/bin/kubectl config set-context default-context --cluster=default-cluster
+/opt/bin/kubectl config set current-context default-context
+
+if [ "$NETWORK_TYPE" = "calico" ]; then
+    scp -p ${K8S_TEMPLATE_WORKER}:/opt/bin/calicoctl /opt/bin/
+    scp -p ${K8S_TEMPLATE_WORKER}:/opt/cni/bin/* /opt/cni/bin/
+    scp -p ${K8S_TEMPLATE_WORKER}:/etc/sysconfig/calico /etc/sysconfig/calico
+    scp -p ${K8S_TEMPLATE_WORKER}:/lib/systemd/system/calico.service /lib/systemd/system/calico.service
+    scp -p ${K8S_TEMPLATE_WORKER}:/etc/cni/net.d/10-calico.conf /etc/cni/net.d/10-calico.conf
+    systemctl enable calico
+    systemctl start calico
+fi
+
+for i in kubelet kube-proxy; do systemctl enable $i; systemctl stop $i; systemctl start $i; done

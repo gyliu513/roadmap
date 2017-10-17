@@ -1,0 +1,88 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    k8s-app: nginx-ingress-lb
+  name: nginx-ingress-controller
+spec:
+  #clusterIP: 20.254.83.11
+  #deprecatedPublicIPs:
+  #- 9.12.246.27
+  externalIPs:
+  - 9.186.106.207
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    k8s-app: nginx-ingress-lb
+  type: ClusterIP
+---
+apiVersion: extensions/v1beta1
+kind: Deployment 
+metadata:
+  name: nginx-ingress-controller
+  labels:
+    k8s-app: nginx-ingress-lb
+  annotations:
+    scheduler.alpha.kubernetes.io/affinity: >
+      {
+         "nodeAffinity": {
+            "requiredDuringSchedulingIgnoredDuringExecution": {
+              "nodeSelectorTerms": [
+               {
+                  "matchExpressions": [
+                   {
+                     "key": "kubernetes.io/hostname",
+                     "operator": "In",
+                     "values": ["x4"]
+                   }
+                 ]
+               }
+             ]
+           }
+         }
+       }
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        k8s-app: nginx-ingress-lb
+        name: nginx-ingress-lb
+    spec:
+      terminationGracePeriodSeconds: 60
+      containers:
+      - image: gcr.io/google_containers/nginx-ingress-controller:0.8.3
+        name: nginx-ingress-lb
+        imagePullPolicy: Always
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 10254
+            scheme: HTTP
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 10254
+            scheme: HTTP
+          initialDelaySeconds: 10
+          timeoutSeconds: 1
+        # use downward API
+        env:
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+        ports:
+        - containerPort: 80
+#          hostPort: 80
+        - containerPort: 443
+#          hostPort: 443
+        args:
+        - /nginx-ingress-controller
+        - --default-backend-service=$(POD_NAMESPACE)/default-http-backend

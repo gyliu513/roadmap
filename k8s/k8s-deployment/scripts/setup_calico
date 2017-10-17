@@ -1,0 +1,17 @@
+#!/bin/bash
+
+K8S_TEMPLATE_WORKER=172.16.24.133
+
+scp ${K8S_TEMPLATE_WORKER}:/root/calico-node-v1.0.0.tar /root/
+docker load -i /root/calico-node-v1.0.0.tar
+
+scp ${K8S_TEMPLATE_WORKER}:/etc/sysconfig/calico /etc/sysconfig/calico
+scp ${K8S_TEMPLATE_WORKER}:/usr/lib/systemd/system/calico.service /usr/lib/systemd/system/calico.service
+scp ${K8S_TEMPLATE_WORKER}:/opt/bin/calicoctl /opt/bin/calicoctl
+scp ${K8S_TEMPLATE_WORKER}:/opt/cni/bin/* /opt/cni/bin/
+scp ${K8S_TEMPLATE_WORKER}:/etc/cni/net.d/10-calico.conf /etc/cni/net.d/10-calico.conf
+
+systemctl enable calico
+systemctl start calico
+
+systemctl restart kubelet

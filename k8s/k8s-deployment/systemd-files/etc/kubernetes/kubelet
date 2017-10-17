@@ -1,0 +1,21 @@
+###
+# kubernetes kubelet (minion) config
+
+# The address for the info server to serve on (set to 0.0.0.0 or "" for all interfaces)
+KUBELET_ADDRESS="--address=0.0.0.0"
+
+# The port for the info server to serve on
+KUBELET_PORT="--port=10250"
+
+# You may leave this blank to use the actual hostname
+#KUBELET_HOSTNAME="--hostname-override=127.0.0.1"
+#KUBELET_HOSTNAME=""
+
+# location of the api-server
+KUBELET_API_SERVER="--require-kubeconfig=true --kubeconfig=/root/.kube/config"
+# For HA configuration, comment the line above and uncomment the line below
+#KUBELET_API_SERVER="--api-servers=http://172.16.29.52:8080,http://172.16.29.53:8080,http://172.16.29.54:8080"
+
+# Add your own!
+# Calico configuration, add the "--network-plugin=cni --cni-conf-dir=/etc/cni/net.d --cni-bin-dir=/opt/cni/bin" to KUBELET_ARGS
+KUBELET_ARGS="--cluster_dns=20.254.0.10 --cluster-domain=cluster.local"

@@ -1,0 +1,32 @@
+[Unit]
+Description=calico node
+After=docker.service
+Requires=docker.service
+
+[Service]
+User=root
+EnvironmentFile=/etc/sysconfig/calico
+#Environment=ETCD_ENDPOINTS=http://<ETCD_IP>:<ETCD_PORT>
+PermissionsStartOnly=true
+ExecStart=/usr/bin/docker run --net=host --privileged --name=calico-node \
+  -e ETCD_ENDPOINTS=${ETCD_ENDPOINTS} \
+  -e NODENAME=${HOSTNAME} \
+  -e IP= \
+  -e NO_DEFAULT_POOLS= \
+  -e AS= \
+  -e ETCD_SCHEME=http \
+  -e CALICO_LIBNETWORK_ENABLED=true \
+  -e IP6= \
+  -e CALICO_NETWORKING_BACKEND=bird \
+  -v /var/run/calico:/var/run/calico \
+  -v /lib/modules:/lib/modules \
+  -v /run/docker/plugins:/run/docker/plugins \
+  -v /run/docker.sock:/run/docker.sock \
+  -v /var/log/calico:/var/log/calico \
+  calico/node:v1.1.3
+ExecStop=/usr/bin/docker rm -f calico-node
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

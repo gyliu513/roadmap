@@ -1,0 +1,12 @@
+#!/bin/bash
+
+mkdir -p /opt/bin
+mkdir -p /etc/kubernetes
+mkdir -p /var/log/kubernetes
+mkdir -p /var/lib/kubelet
+mkdir -p /etc/sysconfig
+mkdir -p /var/lib/etcd
+mkdir -p /opt/cni/bin
+mkdir -p /etc/cni/net.d
+mkdir -p /var/lib/etcd/default.etcd
+

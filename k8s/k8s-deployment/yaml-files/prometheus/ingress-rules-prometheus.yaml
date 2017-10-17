@@ -1,0 +1,14 @@
+# An Ingress with 2 hosts and 3 endpoints
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: prometheus
+spec:
+  rules:
+  - host: prometheus.poc.myvm.info
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: exacerbated-opossum-prometheus-server
+          servicePort: 80

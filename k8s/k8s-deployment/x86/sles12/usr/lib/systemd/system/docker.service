@@ -1,0 +1,41 @@
+[Unit]
+Description=Docker Application Container Engine
+Documentation=http://docs.docker.com
+After=network.target docker.socket containerd.socket
+Requires=docker.socket containerd.socket
+
+[Service]
+EnvironmentFile=/etc/sysconfig/docker
+EnvironmentFile=-/run/flannel/subnet.env
+
+# Quick rundown of options, so we can keep track of them. Upstream's
+# service file only contains -H.
+#
+# * -H tells Docker that it's running as a socket-activated service.
+# * --containerd tells Docker to not manage the running of containerd.
+# * --add-runtime and --default-runtime tell Docker to not try to use
+#   its "bundled" runC version (which is not shipped by us) but rather use
+#   the runC version provided as by the runc package.
+ExecStart=/usr/bin/dockerd -H fd:// --containerd /run/containerd/containerd.sock --add-runtime oci=/usr/sbin/runc --default-runtime oci --bip=${FLANNEL_SUBNET} --mtu=${FLANNEL_MTU} --ip-masq=false $DOCKER_OPTS
+ExecReload=/bin/kill -s HUP $MAINPID
+
+# Having non-zero Limit*s causes performance problems due to accounting overhead
+# in the kernel. We recommend using cgroups to do container-local accounting.
+LimitNOFILE=infinity
+LimitNPROC=infinity
+LimitCORE=infinity
+
+# Uncomment TasksMax if your systemd version supports it.
+# Only systemd 226 and above support this property.
+#TasksMax=infinity
+
+# Set delegate yes so that systemd does not reset the cgroups of docker containers
+# Only systemd 218 and above support this property.
+#Delegate=yes
+
+# Tis is not necessary because of how we set up containerd.
+#KillMode=process
+
+[Install]
+WantedBy=multi-user.target
+

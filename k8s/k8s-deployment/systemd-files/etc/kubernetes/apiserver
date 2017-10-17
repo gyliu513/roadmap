@@ -1,0 +1,38 @@
+###
+# kubernetes system config
+#
+# The following values are used to configure the kube-apiserver
+#
+
+# The number of the apiservers, change it for HA configuration
+KUBE_APISERVER_COUNT="--apiserver-count=1"
+
+# The address on the local server to listen to.
+KUBE_API_ADDRESS="--insecure-bind-address=0.0.0.0"
+
+# The port on the local server to listen on.
+KUBE_API_PORT="--port=8080"
+
+# Port minions listen on
+KUBELET_PORT="--kubelet-port=10250"
+
+# Comma separated list of nodes in the etcd cluster
+# For HA configuration, if apiserver runs on each etcd node, 127.0.0.1:2379 is a good option
+KUBE_ETCD_SERVERS="--etcd-servers=http://127.0.0.1:2379"
+
+# Address range to use for services
+KUBE_SERVICE_ADDRESSES="--service-cluster-ip-range=20.254.0.0/16"
+
+# default admission control policies
+# ServiceAccount enable depends on the ca, cert and key files under /srv/kubernetes/
+#KUBE_ADMISSION_CONTROL="--admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,ResourceQuota"
+KUBE_ADMISSION_CONTROL="--admission-control=NamespaceLifecycle,NamespaceExists,LimitRanger,ServiceAccount,ResourceQuota,SecurityContextDeny"
+
+# Add your own!
+# To create the ca, cert and key files
+# 1. Download https://storage.googleapis.com/kubernetes-release/easy-rsa/easy-rsa.tar.gz to ~/kube/
+# 2. Download https://github.com/kubernetes/kubernetes/blob/master/cluster/saltbase/salt/generate-cert/make-ca-cert.sh
+# 3. ./make-ca-cert.sh 172.16.29.52 IP:172.16.29.52,IP:172.16.29.53,IP:172.16.29.54,IP:20.254.0.1,DNS:kubernetes,DNS:kubernetes.default,DNS:kubernetes.default.svc,DNS:kubernetes.default.svc.cluster.local
+
+#KUBE_API_ARGS="--service-account-key-file=/var/lib/kubernetes/serviceaccount.key"
+KUBE_API_ARGS="--client-ca-file=/srv/kubernetes/ca.crt --tls-cert-file=/srv/kubernetes/server.cert --tls-private-key-file=/srv/kubernetes/server.key --runtime-config=batch/v2alpha1"
