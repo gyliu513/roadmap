@@ -54,6 +54,18 @@ Disk identifier: 0x609638d3
 
 Heketi will use LVM to manage the gluster volume. So the disk/partition **MUST** be `Linux LVM` System.
 
+Erase all file system, raid, and partition-table signatures by using the wipefs command. For example, to erase the signatures on device /dev/sdb, run the following command:
+
+```
+ sudo wipefs --all --force /dev/sdb
+ ```
+ 
+Get the symlink of the device by entering this command:
+
+```
+ ls -altr /dev/disk/*
+```
+
 ## Update `config.yaml` to enable glusterfs
 
 ```
