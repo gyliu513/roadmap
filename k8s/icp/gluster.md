@@ -66,6 +66,24 @@ Get the symlink of the device by entering this command:
  ls -altr /dev/disk/*
 ```
 
+Configure each host to participate in the GlusterFS distributed file system. On each node, install the GlusterFS client and configure the dm_thin_pool kernel module. Enter these commands:
+On Ubuntu:
+
+```
+ sudo apt-get update
+ sudo apt-get install glusterfs-client
+ sudo modprobe dm_thin_pool
+ echo dm_thin_pool | sudo tee -a /etc/modules
+```
+
+On Red Hat Enterprise Linux:
+
+```
+ sudo yum install glusterfs-client
+ sudo modprobe dm_thin_pool
+ echo dm_thin_pool | sudo tee -a /etc/modules
+```
+
 ## Update `config.yaml` to enable glusterfs
 
 ```
