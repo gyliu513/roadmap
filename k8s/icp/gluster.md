@@ -236,3 +236,9 @@ The partition table has been altered!
 Calling ioctl() to re-read partition table.
 Syncing disks.
 ```
+
+Stop rpcbind.service and rpcbind.socket
+```
+systemctl disable rpcbind.socket 
+systemctl disable rpcbind.service 
+```
