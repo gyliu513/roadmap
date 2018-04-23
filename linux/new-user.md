@@ -29,3 +29,32 @@ Change password
 ```
 passwd platformer
 ```
+
+hosts file
+```
+[master]
+9.21.51.231
+
+[worker]
+9.21.51.232
+9.21.51.233
+
+[proxy]
+9.21.51.231
+
+[master:vars]
+ansible_user=platformer
+ansible_ssh_pass=a
+ansible_become=true
+ansible_become_password=a
+[proxy:vars]
+ansible_user=platformer
+ansible_ssh_pass=a
+ansible_become=true
+ansible_become_password=a
+[worker:vars]
+ansible_user=platformer
+ansible_ssh_pass=a
+ansible_become=true
+ansible_become_password=a
+```
