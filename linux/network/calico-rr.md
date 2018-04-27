@@ -11,3 +11,8 @@ Check calico node cfg
 ```console
 docker exec 7c880107e28f  cat /etc/calico/confd/config/bird.cfg
 ```
+
+RR log
+```
+/var/log/calico/bird/current
+```
