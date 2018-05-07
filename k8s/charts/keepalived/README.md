@@ -1,1 +1,1 @@
-Refer to blog of xxxx
+Load Balancer for Local Kubernetes.
