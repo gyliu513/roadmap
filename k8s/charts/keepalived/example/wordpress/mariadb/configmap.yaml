@@ -1,0 +1,8 @@
+apiVersion: v1
+data:
+  my.cnf: ""
+kind: ConfigMap
+metadata:
+  labels:
+    app: mariadb
+  name: mariadb

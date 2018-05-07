@@ -1,0 +1,40 @@
+# Default values for service-loadbalancer.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+imagePullPolicy: IfNotPresent
+# imagePullSecrets:
+# - name: myregistrykey
+
+nodeSelector:
+  beta.kubernetes.io/arch: "amd64"
+  proxy: 'true'
+tolerations:
+- key: "dedicated"
+  operator: "Exists"
+  effect: "NoSchedule"
+
+keepalivedCloudProvider:
+  image:
+    repository: quay.io/munnerz/keepalived-cloud-provider
+    tag: 0.0.1
+  resources: {}
+#     limits:
+#       cpu: 200m
+#       memory: 256Mi
+#     requests:
+#       cpu: 200m
+#       memory: 256Mi
+  serviceIPRange: 192.168.1.0/24
+
+keepalivedVIPManager:
+  image:
+    repository: gcr.io/google_containers/kube-keepalived-vip
+    tag: 0.11
+  resources: {}
+#     limits:
+#       cpu: 200m
+#       memory: 256Mi
+#     requests:
+#       cpu: 200m
+#       memory: 256Mi
