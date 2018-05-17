@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kiali
+  labels:
+    app: kiali
+    version: master
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kiali
+  labels:
+    app: kiali
+    version: master
+spec:
+  type: NodePort
+  ports:
+  - name: tcp
+    protocol: TCP
+    port: 20001
+  selector:
+    app: kiali
+    version: master
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: kiali
+  labels:
+    app: kiali
+    version: master
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kiali
+      version: master
+  template:
+    metadata:
+      name: kiali
+      labels:
+        app: kiali
+        version: master
+    spec:
+      serviceAccount: kiali
+      containers:
+      - image: kiali/kiali:latest
+        name: kiali
+        command:
+        - "/opt/kiali/kiali"
+        - "-config"
+        - "/kiali-configuration/config.yaml"
+        - "-v"
+        - "4"
+        env:
+        - name: ACTIVE_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        volumeMounts:
+        - name: kiali-configuration
+          mountPath: "/kiali-configuration"
+      volumes:
+      - name: kiali-configuration
+        configMap:
+          name: kiali
+

@@ -1,0 +1,15 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kiali
+  labels:
+    app: kiali
+    version: master
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kiali
+subjects:
+- kind: ServiceAccount
+  name: kiali
+  namespace: istio-system
