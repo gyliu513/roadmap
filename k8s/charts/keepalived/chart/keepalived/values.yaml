@@ -29,8 +29,8 @@ keepalivedCloudProvider:
 
 keepalivedVIPManager:
   image:
-    repository: gcr.io/google_containers/kube-keepalived-vip
-    tag: 0.11
+    repository: aledbf/kube-keepalived-vip
+    tag: 0.23
   resources: {}
 #     limits:
 #       cpu: 200m

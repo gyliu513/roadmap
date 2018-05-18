@@ -46,7 +46,6 @@ spec:
                   fieldPath: metadata.namespace
           args:
           - --services-configmap={{ .Release.Namespace }}/vip-configmap
-          - --watch-all-namespaces=true
           - --v=4
           # unicast uses the ip of the nodes instead of multicast
           # this is useful if running in cloud providers (like AWS)
