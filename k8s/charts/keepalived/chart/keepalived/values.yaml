@@ -28,6 +28,7 @@ keepalivedCloudProvider:
   serviceIPRange: 192.168.1.0/24
 
 keepalivedVIPManager:
+  vrid: 56
   image:
     repository: aledbf/kube-keepalived-vip
     tag: 0.23
