@@ -1,0 +1,74 @@
+[root@gyliu-icp-1 mc]# cat mesh-mc.yaml
+# Currently specific to GKE. Annotations specific to other providers should be added
+# after they get tested.
+apiVersion: v1
+kind: Service
+metadata:
+  name: istio-pilot-ilb
+  namespace: istio-system
+  labels:
+    istio: pilot
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 9.111.255.5
+  ports:
+  - name: https-pilot-1
+    port: 15003
+    protocol: TCP
+  - name: https-pilot-2
+    port: 15005
+    protocol: TCP
+  - name: https-pilot-3
+    port: 15007
+    protocol: TCP
+  - name: https-pilot-4
+    port: 15010
+    protocol: TCP
+  - name: https-pilot-5
+    port: 15011
+    protocol: TCP
+  - port: 8080
+    name: http-pilot-6
+    protocol: TCP
+  - name: https-pilot-7
+    port: 9093
+    protocol: TCP
+  selector:
+    istio: pilot
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dns-ilb
+  namespace: kube-system
+  labels:
+    app: kube-dns
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 9.111.255.6
+  ports:
+  - port: 53
+    protocol: UDP
+  selector:
+    app: kube-dns
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: istio-policy-ilb
+  namespace: istio-system
+  labels:
+    istio: mixer
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 9.111.255.7
+  selector:
+    istio: mixer
+  ports:
+  - name: grpc-mixer
+    port: 9091
+  - name: grpc-mixer-mtls
+    port: 15004
+  - name: http-monitoring
+    port: 9093
