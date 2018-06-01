@@ -1,0 +1,293 @@
+---
+# Source: istio-remote/charts/security/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: istio-citadel-service-account
+  namespace: istio-system
+  labels:
+    app: security
+    chart: security-0.8.0
+    heritage: Tiller
+    release: istio-remote
+
+---
+# Source: istio-remote/charts/security/templates/clusterrole.yaml
+
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: istio-citadel-istio-system
+  namespace: istio-system
+  labels:
+    app: security
+    chart: security-0.8.0
+    heritage: Tiller
+    release: istio-remote
+rules:
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["create", "get", "watch", "list", "update", "delete"]
+- apiGroups: [""]
+  resources: ["serviceaccounts"]
+  verbs: ["get", "watch", "list"]
+- apiGroups: [""]
+  resources: ["services"]
+  verbs: ["get", "watch", "list"]
+
+---
+# Source: istio-remote/charts/security/templates/clusterrolebinding.yaml
+
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: istio-citadel-istio-system
+  labels:
+    app: security
+    chart: security-0.8.0
+    heritage: Tiller
+    release: istio-remote
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: istio-citadel-istio-system
+subjects:
+  - kind: ServiceAccount
+    name: istio-citadel-service-account
+    namespace: istio-system
+
+---
+# Source: istio-remote/charts/security/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  # we use the normal name here (e.g. 'prometheus')
+  # as grafana is configured to use this as a data source
+  name: istio-citadel
+  namespace: istio-system
+  labels:
+    app: istio-citadel
+spec:
+  ports:
+    - name: grpc-citadel
+      port: 8060
+      targetPort: 8060
+      protocol: TCP
+    - name: http-monitoring
+      port: 9093
+  selector:
+    istio: citadel
+
+---
+# Source: istio-remote/templates/service.yaml
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: istio-pilot
+  namespace: istio-system
+spec:
+  ports:
+  - port: 15003
+    name: http-old-discovery # mTLS or non-mTLS depending on auth setting
+  - port: 15005
+    name: https-discovery # always mTLS
+  - port: 15007
+    name: http-discovery # always plain-text
+  - port: 15010
+    name: grpc-xds # direct
+  - port: 15011
+    name: https-xds # mTLS or non-mTLS depending on auth setting
+  - port: 8080
+    name: http-legacy-discovery # direct
+  - port: 9093
+    name: http-monitoring
+  clusterIP: None
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: istio-policy
+  namespace: istio-system
+spec:
+  ports:
+  - name: grpc-mixer
+    port: 9091
+  - name: grpc-mixer-mtls
+    port: 15004
+  - name: http-monitoring
+    port: 9093
+  - name: configapi
+    port: 9094
+  - name: statsd-prom
+    port: 9102
+  - name: statsd-udp
+    port: 9125
+    protocol: UDP
+  - name: prometheus
+    port: 42422
+  clusterIP: None
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: istio-statsd-prom-bridge
+  namespace: istio-system
+spec:
+  ports:
+  - name: statsd-prom
+    port: 9102
+  - name: statsd-udp
+    port: 9125
+    protocol: UDP
+  clusterIP: None
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zipkin
+  namespace: istio-system
+spec:
+  ports:
+  - name: http-zipkin
+    port: 9411
+  clusterIP: None
+---
+# Source: istio-remote/charts/security/templates/deployment.yaml
+# istio CA watching all namespaces
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: istio-citadel
+  namespace: istio-system
+  labels:
+    app: security
+    chart: security-0.8.0
+    release: istio-remote
+    heritage: Tiller
+    istio: citadel
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        istio: citadel
+      annotations:
+        sidecar.istio.io/inject: "false"
+    spec:
+      serviceAccountName: istio-citadel-service-account
+      containers:
+        - name: citadel
+          image: "docker.io/istionightly/citadel:circleci-nightly"
+          imagePullPolicy: IfNotPresent
+          args:
+            - --append-dns-names=true
+            - --grpc-port=8060
+            - --grpc-hostname=citadel
+            - --self-signed-ca=true
+          resources:
+            {}
+
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: beta.kubernetes.io/arch
+                operator: In
+                values:
+                - amd64
+                - ppc64le
+                - s390x
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 2
+            preference:
+              matchExpressions:
+              - key: beta.kubernetes.io/arch
+                operator: In
+                values:
+                - amd64
+          - weight: 2
+            preference:
+              matchExpressions:
+              - key: beta.kubernetes.io/arch
+                operator: In
+                values:
+                - ppc64le
+          - weight: 2
+            preference:
+              matchExpressions:
+              - key: beta.kubernetes.io/arch
+                operator: In
+                values:
+                - s390x
+
+---
+# Source: istio-remote/templates/endpoints.yaml
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: istio-pilot
+  namespace: istio-system
+subsets:
+- addresses:
+  - ip: 9.111.255.5
+  ports:
+  - port: 15003
+    name: http-old-discovery # mTLS or non-mTLS depending on auth setting
+  - port: 15005
+    name: https-discovery # always mTLS
+  - port: 15007
+    name: http-discovery # always plain-text
+  - port: 15010
+    name: grpc-xds # direct
+  - port: 15011
+    name: https-xds # mTLS or non-mTLS depending on auth setting
+  - port: 8080
+    name: http-legacy-discovery # direct
+  - port: 9093
+    name: http-monitoring
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: istio-policy
+  namespace: istio-system
+subsets:
+- addresses:
+  - ip: 9.111.255.7
+  ports:
+  - name: grpc-mixer
+    port: 9091
+  - name: grpc-mixer-mtls
+    port: 15004
+  - name: http-monitoring
+    port: 9093
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: istio-statsd-prom-bridge
+  namespace: istio-system
+subsets:
+- addresses:
+  - ip: 9.111.255.4
+  ports:
+  - name: statsd-prom
+    port: 9102
+  - name: statsd-udp
+    port: 9125
+    protocol: UDP
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: zipkin
+  namespace: istio-system
+subsets:
+- addresses:
+  - ip: 9.111.255.3
+  ports:
+  - name: http-zipkin
+    port: 9411
+---
