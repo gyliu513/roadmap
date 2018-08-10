@@ -23,7 +23,7 @@ metadata:
   name: my-nginx
   namespace: default
 spec:
-  replicas: 3
+  replicas: 2
   selector:
     matchLabels:
       run: my-nginx
@@ -33,7 +33,7 @@ spec:
         run: my-nginx
     spec:
       containers:
-      - image: gyliu/nginxv1:1.0
+      - image: nginx:1.8.1
         imagePullPolicy: IfNotPresent
         name: my-nginx
         ports:
