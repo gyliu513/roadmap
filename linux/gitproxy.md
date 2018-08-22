@@ -15,4 +15,5 @@ git config --global --unset https.proxy
 
 git config --global user.name "Guang Ya Liu"
 git config --global user.email liugya@cn.ibm.com
+git config --global user.email gyliu513@gmail.com
 ```
