@@ -1,0 +1,18 @@
+apiVersion: scheduling.federation.k8s.io/v1alpha1
+kind: ReplicaSchedulingPreference
+metadata:
+  name: test-deployment
+  namespace: test-namespace
+spec:
+  targetKind: FederatedDeployment
+  totalReplicas: 10
+  rebalance: true
+  clusters:
+   cluster1:
+   - minReplicas: 2
+     maxReplicas: 6
+     weight: 2
+   cluster2:
+   - minReplicas: 4
+     maxReplicas: 8
+     weight: 3
