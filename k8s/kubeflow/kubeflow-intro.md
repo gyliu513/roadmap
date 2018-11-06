@@ -1,5 +1,7 @@
 ## [Kubeflow](https://github.com/kubeflow)
-- 基于 Kubernetes（https://kubernets.io，容器编排与管理服务软件）和 TensorFlow (https://tensorflow.org，深度学习库) 的机器学习流程工具
+- 基于 [Kubernetes](https://kubernets.io) 和 [TensorFlow](https://tensorflow.org) 的机器学习流程工具
+  - Kubernetes: 容器编排与管理服务软件
+  - TensorFlow: 深度学习库
 - 使用Ksonnet进行应用包的管理
 
 ## Google开源的机器学习包
