@@ -39,6 +39,12 @@ argo是一个开源的基于容器的工作流引擎，并实现为一个K8S的C
 
 ![image](imgs/argoboard.png)
 
+## Jupyter
+
+Jupyter Notebook是深受数据科学家喜爱的开发工具，它提供出色的交互和实时反馈。JupyterHub提供一个使用Juypter Notebook的多用户使用环境.
+
+![image](imgs/jupyter.png)
+
 ## Ambassador 
 
 提供了一个API网管，用于对kueflow的组件进行访问。
