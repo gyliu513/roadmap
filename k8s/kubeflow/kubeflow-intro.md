@@ -65,6 +65,10 @@ Jupyter Notebook是深受数据科学家喜爱的开发工具，它提供出色�
 
 This example guides you through the process of taking an example model, modifying it to run better within Kubeflow, and serving the resulting trained model. We will be using Argo to manage the workflow, Tensorflow's S3 support for saving model training info, Tensorboard to visualize the training, and Kubeflow to deploy the Tensorflow operator and serve the model.
 
+For detailed steps, please refer to [mnist example](https://github.com/gyliu513/kubeflow-examples/tree/master/mnist).
+
+The following steps may not work as it is just some step description.
+
 ### 预制条件
 - Kubernetes或者ICP集群
 
