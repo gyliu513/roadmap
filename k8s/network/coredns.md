@@ -1,8 +1,8 @@
 # Setting up ExternalDNS for CoreDNS with minikube
 This tutorial describes how to setup ExternalDNS for usage within a minikube cluster that make use of nginx ingress controller.  
-You need to install:
-* coredns with etcd enabled
-* external-dns with coredns as provider
+You need to:
+* install coredns with etcd enabled
+* install external-dns with coredns as provider
 * enable ingress controller for the minikube cluster
 
 
@@ -97,6 +97,9 @@ metadata:
 spec:
   strategy:
     type: Recreate
+  selector:
+    matchLabels:                                                                                                                                                                                                                            
+      app: external-dns
   template:
     metadata:
       labels:
@@ -111,8 +114,7 @@ spec:
         - --log-level=debug # debug only
         env:
         - name: ETCD_URLS
-          value: http://10.109.8.91:2379  
-
+          value: http://10.105.68.165:2379
 $ kubectl apply -f external-dns.yaml
 ```
 
