@@ -1,4 +1,3 @@
-```shell
 #!/usr/bin/expect
 set timeout 5
 set userName liugya@cn.ibm.com
@@ -31,4 +30,3 @@ send "$userName\r"
 expect "Password:"
 send "$password\r";
 expect eof
-```
