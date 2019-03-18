@@ -1,4 +1,8 @@
 ```
+unset http_proxy no_proxy HTTP_PROXY NO_PROXY
+```
+
+```
 minikube start --vm-driver kvm2
 ```
 
