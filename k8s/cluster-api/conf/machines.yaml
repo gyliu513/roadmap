@@ -1,0 +1,76 @@
+items:
+- apiVersion: "cluster.k8s.io/v1alpha1"
+  kind: Machine
+  metadata:
+    generateName: openstack-master-
+    labels:
+      set: master
+  spec:
+    providerSpec:
+      value:
+        apiVersion: "openstackproviderconfig/v1alpha1"
+        kind: "OpenstackProviderSpec"
+        flavor: m1.medium
+        image: cicd-u16.04-2018-23-1
+        sshUserName: ubuntu
+        keyName: cluster-api-provider-openstack
+        availabilityZone: nova
+        networks:
+        - uuid: b518e837-9c2a-4ea8-a9ef-a2bd4d5764de
+        floatingIP: 9.37.39.115
+        securityGroups:
+        - default
+        - default_sg
+        - docker_sg
+        - open_sg
+        - public_sg
+        - web_sg
+        - worker_sg
+        userDataSecret:
+          name: master-user-data
+          namespace: openstack-provider-system
+        trunk: false
+        tags:
+          - master
+        serverMetadata:
+          key: value
+    versions:
+      kubelet: 1.12.3
+      controlPlane: 1.12.3
+- apiVersion: "cluster.k8s.io/v1alpha1"
+  kind: Machine
+  metadata:
+    generateName: openstack-node-
+    labels:
+      set: node
+  spec:
+    providerSpec:
+      value:
+        apiVersion: "openstackproviderconfig/v1alpha1"
+        kind: "OpenstackProviderSpec"
+        flavor: m1.medium
+        image: cicd-u16.04-2018-23-1
+        sshUserName: ubuntu
+        keyName: cluster-api-provider-openstack
+        availabilityZone: nova
+        networks:
+        - uuid: b518e837-9c2a-4ea8-a9ef-a2bd4d5764de
+        floatingIP: 9.37.39.116
+        securityGroups:
+        - default
+        - default_sg
+        - docker_sg
+        - open_sg
+        - public_sg
+        - web_sg
+        - worker_sg
+        userDataSecret:
+          name: worker-user-data
+          namespace: openstack-provider-system
+        trunk: false
+        tags:
+          - worker
+        serverMetadata:
+          key: value
+    versions:
+      kubelet: 1.12.3
