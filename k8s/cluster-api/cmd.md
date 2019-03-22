@@ -27,7 +27,7 @@ minikube start --vm-driver kvm2
 ## Run with kind
 ```
 ./clusterctl create cluster --v 10 --bootstrap-cluster-cleanup false \
- --bootstrap-type kind --bootstrap-flags kubernetes-version=v1.13.4 --provider openstack \
+ --bootstrap-type kind --provider openstack \
  -c examples/openstack/out/cluster.yaml -m examples/openstack/out/machines.yaml \
  -p examples/openstack/out/provider-components.yaml
 ```
