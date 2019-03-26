@@ -72,5 +72,26 @@ Switched from 1 to 2 (thread 14351)
    at /usr/local/go/src/runtime/proc.go:250
 3  0x0000000000458381 in runtime.goexit
    at /usr/local/go/src/runtime/asm_amd64.s:1337
-(dlv)
+(dlv) ls
+> runtime.gopark() /usr/local/go/src/runtime/proc.go:302 (PC: 0x42e82f)
+Warning: debugging optimized function
+   297:		mp.waittraceev = traceEv
+   298:		mp.waittraceskip = traceskip
+   299:		releasem(mp)
+   300:		// can't do anything that might move the G between Ms here.
+   301:		mcall(park_m)
+=> 302:	}
+   303:
+   304:	// Puts the current goroutine into a waiting state and unlocks the lock.
+   305:	// The goroutine can be made runnable again by calling goready(gp).
+   306:	func goparkunlock(lock *mutex, reason waitReason, traceEv byte, traceskip int) {
+   307:		gopark(parkunlock_c, unsafe.Pointer(lock), reason, traceEv, traceskip)
+(dlv) p park_m
+Command failed: could not find symbol value for park_m
+(dlv) p mp
+(unreadable could not find loclist entry at 0x3665d for address 0x42e82f)
+(dlv) locals mp
+mp = (unreadable could not find loclist entry at 0x3665d for address 0x42e82f)
+(dlv) locals reason
+(no locals)
 ```
