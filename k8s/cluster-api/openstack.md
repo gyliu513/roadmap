@@ -32,3 +32,11 @@ Copy
   "exec-opts": ["native.cgroupdriver=systemd"]
 }
 ```
+
+```
+docker_version=$(apt-cache policy docker.io | grep 18.06 | awk '{print $1}' | head -n1)
+apt-get install -y docker.io=${docker_version}
+```
+```
+--exec-opt native.cgroupdriver=systemd
+```
