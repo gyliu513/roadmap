@@ -10,33 +10,25 @@ items:
       value:
         apiVersion: "openstackproviderconfig/v1alpha1"
         kind: "OpenstackProviderSpec"
-        flavor: m1.medium
-        image: cicd-u16.04-2018-23-1
-        sshUserName: ubuntu
+        flavor: m1.xlarge
+        image: KVM-Ubt16.04-Srv-x64
+        sshUserName: cloudusr
         keyName: cluster-api-provider-openstack
         availabilityZone: nova
         networks:
-        - uuid: b518e837-9c2a-4ea8-a9ef-a2bd4d5764de
-        floatingIP: 9.37.39.115
+        - uuid: bd96e01b-3fba-4dd7-92cb-6feeaf018817
+        floatingIP: 9.20.204.233
         securityGroups:
-        - default
-        - default_sg
-        - docker_sg
-        - open_sg
-        - public_sg
-        - web_sg
-        - worker_sg
+        - uuid: 5a88fd7f-1cef-4ef1-847d-aeb87caba17a
+        - uuid: 6ac9e9b9-4856-4f19-ba5c-2d00d006796e
+        - uuid: 71cfb15e-e0fd-4d54-be0b-abbf026f3bfd
         userDataSecret:
           name: master-user-data
           namespace: openstack-provider-system
         trunk: false
-        tags:
-          - master
-        serverMetadata:
-          key: value
     versions:
-      kubelet: 1.12.3
-      controlPlane: 1.12.3
+      kubelet: 1.14.0
+      controlPlane: 1.14.0
 - apiVersion: "cluster.k8s.io/v1alpha1"
   kind: Machine
   metadata:
@@ -49,28 +41,20 @@ items:
         apiVersion: "openstackproviderconfig/v1alpha1"
         kind: "OpenstackProviderSpec"
         flavor: m1.medium
-        image: cicd-u16.04-2018-23-1
-        sshUserName: ubuntu
+        image: KVM-Ubt16.04-Srv-x64
+        sshUserName: cloudusr
         keyName: cluster-api-provider-openstack
         availabilityZone: nova
         networks:
-        - uuid: b518e837-9c2a-4ea8-a9ef-a2bd4d5764de
-        floatingIP: 9.37.39.116
+        - uuid: bd96e01b-3fba-4dd7-92cb-6feeaf018817
+        floatingIP: 9.20.205.49
         securityGroups:
-        - default
-        - default_sg
-        - docker_sg
-        - open_sg
-        - public_sg
-        - web_sg
-        - worker_sg
+        - uuid: 5a88fd7f-1cef-4ef1-847d-aeb87caba17a
+        - uuid: 6ac9e9b9-4856-4f19-ba5c-2d00d006796e
+        - uuid: 71cfb15e-e0fd-4d54-be0b-abbf026f3bfd
         userDataSecret:
           name: worker-user-data
           namespace: openstack-provider-system
         trunk: false
-        tags:
-          - worker
-        serverMetadata:
-          key: value
     versions:
-      kubelet: 1.12.3
+      kubelet: 1.14.0
