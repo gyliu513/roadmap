@@ -16,12 +16,10 @@ items:
         keyName: cluster-api-provider-openstack
         availabilityZone: nova
         networks:
-        - uuid: bd96e01b-3fba-4dd7-92cb-6feeaf018817
-        floatingIP: 9.20.204.233
+        - uuid: e2d9ead6-759b-4592-873d-981d3db07c86
+        floatingIP: 9.20.206.22 
         securityGroups:
-        - uuid: 5a88fd7f-1cef-4ef1-847d-aeb87caba17a
-        - uuid: 6ac9e9b9-4856-4f19-ba5c-2d00d006796e
-        - uuid: 71cfb15e-e0fd-4d54-be0b-abbf026f3bfd
+        - uuid: 97acf9d4-e5bf-4fff-a2c0-be0b04fbc44b
         userDataSecret:
           name: master-user-data
           namespace: openstack-provider-system
@@ -46,12 +44,10 @@ items:
         keyName: cluster-api-provider-openstack
         availabilityZone: nova
         networks:
-        - uuid: bd96e01b-3fba-4dd7-92cb-6feeaf018817
-        floatingIP: 9.20.205.49
+        - uuid: e2d9ead6-759b-4592-873d-981d3db07c86
+        floatingIP: 9.20.205.185
         securityGroups:
-        - uuid: 5a88fd7f-1cef-4ef1-847d-aeb87caba17a
-        - uuid: 6ac9e9b9-4856-4f19-ba5c-2d00d006796e
-        - uuid: 71cfb15e-e0fd-4d54-be0b-abbf026f3bfd
+        - uuid: 97acf9d4-e5bf-4fff-a2c0-be0b04fbc44b
         userDataSecret:
           name: worker-user-data
           namespace: openstack-provider-system
