@@ -1,8 +1,17 @@
+root@gyliu-dev1:~/go/src/sigs.k8s.io/cluster-api-provider-openstack/cmd/clusterctl# cat diff
 diff --git a/cmd/clusterctl/examples/openstack/provider-component/user-data/ubuntu/templates/master-user-data.sh b/cmd/clusterctl/examples/openstack/provider-component/user-data/ubuntu/templates/master-user-data.sh
-index ce344e9..44db98a 100644
+index ce344e9..4c46b11 100644
 --- a/cmd/clusterctl/examples/openstack/provider-component/user-data/ubuntu/templates/master-user-data.sh
 +++ b/cmd/clusterctl/examples/openstack/provider-component/user-data/ubuntu/templates/master-user-data.sh
-@@ -55,8 +55,9 @@ function install_configure_docker () {
+@@ -13,6 +13,7 @@ CLUSTER_DNS_DOMAIN={{ .Cluster.Spec.ClusterNetwork.ServiceDomain }}
+ POD_CIDR={{ .PodCIDR }}
+ SERVICE_CIDR={{ .ServiceCIDR }}
+ ARCH=amd64
++swapoff -a
+ curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+ touch /etc/apt/sources.list.d/kubernetes.list
+ sh -c 'echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" > /etc/apt/sources.list.d/kubernetes.list'
+@@ -55,8 +56,9 @@ function install_configure_docker () {
      echo "exit 101" > /usr/sbin/policy-rc.d
      chmod +x /usr/sbin/policy-rc.d
      trap "rm /usr/sbin/policy-rc.d" RETURN
@@ -14,7 +23,7 @@ index ce344e9..44db98a 100644
 
      # Reset iptables config
      mkdir -p /etc/systemd/system/docker.service.d
-@@ -180,7 +181,7 @@ EOF
+@@ -180,7 +182,7 @@ EOF
  # http://zeeshanali.com/sysadmin/fixed-sysctl-cannot-stat-procsysnetbridgebridge-nf-call-iptables/
  modprobe br_netfilter
 
@@ -24,10 +33,18 @@ index ce344e9..44db98a 100644
      kubectl --kubeconfig /etc/kubernetes/kubelet.conf annotate --overwrite node $(hostname) machine=${MACHINE} && break
      sleep 1
 diff --git a/cmd/clusterctl/examples/openstack/provider-component/user-data/ubuntu/templates/worker-user-data.sh b/cmd/clusterctl/examples/openstack/provider-component/user-data/ubuntu/templates/worker-user-data.sh
-index 5a2ad3e..341904a 100644
+index 5a2ad3e..0a56dea 100644
 --- a/cmd/clusterctl/examples/openstack/provider-component/user-data/ubuntu/templates/worker-user-data.sh
 +++ b/cmd/clusterctl/examples/openstack/provider-component/user-data/ubuntu/templates/worker-user-data.sh
-@@ -26,8 +26,9 @@ function install_configure_docker () {
+@@ -13,6 +13,7 @@ CLUSTER_DNS_DOMAIN={{ .Cluster.Spec.ClusterNetwork.ServiceDomain }}
+ POD_CIDR={{ .PodCIDR }}
+ SERVICE_CIDR={{ .ServiceCIDR }}
+
++swapoff -a
+ apt-get update
+ apt-get install -y apt-transport-https prips
+ apt-key adv --keyserver hkp://keyserver.ubuntu.com --recv-keys F76221572C52609D
+@@ -26,8 +27,9 @@ function install_configure_docker () {
      echo "exit 101" > /usr/sbin/policy-rc.d
      chmod +x /usr/sbin/policy-rc.d
      trap "rm /usr/sbin/policy-rc.d" RETURN
@@ -39,7 +56,7 @@ index 5a2ad3e..341904a 100644
 
      # Reset iptables config
      mkdir -p /etc/systemd/system/docker.service.d
-@@ -107,7 +108,7 @@ systemctl restart kubelet.service
+@@ -107,7 +109,7 @@ systemctl restart kubelet.service
  systemctl disable ufw
  systemctl mask ufw
 
