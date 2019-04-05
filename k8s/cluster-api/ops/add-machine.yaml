@@ -1,0 +1,27 @@
+apiVersion: "cluster.k8s.io/v1alpha1"
+kind: Machine
+metadata:
+  name: liugya-node-1
+  labels:
+    set: node
+spec:
+  providerSpec:
+    value:
+      apiVersion: "openstackproviderconfig/v1alpha1"
+      kind: "OpenstackProviderSpec"
+      flavor: m1.medium
+      image: KVM-Ubt18.04-Srv-x64
+      sshUserName: cloudusr
+      keyName: cluster-api-provider-openstack
+      availabilityZone: nova
+      networks:
+      - uuid: e2d9ead6-759b-4592-873d-981d3db07c86
+      floatingIP: 9.20.206.8
+      securityGroups:
+      - uuid: 97acf9d4-e5bf-4fff-a2c0-be0b04fbc44b
+      userDataSecret:
+        name: worker-user-data
+        namespace: openstack-provider-system
+      trunk: false
+  versions:
+    kubelet: 1.14.0
