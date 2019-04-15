@@ -1,5 +1,29 @@
 # Service LoadBalancer Helm Chart
 
+## Prerequisites
+
+`ipvs` module is required by the vip manager.
+
+Make sure that the ip_vs module is loaded.
+
+```
+# lsmod| grep ^ip_vs
+```
+
+If no `ip_vs` module is loaded, install `ipvsadm`
+
+```console
+# yum -y install ipvsadm
+
+# ipvsadm -ln
+IP Virtual Server version 1.2.1 (size=4096)
+Prot LocalAddress:Port Scheduler Flags
+  -> RemoteAddress:Port           Forward Weight ActiveConn InActConn
+
+# lsmod | grep ^ip_vs
+ip_vs                 145497  0
+```
+
 ## Installing the Chart
 
 To install the chart with the release name `my-release`:
