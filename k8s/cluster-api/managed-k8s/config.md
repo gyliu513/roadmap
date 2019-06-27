@@ -19,6 +19,10 @@ metadata:
   namespace: default
 ```
 
+```shell
+kubectl create secret generic kubeconfig --from-file=kubeconfig=/root/.kube/config
+```
+
 ```yaml
 apiVersion: v1
 data:
