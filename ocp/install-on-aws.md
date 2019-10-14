@@ -2,11 +2,11 @@
 Optional: Customize your deployment
 Create the `install-config.yaml` file, providing any necessary configuration details when prompted:
 ```console
-./openshift-install create install-config --dir=<installation_directory>
+$ ./openshift-install create install-config --dir=<installation_directory>
 ```
 
 ```console
-./bin/openshift-install create install-config  --dir=/root/ocp41/ocp-config
+$ ./bin/openshift-install create install-config  --dir=/root/ocp41/ocp-config
 ? SSH Public Key /root/.ssh/id_rsa.pub
 ? Platform aws
 ? Region us-east-1
@@ -23,11 +23,11 @@ Customizing your network configuration
 Deploy the cluster
 Deploy the cluster following the installer’s interactive prompt:
 ```console
-./openshift-install create cluster --dir=<installation_directory>
+$ ./openshift-install create cluster --dir=<installation_directory>
 ```
 
 ```console
-./bin/openshift-install create cluster --dir=/root/ocp41/ocp-config
+$ ./bin/openshift-install create cluster --dir=/root/ocp41/ocp-config
 INFO Consuming Install Config from target directory
 INFO Creating infrastructure resources...
 ERROR
@@ -59,10 +59,10 @@ INFO Login to the console with user: kubeadmin, password: 5char-5char-5char-5cha
 Access Your Cluster
 You can log into your cluster as a default system user by exporting the cluster kubeconfig file:
 ```console
-export KUBECONFIG=<installation_directory>/auth/kubeconfig
+$ export KUBECONFIG=<installation_directory>/auth/kubeconfig
 ```
 ```console
-oc whoami
+$ oc whoami
 system:admin
 ```
 Next Steps
