@@ -5,6 +5,16 @@ Create the `install-config.yaml` file, providing any necessary configuration det
 ./openshift-install create install-config --dir=<installation_directory>
 ```
 
+```
+./bin/openshift-install create install-config  --dir=/root/ocp41/ocp-config
+? SSH Public Key /root/.ssh/id_rsa.pub
+? Platform aws
+? Region us-east-1
+? Base Domain apps.opencloudops.io
+? Cluster Name ocp41
+? Pull Secret [? for help]
+```
+
 To customize your cluster, you can modify the install-config.yaml file to provide more details about the platform.
 
 Installation configuration parameters for AWS 
@@ -14,6 +24,12 @@ Deploy the cluster
 Deploy the cluster following the installer’s interactive prompt:
 ```
 ./openshift-install create cluster --dir=<installation_directory>
+```
+
+```
+./bin/openshift-install create cluster --dir=/root/ocp41/ocp-config
+INFO Consuming Install Config from target directory
+INFO Creating infrastructure resources...
 ```
 
  Do you need to troubleshoot your installation?
