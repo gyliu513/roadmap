@@ -30,6 +30,15 @@ Deploy the cluster following the installer’s interactive prompt:
 ./bin/openshift-install create cluster --dir=/root/ocp41/ocp-config
 INFO Consuming Install Config from target directory
 INFO Creating infrastructure resources...
+ERROR
+ERROR Error: Error creating S3 bucket: TooManyBuckets: You have attempted to create more buckets than allowed
+ERROR 	status code: 400, request id: E7EEEE95B523F775, host id: NylSLumm5XAGqjSa/G0Yhh/XYeNg5g+2hbYVUxzm8zUAwJjTi/R/RfMPWDLQe/bEcVjxBxkhtBE=
+ERROR
+ERROR   on ../../../../../../tmp/openshift-install-401972708/bootstrap/main.tf line 1, in resource "aws_s3_bucket" "ignition":
+ERROR    1: resource "aws_s3_bucket" "ignition" {
+ERROR
+ERROR
+FATAL failed to fetch Cluster: failed to generate asset "Cluster": failed to create cluster: failed to apply using Terraform
 ```
 
  Do you need to troubleshoot your installation?
