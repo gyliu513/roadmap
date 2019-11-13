@@ -14,4 +14,4 @@ install:
   - pip install yamllint ansible
 
 script:
-  - ls acmeair
+  - ls
