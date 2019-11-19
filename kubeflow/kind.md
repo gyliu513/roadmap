@@ -1,4 +1,4 @@
-```
+```console
 root@gyliu-dev1:~/.kube# kind create cluster --name kubeflow
 Creating cluster "kubeflow" ...
  ✓ Ensuring node image (kindest/node:v1.13.4) 🖼
