@@ -6,6 +6,10 @@
 storageclass.kubernetes.io/is-default-class: "true"
 ```
 
+```
+oc patch storageclass rook-ceph-block-internal -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+```
+
 - Add permission
 
 ```
