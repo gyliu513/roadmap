@@ -15,3 +15,9 @@ oc patch storageclass  rook-ceph-cephfs-internal  -p '{"metadata": {"annotations
 ```
 oc adm policy add-role-to-user admin xxx -n ns
 ```
+
+- scc for all service accounts in kong namespace
+
+```
+oc adm policy add-scc-to-group anyuid system:serviceaccounts:kong
+```
