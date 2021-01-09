@@ -7,3 +7,7 @@ Ctrl+Shift+O
 ```
 Command+-
 ```
+### File List
+```
+Ctrl+p
+```
