@@ -11,6 +11,6 @@ git rebase --continue
 ```
 
 ```
-git config --global user.name "Guang Ya Liu"
+git config --global user.name "Guangya Liu"
 git config --global user.email gyliu513@gmail.com
 ```
